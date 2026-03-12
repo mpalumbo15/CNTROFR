@@ -272,11 +272,12 @@ function Loading({ msg }) {
 }
 
 function DealAnalyzer() {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", tradeIn:"", tradeOwed:"", addons:"", notes:"" });
-  const [loading, setL] = useState(false); const [res, setR] = useState(null); const [v, setV] = useState("");
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" });
+  const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
-    setL(true); setR(null);
+    setL(true); setR(null); setM(null);
+    setLM("Analyzing your deal...");
     const t = await ai(`You are a veteran automotive insider. Analyze this deal honestly.
 ${f.year} ${f.vehicle} | MSRP $${f.msrp} | Asking $${f.offer}
 Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}
@@ -284,14 +285,31 @@ Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 
 ## OVERALL VERDICT — GO, NEGOTIATE, or WALK AWAY. One sentence why.
 ## VEHICLE PRICE — Is this fair? How much room is left?
-## TRADE-IN — Fair offer or lowball?
+## TRADE-IN — Fair offer or lowball? Account for negative equity if owed exceeds offered.
 ## ADD-ONS — Worth It / Overpriced / Skip It for each.
 ## YOUR COUNTER — 3-4 specific things to say before signing.
 ## RED FLAGS — Any dealer tactics at play?
 
 Do not provide financing rate or payment advice.`);
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
-    setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t); setL(false);
+    setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
+    if (f.zip && f.year && f.vehicle) {
+      setLM("Scanning nearby dealer prices...");
+      const mkt = await ai(`You are an automotive market analyst. Search for current listings of ${f.year} ${f.vehicle} for sale at dealerships near zip code ${f.zip}.
+Find 3-5 real comparable listings from dealers within roughly 150 miles. For each listing include:
+- Dealer name and city
+- Asking price
+- Mileage if used
+- How it compares to the $${f.offer} being offered to our buyer
+
+## MARKET VERDICT — Is $${f.offer} above market, at market, or below market?
+## COMPARABLE LISTINGS — Real dealers and prices found nearby.
+## PRICE RANGE — Lowest and highest comparable found.
+## LEVERAGE — Exact script to use these comps at the negotiating table.
+## BOTTOM LINE — What should this buyer actually pay based on the market?`, true);
+      setM(mkt);
+    }
+    setL(false); setLM("");
   };
   const vc = v => /^GO/.test(v) ? "bg" : /WALK/.test(v) ? "br" : /NEG/.test(v) ? "ba" : "bx";
   return (
@@ -326,11 +344,34 @@ Do not provide financing rate or payment advice.`);
         <div className="cb">
           <div className="fld" style={{marginBottom:12}}><label>Add-Ons</label><input placeholder="Extended warranty $2,100 · GAP $895 · Paint protection $499" value={f.addons} onChange={s("addons")} /></div>
           <div className="fld"><label>Anything Else We Should Know</label><textarea placeholder="Been on lot 60 days, competing offer, etc..." value={f.notes} onChange={s("notes")} /></div>
-          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)}>{loading?"Analyzing...":"→ Get My Counter"}</button>
         </div>
       </div>
-      {loading && <Loading msg="Building your counteroffer..." />}
-      {res && !loading && <Res verdict={v} vc={vc(v)} text={res} onReset={()=>setR(null)} />}
+      <div className="card">
+        <div className="ch"><span className="clbl">📍 Local Market Scan <span style={{color:"var(--green)",fontSize:9,letterSpacing:1,marginLeft:8}}>NEW</span></span></div>
+        <div className="cb">
+          <div className="fld">
+            <label>Your Zip Code — We scan nearby dealers for this exact vehicle</label>
+            <input placeholder="e.g. 80021 — leave blank to skip market scan" value={f.zip} onChange={s("zip")} maxLength={5} />
+          </div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Optional but powerful — we find what other dealers nearby are charging for the same car and hand you that leverage.</div>
+          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
+        </div>
+      </div>
+      {loading && <Loading msg={loadMsg||"Building your counteroffer..."} />}
+      {res && !loading && (
+        <>
+          <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);}} />
+          {market && (
+            <div className="card ranim">
+              <div className="vstrip">
+                <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>LOCAL MARKET</span>
+                <span className="badge bb">📍 NEARBY DEALER PRICES</span>
+              </div>
+              <MD text={market} />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -379,27 +420,62 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.
 
 function ReviewPurity() {
   const [f, setF] = useState({ dealer:"", city:"", state:"", reviews:"" });
-  const [loading, setL] = useState(false); const [res, setR] = useState(null); const [v, setV] = useState("");
+  const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
-    setL(true); setR(null);
-    const t = await ai(`You are a reputation integrity analyst specializing in dealer review manipulation.
+    setL(true); setCR(null); setER(null); setKR(null);
+
+    setLM("Auditing customer reviews...");
+    const customer = await ai(`You are a reputation integrity analyst specializing in dealer review manipulation.
 Dealer: ${f.dealer}, ${f.city} ${f.state}
-${f.reviews?"Reviews:\n"+f.reviews:"No reviews — give audit guidance and red flags to watch for."}
-## AUTHENTICITY VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
-## BOT FARMING SIGNALS — Patterns found.
-## SOUR GRAPES FILTER — Real complaints vs. bad-faith noise.
-## RED FLAGS — Recurring legitimate issues.
-## HOW TO VERIFY — Steps across Google, DealerRater, Cars.com.
-## ASK THE DEALER — 2-3 pointed questions based on patterns.
-## TRUST SCORE — HIGH / MODERATE / LOW with reasoning.`, true);
-    const m = t.match(/VERDICT[^:—\n]*(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
-    setV(m?m[1].trim().toUpperCase():"ANALYZED"); setR(t); setL(false);
+${f.reviews?"Customer reviews pasted by user:\n"+f.reviews:"No reviews pasted — search Google Reviews, DealerRater, and Cars.com for this dealer and analyze what you find."}
+
+## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
+## BOT FARMING SIGNALS — Specific patterns: review velocity, generic language, duplicate phrasing, suspiciously clustered 5-star bursts.
+## WHAT THE REAL COMPLAINTS SAY — Themes from legitimate 1-3 star reviews. Ignore obvious bad-faith reviews.
+## WHAT THE PRAISE SAYS — Are the 5-star reviews specific and believable or vague and scripted?
+## MANAGEMENT RESPONSE PATTERNS — Do they respond defensively, dismissively, or genuinely?
+## PLATFORM CROSS-CHECK — How does the rating compare across Google, DealerRater, and Cars.com? Big gaps are a red flag.
+## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW with one-line reasoning.`, true);
+    const m = customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
+    setV(m?m[1].trim().toUpperCase():"ANALYZED"); setCR(customer);
+
+    setLM("Checking employee sentiment on Glassdoor & Indeed...");
+    const employee = await ai(`You are an automotive dealership culture analyst. Search Glassdoor and Indeed for employee reviews of "${f.dealer}" in ${f.city}, ${f.state}.
+
+This matters because angry, burned-out, or pressured employees directly impact the customer experience on the lot.
+
+## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC
+## GLASSDOOR FINDINGS — Overall rating, most common complaints, management scores. What do former employees say?
+## INDEED FINDINGS — Any patterns around turnover, pressure, or toxic management?
+## THE FLOOR vs. THE SUITS — Are complaints about frontline staff (sales, service) or management and ownership?
+## PRESSURE CULTURE SIGNALS — Do employees describe being pushed to hit numbers at the customer's expense?
+## TURNOVER RED FLAGS — High turnover in sales or F&I is a warning sign for buyers. What did you find?
+## CULTURE VERDICT — Would you send a friend to buy here based on how employees describe this place?`, true);
+    setER(employee);
+
+    setLM("Pulling BBB & complaint records...");
+    const complaints = await ai(`You are a consumer protection researcher. Search for complaints and records on "${f.dealer}" in ${f.city}, ${f.state} across:
+- BBB (Better Business Bureau) — rating, complaint count, complaint patterns, resolution history
+- State Attorney General consumer complaint database for ${f.state}
+- CFPB (Consumer Financial Protection Bureau) complaints if applicable
+- Any news articles, local press, or legal actions involving this dealership
+
+## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS
+## BBB RECORD — Rating, number of complaints, types of complaints, how they were resolved (or not).
+## COMPLAINT PATTERNS — Are complaints about pricing, fees, F&I products, service, or title/registration issues?
+## UNRESOLVED COMPLAINTS — Any pattern of dealers not fixing problems? That tells you everything.
+## LEGAL / NEWS — Any lawsuits, AG actions, or local news stories about this dealer?
+## WHAT TO ASK THEM — 2-3 direct questions to ask the dealer based on what you found.
+## OVERALL RISK LEVEL — LOW / MODERATE / HIGH with reasoning.`, true);
+    setKR(complaints);
+
+    setL(false); setLM("");
   };
   const vc = v => /AUTHENTIC/.test(v)?"bg":/HIGH BOT/.test(v)?"br":/SUSPICIOUS/.test(v)?"ba":"bb";
   return (
     <div>
-      <div className="phd"><h2>Review <span>Purity</span></h2><p>Real complaints vs. sour grapes — bot farms exposed.</p></div>
+      <div className="phd"><h2>Review <span>Purity</span></h2><p>Customer reviews. Employee culture. Complaint records. The full picture.</p></div>
       <div className="card">
         <div className="ch"><span className="clbl">Dealer to Audit</span></div>
         <div className="cb">
@@ -409,12 +485,43 @@ ${f.reviews?"Reviews:\n"+f.reviews:"No reviews — give audit guidance and red f
             <div className="fld"><label>State</label><input placeholder="NC" value={f.state} onChange={s("state")} /></div>
           </div>
           <div className="sp" />
-          <div className="fld"><label>Paste Reviews (optional)</label><textarea style={{minHeight:110}} placeholder={"5★ — Amazing!\n1★ — Snuck $2k in fees at signing..."} value={f.reviews} onChange={s("reviews")} /></div>
-          <button className="go-btn" onClick={run} disabled={loading||!f.dealer}>{loading?"Auditing...":"→ Run Purity Check"}</button>
+          <div className="fld"><label>Paste Customer Reviews (optional — better with them)</label><textarea style={{minHeight:110}} placeholder={"5★ — Amazing experience, loved Carlos!\n1★ — Snuck $2k in fees at signing without telling me..."} value={f.reviews} onChange={s("reviews")} /></div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment (Glassdoor/Indeed), and complaint records (BBB/AG). This takes about 30 seconds.</div>
+          <button className="go-btn" onClick={run} disabled={loading||!f.dealer}>{loading ? loadMsg||"Running..." : "→ Run Full Purity Audit"}</button>
         </div>
       </div>
-      {loading && <Loading msg="Auditing review authenticity..." />}
-      {res && !loading && <Res verdict={v} vc={vc(v)} text={res} onReset={()=>setR(null)} />}
+      {loading && <Loading msg={loadMsg||"Running full audit..."} />}
+      {!loading && customerRes && (
+        <>
+          <div className="card ranim">
+            <div className="vstrip">
+              <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>CUSTOMER REVIEWS</span>
+              <span className={`badge ${vc(v)}`}>{v||"ANALYZED"}</span>
+              <div style={{flex:1}}/>
+              <button className="ghost-btn" onClick={()=>{setCR(null);setER(null);setKR(null);}}>Reset</button>
+            </div>
+            <MD text={customerRes} />
+          </div>
+          {employeeRes && (
+            <div className="card ranim">
+              <div className="vstrip">
+                <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
+                <span className="badge ba">👔 GLASSDOOR + INDEED</span>
+              </div>
+              <MD text={employeeRes} />
+            </div>
+          )}
+          {complaintRes && (
+            <div className="card ranim">
+              <div className="vstrip">
+                <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
+                <span className="badge br">📋 BBB + AG + CFPB</span>
+              </div>
+              <MD text={complaintRes} />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -555,7 +662,7 @@ function Contact() {
   const send = async () => {
     setSending(true);
     try {
-      await fetch("https://formspree.io/f/mojkdrrg", {
+      await fetch("https://formspree.io/f/xpwzgkdq", {
         method:"POST", headers:{"Content-Type":"application/json","Accept":"application/json"},
         body: JSON.stringify(f)
       });
