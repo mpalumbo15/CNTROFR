@@ -210,6 +210,12 @@ const S = `
   .phd h2 { font-family: 'Bebas Neue'; font-size: 30px; letter-spacing: 2px; }
   .phd h2 span { color: var(--y); }
   .phd p { font-size: 12px; color: var(--muted); margin-top: 3px; font-weight: 700; }
+  .tooltip-wrap { position: relative; display: inline-flex; align-items: center; }
+  .tooltip-icon { width: 14px; height: 14px; border-radius: 50%; background: var(--b2); color: var(--muted); font-size: 9px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; cursor: help; margin-left: 6px; flex-shrink: 0; transition: background .2s; }
+  .tooltip-icon:hover { background: var(--y); color: #111; }
+  .tooltip-bubble { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--y); border-radius: 10px; padding: 10px 14px; width: 240px; font-size: 11px; color: var(--text2); line-height: 1.65; font-weight: 600; z-index: 100; pointer-events: none; opacity: 0; transition: opacity .2s; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+  .tooltip-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--y); }
+  .tooltip-wrap:hover .tooltip-bubble { opacity: 1; }
   .disclaimer { background: rgba(255,214,0,.05); border: 1px solid rgba(255,214,0,.15); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; font-size: 11px; color: var(--muted); line-height: 1.65; font-weight: 600; }
   .disclaimer strong { color: var(--y); }
   .footer { border-top: 2px solid var(--b1); padding: 36px 24px; text-align: center; }
@@ -272,14 +278,14 @@ function Loading({ msg }) {
 }
 
 function DealAnalyzer() {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" });
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" });
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
     setL(true); setR(null); setM(null);
     setLM("Analyzing your deal...");
     const t = await ai(`You are a veteran automotive insider. Analyze this deal honestly.
-${f.year} ${f.vehicle} | MSRP $${f.msrp} | Asking $${f.offer}
+${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | MSRP $${f.msrp} | Asking $${f.offer}
 Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 
@@ -295,8 +301,8 @@ Do not provide financing rate or payment advice.`);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
-      const mkt = await ai(`You are an automotive market analyst. Search for current listings of ${f.year} ${f.vehicle} for sale at dealerships near zip code ${f.zip}.
-Find 3-5 real comparable listings from dealers within roughly 150 miles. For each listing include:
+      const mkt = await ai(`You are an automotive market analyst. Search for current listings of ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} for sale at dealerships near zip code ${f.zip}.
+Match the trim level as closely as possible${f.trim ? " — specifically looking for the "+f.trim+" trim" : ""}. Find 3-5 real comparable listings from dealers within roughly 150 miles. For each listing include:
 - Dealer name and city
 - Asking price
 - Mileage if used
@@ -322,6 +328,17 @@ Find 3-5 real comparable listings from dealers within roughly 150 miles. For eac
           <div className="g2">
             <div className="fld"><label>Year</label><input placeholder="2024" value={f.year} onChange={s("year")} /></div>
             <div className="fld"><label>Make & Model</label><input placeholder="Honda Accord EX-L" value={f.vehicle} onChange={s("vehicle")} /></div>
+          </div>
+          <div className="sp" />
+          <div className="fld">
+            <label style={{display:"flex",alignItems:"center"}}>
+              Trim Level
+              <div className="tooltip-wrap">
+                <span className="tooltip-icon">?</span>
+                <div className="tooltip-bubble">Trim level dramatically affects price. A Civic EX and a Civic Type R can be $15,000+ apart. Including the trim gives us a much more accurate picture of what your car is actually worth — and what the dealer has room to move on.</div>
+              </div>
+            </label>
+            <input placeholder="e.g. EX-L, Sport, Type R, Platinum — optional but helps a lot" value={f.trim} onChange={s("trim")} />
           </div>
           <div className="sp" />
           <div className="g2">
