@@ -231,15 +231,21 @@ const S = `
 const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 async function ai(prompt, web = false) {
-  const body = { model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] };
-  if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-    body: JSON.stringify(body)
-  });
-  const d = await r.json();
-  return d.content?.map(b => b.text || "").filter(Boolean).join("") || "Analysis unavailable. Please try again.";
+  try {
+    const body = { model: "claude-sonnet-4-5", max_tokens: 1500, messages: [{ role: "user", content: prompt }] };
+    if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (d.error) return `Error: ${d.error.message || JSON.stringify(d.error)}`;
+    const text = d.content?.map(b => b.type === "text" ? b.text : "").filter(Boolean).join("\n");
+    return text || "No analysis returned. Please try again.";
+  } catch(e) {
+    return `Connection error: ${e.message}. Check your API key in Vercel environment variables.`;
+  }
 }
 
 function MD({ text }) {
