@@ -234,17 +234,65 @@ async function ai(prompt, web = false) {
   try {
     const body = { model: "claude-sonnet-4-5", max_tokens: 1500, messages: [{ role: "user", content: prompt }] };
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 55000);
+
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: controller.signal
     });
+    clearTimeout(timeout);
+
     const d = await r.json();
     if (d.error) return `Error: ${d.error.message || JSON.stringify(d.error)}`;
-    const text = d.content?.map(b => b.type === "text" ? b.text : "").filter(Boolean).join("\n");
-    return text || "No analysis returned. Please try again.";
+
+    // Handle both regular responses and tool_use responses (web search)
+    const blocks = d.content || [];
+    const textBlocks = blocks.filter(b => b.type === "text").map(b => b.text).filter(Boolean);
+    
+    // If web search was used, there may be multiple turns needed
+    if (web && d.stop_reason === "tool_use") {
+      // Extract any text that came before tool use
+      const preText = textBlocks.join("\n");
+      // Make a follow-up call with tool results to get final response
+      const toolUseBlocks = blocks.filter(b => b.type === "tool_use");
+      const toolResults = toolUseBlocks.map(tu => ({
+        type: "tool_result",
+        tool_use_id: tu.id,
+        content: "Search completed."
+      }));
+      const body2 = {
+        model: "claude-sonnet-4-5",
+        max_tokens: 1500,
+        tools: [{ type: "web_search_20250305", name: "web_search" }],
+        messages: [
+          { role: "user", content: prompt },
+          { role: "assistant", content: blocks },
+          { role: "user", content: toolResults }
+        ]
+      };
+      const controller2 = new AbortController();
+      const timeout2 = setTimeout(() => controller2.abort(), 55000);
+      const r2 = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify(body2),
+        signal: controller2.signal
+      });
+      clearTimeout(timeout2);
+      const d2 = await r2.json();
+      if (d2.error) return preText || `Error: ${d2.error.message}`;
+      const text2 = (d2.content || []).filter(b => b.type === "text").map(b => b.text).filter(Boolean).join("\n");
+      return text2 || preText || "No results returned.";
+    }
+
+    return textBlocks.join("\n") || "No analysis returned. Please try again.";
   } catch(e) {
-    return `Connection error: ${e.message}. Check your API key in Vercel environment variables.`;
+    if (e.name === "AbortError") return "Request timed out — the web search took too long. Try again without the zip code for a faster result.";
+    return `Connection error: ${e.message}`;
   }
 }
 
