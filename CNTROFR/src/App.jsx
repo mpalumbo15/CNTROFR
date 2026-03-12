@@ -278,19 +278,19 @@ function Loading({ msg }) {
 }
 
 function DealAnalyzer() {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" });
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" });
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
     setL(true); setR(null); setM(null);
     setLM("Analyzing your deal...");
     const t = await ai(`You are a veteran automotive insider. Analyze this deal honestly.
-${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | MSRP $${f.msrp} | Asking $${f.offer}
-Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}
+${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | ${f.mileage ? f.mileage+" miles" : "New / mileage not provided"} | MSRP $${f.msrp} | Asking $${f.offer}
+Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 
 ## OVERALL VERDICT — GO, NEGOTIATE, or WALK AWAY. One sentence why.
-## VEHICLE PRICE — Is this fair? How much room is left?
+## VEHICLE PRICE — Is this fair given the mileage and trim? How much room is left? If mileage is above average (15,000/yr), factor depreciation impact explicitly.
 ## TRADE-IN — Fair offer or lowball? Account for negative equity if owed exceeds offered.
 ## ADD-ONS — Worth It / Overpriced / Skip It for each.
 ## YOUR COUNTER — 3-4 specific things to say before signing.
@@ -302,7 +302,7 @@ Do not provide financing rate or payment advice.`);
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
       const mkt = await ai(`You are an automotive market analyst. Search for current listings of ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} for sale at dealerships near zip code ${f.zip}.
-Match the trim level as closely as possible${f.trim ? " — specifically looking for the "+f.trim+" trim" : ""}. Find 3-5 real comparable listings from dealers within roughly 150 miles. For each listing include:
+Match the trim level as closely as possible${f.trim ? " — specifically looking for the "+f.trim+" trim" : ""}. ${f.mileage ? "Focus on listings with similar mileage to "+f.mileage+" miles — flag any comps that are significantly higher or lower mileage." : ""} Find 3-5 real comparable listings from dealers within roughly 150 miles. For each listing include:
 - Dealer name and city
 - Asking price
 - Mileage if used
@@ -342,8 +342,22 @@ Match the trim level as closely as possible${f.trim ? " — specifically looking
           </div>
           <div className="sp" />
           <div className="g2">
+            <div className="fld">
+              <label style={{display:"flex",alignItems:"center"}}>
+                Mileage
+                <div className="tooltip-wrap">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-bubble">Average mileage is roughly 12,000–15,000 miles per year. High mileage accelerates depreciation and affects what the car is truly worth. We use this to flag whether the asking price reflects reality — or ignores the odometer entirely.</div>
+                </div>
+              </label>
+              <input placeholder="e.g. 34,200 — leave blank if new" value={f.mileage} onChange={s("mileage")} />
+            </div>
             <div className="fld"><label>MSRP (Sticker)</label><input placeholder="32,000" value={f.msrp} onChange={s("msrp")} /></div>
+          </div>
+          <div className="sp" />
+          <div className="g2">
             <div className="fld"><label>Their Asking Price</label><input placeholder="29,500" value={f.offer} onChange={s("offer")} /></div>
+            <div className="fld"><label style={{display:"flex",alignItems:"center"}}>Expected Price Range<div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Optional — if you've already checked KBB, Edmunds, or CarGurus, drop the range here. We'll factor it into the analysis and tell you if the dealer is inside or outside of fair market.</div></div></label><input placeholder="e.g. 27,000 – 29,500 (from KBB)" value={f.marketRange||""} onChange={s("marketRange")} /></div>
           </div>
         </div>
       </div>
