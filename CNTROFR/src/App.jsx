@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const S = `
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --y: #FFD600; --yd: #E8C200; --yp: rgba(255,214,0,0.1);
