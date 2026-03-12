@@ -232,7 +232,7 @@ const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 async function ai(prompt, web = false) {
   try {
-    const body = { model: "claude-sonnet-4-5", max_tokens: 3000, messages: [{ role: "user", content: prompt }] };
+    const body = { model: "claude-sonnet-4-5", max_tokens: 2000, messages: [{ role: "user", content: prompt }] };
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
 
     const controller = new AbortController();
@@ -266,7 +266,7 @@ async function ai(prompt, web = false) {
       }));
       const body2 = {
         model: "claude-sonnet-4-5",
-        max_tokens: 3000,
+        max_tokens: 2000,
         tools: [{ type: "web_search_20250305", name: "web_search" }],
         messages: [
           { role: "user", content: prompt },
@@ -355,18 +355,13 @@ Do not provide financing rate or payment advice.`);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
-      const mkt = await ai(`You are an automotive market analyst. Search for current listings of ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} for sale at dealerships near zip code ${f.zip}.
-Match the trim level as closely as possible${f.trim ? " — specifically looking for the "+f.trim+" trim" : ""}. ${f.mileage ? "Focus on listings with similar mileage to "+f.mileage+" miles — flag any comps that are significantly higher or lower mileage." : ""} Find 3-5 real comparable listings from dealers within roughly 150 miles. For each listing include:
-- Dealer name and city
-- Asking price
-- Mileage if used
-- How it compares to the $${f.offer} being offered to our buyer
+      await new Promise(r => setTimeout(r, 3000));
+      const mkt = await ai(`Search for current ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
 
-## MARKET VERDICT — Is $${f.offer} above market, at market, or below market?
-## COMPARABLE LISTINGS — Real dealers and prices found nearby.
-## PRICE RANGE — Lowest and highest comparable found.
-## LEVERAGE — Exact script to use these comps at the negotiating table.
-## BOTTOM LINE — What should this buyer actually pay based on the market?`, true);
+## MARKET VERDICT — Is $${f.offer} above, at, or below market?
+## COMPARABLE LISTINGS — Dealer name, city, price, mileage for each.
+## LEVERAGE — Exact words to use these comps at the table.
+## BOTTOM LINE — What should this buyer actually pay?`, true);
       setM(mkt);
     }
     setL(false); setLM("");
