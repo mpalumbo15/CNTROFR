@@ -835,6 +835,61 @@ For EACH:
   );
 }
 
+function PrivacyPolicy() {
+  return (
+    <div className="tos-wrap">
+      <h1>Privacy Policy</h1>
+      <div className="tos-date">Effective Date: March 2025 · Last Updated: March 2025</div>
+
+      <h2>Our Philosophy</h2>
+      <p>CNTROFR was built to keep your money in your pocket — and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
+
+      <h2>What We Collect</h2>
+      <p>We only collect information in two situations:</p>
+      <ul>
+        <li><strong>Payment processing</strong> — handled entirely by Stripe. We never see or store your full card number, CVV, or billing details. Stripe handles all of that under their own PCI-compliant infrastructure.</li>
+        <li><strong>Contact form submissions</strong> — if you reach out to us, we receive your name, email, and message. We use this only to respond to you.</li>
+      </ul>
+      <p>The deal information you enter into our tools (vehicle details, trade-in numbers, zip codes, add-ons) is sent directly to the Anthropic Claude API to generate your analysis. <strong>We do not store, log, or retain any of this data on our servers.</strong> It is not linked to your identity in any way.</p>
+
+      <h2>What We Do NOT Collect</h2>
+      <ul>
+        <li>Your Social Security number or government ID</li>
+        <li>Your credit score or financial history</li>
+        <li>Your home address or physical location beyond zip code</li>
+        <li>Cookies for advertising or tracking purposes</li>
+        <li>Behavioral data sold to third parties</li>
+        <li>Any data from minors — our platform is intended for adults 18 and over</li>
+      </ul>
+
+      <h2>Third-Party Services</h2>
+      <p>We use a small number of trusted third-party services to operate:</p>
+      <ul>
+        <li><strong>Anthropic Claude API</strong> — processes your deal analysis. Subject to Anthropic's privacy policy at anthropic.com.</li>
+        <li><strong>Stripe</strong> — handles payment processing. Subject to Stripe's privacy policy at stripe.com.</li>
+        <li><strong>Formspree</strong> — routes contact form submissions to our inbox. Subject to Formspree's privacy policy at formspree.io.</li>
+        <li><strong>Vercel</strong> — hosts the platform. Standard server logs (IP address, request time) may be retained per Vercel's policy.</li>
+      </ul>
+      <p>None of these providers are authorized to use your data for their own marketing or to sell it to anyone else.</p>
+
+      <h2>No Advertising. Ever.</h2>
+      <p>CNTROFR runs zero advertising — on the platform or behind the scenes. We take no money from dealers, lenders, manufacturers, or ad networks. We are funded exclusively by direct consumer purchases. There is no financial incentive for us to share your data with anyone.</p>
+
+      <h2>Data Retention</h2>
+      <p>Contact form data is retained only as long as needed to resolve your inquiry. Payment records are retained by Stripe per their standard compliance requirements. We do not maintain any internal database of user profiles, deal histories, or analysis records.</p>
+
+      <h2>Your Rights</h2>
+      <p>If you have contacted us and want your information removed from our records, email <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a> and we will delete it promptly. Colorado residents have additional rights under the Colorado Privacy Act (CPA) — contact us to exercise them.</p>
+
+      <h2>Changes to This Policy</h2>
+      <p>If we ever change how we handle data, we will update this page and the effective date at the top. We will never quietly change our data practices — if something meaningful changes, we'll say so clearly.</p>
+
+      <h2>Contact</h2>
+      <p>Privacy questions? Email us at <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a>. We respond to every message personally.</p>
+    </div>
+  );
+}
+
 function TermsOfService() {
   return (
     <div className="tos-wrap">
@@ -958,8 +1013,15 @@ function Contact() {
               <div className="cf-field"><label>Email</label><input type="email" placeholder="you@email.com" value={f.email} onChange={s("email")} /></div>
               <div className="cf-field"><label>Subject</label>
                 <select value={f.subject} onChange={s("subject")}>
-                  <option>General Question</option><option>Deal Help</option><option>Tool Not Working</option><option>Refund Request</option><option>Feedback / Suggestion</option><option>Other</option>
+                  <option>General Question</option>
+                  <option>System Issue</option>
+                  <option>Feedback</option>
                 </select>
+                {f.subject==="System Issue" && (
+                  <div style={{marginTop:8,background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.15)",borderRadius:8,padding:"10px 12px",fontSize:11,color:"var(--muted)",fontWeight:700,lineHeight:1.7}}>
+                    <strong style={{color:"var(--y)"}}>System Requirements:</strong> CNTROFR runs best on Chrome or Safari (latest version). Requires a stable internet connection — analyses involve live AI processing and web search. If a tool is spinning for more than 60 seconds, try refreshing and resubmitting. Mobile is supported but desktop is recommended for best experience.
+                  </div>
+                )}
               </div>
               <div className="cf-field"><label>Message</label><textarea placeholder="What's on your mind?" value={f.message} onChange={s("message")} /></div>
               <button className="cf-btn" onClick={send} disabled={!ready||sending}>{sending?"Sending...":"Send Message →"}</button>
@@ -1212,7 +1274,7 @@ export default function App() {
           <div className="footer-links">
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
-            <a href="#">Privacy Policy</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
           </div>
         </div>
@@ -1243,6 +1305,18 @@ export default function App() {
         </div>
       )}
 
+      {view==="privacy"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+          </div>
+          <PrivacyPolicy />
+          <div className="footer">
+            <div className="footer-plate"><div className="fp">CNTROFR</div></div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC · <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+          </div>
+        </>
+      )}
       {view==="tos"&&(
         <>
           <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
