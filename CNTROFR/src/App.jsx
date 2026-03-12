@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const S = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -43,6 +43,13 @@ const S = `
   .stats { display: flex; justify-content: center; gap: 48px; margin-top: 56px; padding-top: 36px; border-top: 1px solid var(--b1); flex-wrap: wrap; }
   .stat-n { font-family: 'Bebas Neue'; font-size: 40px; color: var(--y); letter-spacing: 1px; }
   .stat-l { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; letter-spacing: .5px; }
+  /* ── BETA BANNER ── */
+  .beta-banner { background: repeating-linear-gradient(45deg, #111118 0px, #111118 12px, #16161E 12px, #16161E 24px); border-top: 3px solid var(--y); border-bottom: 3px solid var(--y); padding: 14px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  .beta-plate { background: var(--y); border: 2px solid #B8A000; border-radius: 5px; padding: 2px 10px; font-family: 'Bebas Neue'; font-size: 14px; letter-spacing: 3px; color: #111; box-shadow: 0 2px 0 #8A7800; white-space: nowrap; }
+  .beta-text { font-size: 12px; font-weight: 800; color: var(--text2); letter-spacing: .3px; text-align: center; }
+  .beta-text strong { color: var(--y); }
+  .beta-text em { color: var(--muted); font-style: normal; font-size: 11px; }
+
   .alert { background: rgba(255,68,68,.07); border-top: 1px solid rgba(255,68,68,.2); border-bottom: 1px solid rgba(255,68,68,.2); padding: 12px 24px; text-align: center; }
   .alert p { font-size: 12px; color: #FF8888; font-weight: 700; }
   .alert p strong { color: var(--red); }
@@ -176,6 +183,24 @@ const S = `
   .ghost-btn { background: transparent; border: 2px solid var(--b2); color: var(--muted); padding: 6px 16px; font-family: Nunito; font-size: 11px; font-weight: 800; cursor: pointer; border-radius: 8px; transition: all .2s; }
   .ghost-btn:hover { border-color: var(--y); color: var(--y); }
   .spin { width: 34px; height: 34px; border: 3px solid var(--b2); border-top-color: var(--y); border-radius: 50%; animation: sp .7s linear infinite; }
+
+  /* ── PROGRESS LOADER ── */
+  .progress-wrap { width: 100%; max-width: 420px; margin: 0 auto; }
+  .progress-bar-bg { background: var(--b1); border-radius: 100px; height: 6px; overflow: hidden; margin: 12px 0 8px; }
+  .progress-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--y), #FFB300); transition: width .4s ease; }
+  .progress-pct { font-family: 'JetBrains Mono'; font-size: 11px; color: var(--y); font-weight: 700; text-align: right; }
+  .progress-stage { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 4px; min-height: 16px; }
+  .progress-disclaimer { font-size: 10px; color: var(--b2); font-weight: 700; text-align: center; margin-top: 10px; line-height: 1.6; }
+
+  /* ── TOS PAGE ── */
+  .tos-wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+  .tos-wrap h1 { font-family: 'Bebas Neue'; font-size: 40px; letter-spacing: 2px; margin-bottom: 6px; }
+  .tos-wrap .tos-date { font-size: 11px; color: var(--muted); font-weight: 700; margin-bottom: 36px; }
+  .tos-wrap h2 { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 1px; color: var(--y); margin: 28px 0 8px; }
+  .tos-wrap p { font-size: 13px; color: var(--text2); line-height: 1.85; font-weight: 600; margin-bottom: 10px; }
+  .tos-wrap ul { list-style: none; padding: 0; margin-bottom: 12px; }
+  .tos-wrap ul li { font-size: 13px; color: var(--text2); padding: 3px 0 3px 18px; position: relative; font-weight: 600; line-height: 1.7; }
+  .tos-wrap ul li::before { content: '◆'; position: absolute; left: 0; color: var(--y); font-size: 8px; top: 7px; }
   @keyframes sp { to { transform: rotate(360deg); } }
   .loadbox { padding: 48px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
   .loadbox p { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
@@ -218,6 +243,48 @@ const S = `
   .tooltip-wrap:hover .tooltip-bubble { opacity: 1; }
   .disclaimer { background: rgba(255,214,0,.05); border: 1px solid rgba(255,214,0,.15); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; font-size: 11px; color: var(--muted); line-height: 1.65; font-weight: 600; }
   .disclaimer strong { color: var(--y); }
+  /* ── JUMP NAV ── */
+  .jumpnav { background: var(--bg3); border-bottom: 1px solid var(--b1); padding: 0 28px; display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .jumpnav::-webkit-scrollbar { display: none; }
+  .jnav-btn { background: none; border: none; color: var(--muted); font-family: Nunito; font-size: 11px; font-weight: 800; letter-spacing: .5px; padding: 10px 14px; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all .2s; }
+  .jnav-btn:hover { color: var(--y); border-bottom-color: var(--y); }
+
+  /* ── MISSION ── */
+  .mission { background: linear-gradient(135deg, #0E0E14 0%, #16161E 50%, #0E0E14 100%); border-top: 3px solid var(--y); border-bottom: 3px solid var(--y); padding: 64px 24px; text-align: center; position: relative; overflow: hidden; }
+  .mission::before { content: 'CNTROFR'; position: absolute; font-family: 'Bebas Neue'; font-size: 180px; color: rgba(255,214,0,.03); top: 50%; left: 50%; transform: translate(-50%,-50%); letter-spacing: 20px; pointer-events: none; white-space: nowrap; }
+  .mission-inner { max-width: 760px; margin: 0 auto; position: relative; z-index: 1; }
+  .mission-eye { font-family: 'Bebas Neue'; font-size: 11px; letter-spacing: 5px; color: var(--y); margin-bottom: 16px; }
+  .mission-h { font-family: 'Bebas Neue'; font-size: clamp(32px, 6vw, 58px); letter-spacing: 2px; line-height: .95; margin-bottom: 20px; }
+  .mission-h .y { color: var(--y); }
+  .mission-body { font-size: 15px; color: var(--text2); line-height: 1.9; font-weight: 600; margin-bottom: 24px; }
+  .mission-body strong { color: var(--text); font-weight: 900; }
+  .mission-sig { font-family: 'Bebas Neue'; font-size: 14px; letter-spacing: 4px; color: var(--muted); }
+
+  /* ── TIME SAVING ── */
+  .timesave { background: var(--bg2); border-radius: 16px; padding: 32px; margin-bottom: 0; }
+  .tsgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
+  @media(max-width:580px){ .tsgrid { grid-template-columns: 1fr; } }
+  .ts-card { background: var(--bg3); border: 2px solid var(--b1); border-radius: 12px; padding: 20px; text-align: center; }
+  .ts-card.bad { border-color: rgba(255,68,68,.2); }
+  .ts-card.good { border-color: rgba(0,201,107,.2); }
+  .ts-num { font-family: 'Bebas Neue'; font-size: 48px; letter-spacing: 1px; line-height: 1; margin-bottom: 4px; }
+  .ts-card.bad .ts-num { color: var(--red); }
+  .ts-card.good .ts-num { color: var(--green); }
+  .ts-label { font-size: 12px; font-weight: 800; color: var(--text2); margin-bottom: 6px; }
+  .ts-desc { font-size: 11px; color: var(--muted); line-height: 1.6; font-weight: 600; }
+
+  /* ── EQUITABLE ── */
+  .equitable { background: var(--bg2); border: 2px solid var(--b1); border-radius: 16px; padding: 32px; }
+  .eq-quote { font-family: 'Bebas Neue'; font-size: clamp(20px, 4vw, 32px); letter-spacing: 1px; color: var(--y); line-height: 1.2; margin-bottom: 16px; }
+  .eq-body { font-size: 14px; color: var(--text2); line-height: 1.85; font-weight: 600; }
+  .eq-body strong { color: var(--text); font-weight: 900; }
+  .eq-cta { margin-top: 20px; background: rgba(0,201,107,.08); border: 1px solid rgba(0,201,107,.2); border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--green); font-weight: 800; line-height: 1.65; }
+
+  /* ── POWERED BY ── */
+  .powered-by { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,.04); border: 1px solid var(--b1); border-radius: 100px; padding: 5px 12px; margin-top: 16px; }
+  .powered-by span { font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .powered-by-logo { font-size: 10px; font-weight: 900; color: var(--text2); letter-spacing: .5px; }
+
   .footer { border-top: 2px solid var(--b1); padding: 36px 24px; text-align: center; }
   .footer-plate { display: flex; justify-content: center; margin-bottom: 12px; }
   .fp { background: var(--y); border: 3px solid #B8A000; border-radius: 6px; padding: 5px 18px; box-shadow: 0 3px 0 #8A7800; font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 5px; color: #111; }
@@ -327,8 +394,54 @@ function Res({ verdict, vc, text, onReset }) {
   );
 }
 
-function Loading({ msg }) {
-  return <div className="card"><div className="loadbox"><div className="spin" /><p>{msg}</p></div></div>;
+const STAGES = [
+  "Pulling deal data",
+  "Cross-referencing market intel",
+  "Analyzing dealer tactics",
+  "Building your counter",
+  "Applying insider knowledge",
+  "Scanning current sales techniques",
+  "Finalizing your scripts",
+  "Almost there",
+];
+
+function Loading({ msg, web }) {
+  const [pct, setPct] = useState(2);
+  const [stageIdx, setStageIdx] = useState(0);
+  useEffect(() => {
+    const target = web ? 92 : 88;
+    const interval = setInterval(() => {
+      setPct(p => {
+        if (p >= target) return p;
+        const remaining = target - p;
+        const step = Math.max(0.4, remaining * 0.045);
+        return Math.min(target, p + step);
+      });
+      setStageIdx(i => {
+        const newPct = pct;
+        const stagePos = Math.floor((newPct / 100) * STAGES.length);
+        return Math.min(stagePos, STAGES.length - 1);
+      });
+    }, 380);
+    return () => clearInterval(interval);
+  }, [pct, web]);
+  return (
+    <div className="card">
+      <div className="loadbox">
+        <div className="spin" />
+        <div className="progress-wrap">
+          <div className="progress-stage">{msg || STAGES[stageIdx]}</div>
+          <div className="progress-bar-bg">
+            <div className="progress-bar-fill" style={{width: pct+"%"}} />
+          </div>
+          <div className="progress-pct">{Math.floor(pct)}%</div>
+          <div className="progress-disclaimer">
+            {web ? "Live web search active — scanning dealer listings & databases. Usually 20–45 seconds." : "AI analysis typically takes 10–20 seconds. Hang tight — good intel takes a moment."}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function DealAnalyzer() {
@@ -338,7 +451,7 @@ function DealAnalyzer() {
   const run = async () => {
     setL(true); setR(null); setM(null);
     setLM("Analyzing your deal...");
-    const t = await ai(`You are a veteran automotive insider. Analyze this deal honestly.
+    const t = await ai(`You are a veteran automotive insider with deep knowledge of current dealer sales training programs — including techniques taught by Grant Cardone, Joe Verde, and Reynolds & Reynolds dealer training. You understand payment packing, four-square manipulation, trade-in lowballing, and modern F&I profit extraction strategies. Use only current market data and tactics — no outdated information. Analyze this deal from the buyer's perspective.
 ${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | ${f.mileage ? f.mileage+" miles" : "New / mileage not provided"} | MSRP $${f.msrp} | Asking $${f.offer}
 Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
@@ -437,7 +550,7 @@ Do not provide financing rate or payment advice.`);
           <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
       </div>
-      {loading && <Loading msg={loadMsg||"Building your counteroffer..."} />}
+      {loading && <Loading msg={loadMsg} web={!!f.zip} />}
       {res && !loading && (
         <>
           <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);}} />
@@ -492,7 +605,7 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.
           <button className="go-btn" onClick={run} disabled={loading||!f.state||!f.fee}>{loading?"Researching...":"→ Analyze This Fee"}</button>
         </div>
       </div>
-      {loading && <Loading msg="Researching fee standards for your state..." />}
+      {loading && <Loading msg="Researching fee standards" web={true} />}
       {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge ba">FEE ANALYSIS</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
     </div>
   );
@@ -570,7 +683,7 @@ This matters because angry, burned-out, or pressured employees directly impact t
           <button className="go-btn" onClick={run} disabled={loading||!f.dealer}>{loading ? loadMsg||"Running..." : "→ Run Full Purity Audit"}</button>
         </div>
       </div>
-      {loading && <Loading msg={loadMsg||"Running full audit..."} />}
+      {loading && <Loading msg={loadMsg} web={true} />}
       {!loading && customerRes && (
         <>
           <div className="card ranim">
@@ -611,26 +724,47 @@ const FI = [
 ];
 function FIDecoder() {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
+  const [warrantyBrand, setWB] = useState("");
+  const WARRANTY_COS = ["","Safe-Guard Products","JM&A Group","Assurant Dealer Services","EFG Companies","Protective Asset Protection"];
   const toggle = id => setSel(s=>({...s,[id]:!s[id]}));
   const picked = FI.filter(p=>sel[p.id]);
   const run = async () => {
     setL(true); setR(null);
     const list = picked.map(p=>`- ${p.name}: $${prices[p.id]||"unknown"}`).join("\n");
-    const t = await ai(`You are a former F&I manager. Vehicle: ${veh||"not specified"}\nProducts:\n${list}
+    const t = await ai(`You are a former F&I manager with knowledge of current dealer training programs and modern warranty product structures. Reference current claims data where available. Use only up-to-date information. Vehicle: ${veh||"not specified"}${warrantyBrand ? "\nWarranty provider: "+warrantyBrand : ""}\nProducts:\n${list}
+Search for current claims approval vs denial rates for these products${warrantyBrand ? " specifically from "+warrantyBrand : ""}. Look for CFPB complaints, BBB data, and consumer reports on each.
+
 For EACH product:
 ## [NAME] — [WORTH IT / OVERPRICED / SKIP IT / DEPENDS]
-- Dealer cost vs. charge
-- Fine print traps
-- Where to buy cheaper
-- Script to decline
-## OVERALL F&I STRATEGY — Keep, cut, savings.
-## OPENING LINE — First words walking into F&I.`);
+- Dealer cost vs. what they charge
+- Claims approval rate vs denial rate (current data)
+- Known denial triggers and fine print traps
+- Where to buy it cheaper if applicable
+- Exact script to decline or negotiate down
+## OVERALL F&I STRATEGY — What to keep, cut, and estimated total savings.
+## OPENING LINE — Your first words walking into the F&I office.`);
     setR(t); setL(false);
   };
   return (
     <div>
       <div className="phd"><h2>F&I <span>Decoder</span></h2><p>Every product exposed — dealer cost, real value, exit script.</p></div>
-      <div className="card"><div className="ch"><span className="clbl">Vehicle</span></div><div className="cb"><div className="fld"><label>Year / Make / Model</label><input placeholder="2024 Toyota Camry XSE" value={veh} onChange={e=>setV(e.target.value)} /></div></div></div>
+      <div className="card"><div className="ch"><span className="clbl">Vehicle</span></div><div className="cb">
+        <div className="g2">
+          <div className="fld"><label>Year / Make / Model</label><input placeholder="2024 Toyota Camry XSE" value={veh} onChange={e=>setV(e.target.value)} /></div>
+          <div className="fld">
+            <label style={{display:"flex",alignItems:"center"}}>
+              Warranty Provider
+              <div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">We selected the top 5 F&I warranty providers by dealership market share. Selecting yours lets us pull specific claims approval rates, known denial patterns, and coverage gaps for that provider.</div></div>
+            </label>
+            <select value={warrantyBrand} onChange={e=>setWB(e.target.value)} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
+              {WARRANTY_COS.map(w=><option key={w} value={w}>{w||"Select provider (optional)"}</option>)}
+            </select>
+          </div>
+        </div>
+        <div style={{fontSize:10,color:"var(--muted)",marginTop:8,fontWeight:700,lineHeight:1.6}}>
+          * Top 5 selected by dealership market share (F&I industry data). Not an endorsement. All providers analyzed objectively.
+        </div>
+      </div></div>
       <div className="card">
         <div className="ch"><span className="clbl">Products Offered</span></div>
         <div className="cb">
@@ -645,7 +779,7 @@ For EACH product:
           <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Decoding...":`→ Decode ${picked.length} Product${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
-      {loading && <Loading msg="Pulling back the F&I curtain..." />}
+      {loading && <Loading msg="Decoding F&I products" web={true} />}
       {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge ba">F&I DECODED</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
     </div>
   );
@@ -695,8 +829,59 @@ For EACH:
           <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Arming you up...":`→ Fight ${picked.length} Add-On${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
-      {loading && <Loading msg="Loading your counter scripts..." />}
+      {loading && <Loading msg="Loading counter scripts" web={false} />}
       {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge br">FIGHT BACK</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
+    </div>
+  );
+}
+
+function TermsOfService() {
+  return (
+    <div className="tos-wrap">
+      <h1>Terms of Service</h1>
+      <div className="tos-date">Effective Date: March 2025 · Last Updated: March 2025</div>
+
+      <h2>1. About CNTROFR</h2>
+      <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, and prepare negotiation strategies.</p>
+
+      <h2>2. Not Legal, Financial, or Professional Advice</h2>
+      <p>Everything on CNTROFR.com is for informational purposes only. Our analysis tools do not constitute legal advice, financial advice, credit counseling, or professional consulting of any kind. We do not recommend specific loan products, interest rates, lenders, or financing arrangements. Always consult a licensed professional before making significant financial decisions.</p>
+
+      <h2>3. No Dealer Affiliations</h2>
+      <p>CNTROFR has no financial relationships with any automobile dealership, manufacturer, lender, or financing institution. We do not accept advertising from dealers or receive referral fees of any kind. Our only revenue comes from direct consumer purchases.</p>
+
+      <h2>4. Use of Our Tools</h2>
+      <p>By using CNTROFR tools, you agree to:</p>
+      <ul>
+        <li>Use the platform for personal, non-commercial purposes only</li>
+        <li>Provide accurate information to receive meaningful analysis</li>
+        <li>Understand that AI-generated analysis reflects general market knowledge, not guaranteed accuracy</li>
+        <li>Not reproduce, resell, or redistribute our analysis output without written permission</li>
+      </ul>
+
+      <h2>5. Payment & Refunds</h2>
+      <p>All purchases are processed securely through Stripe. Access is granted immediately upon payment confirmation. Due to the instant digital nature of our services, all sales are final. If you experience a technical failure that prevented access, contact us at info@cntrofr.com within 48 hours and we will make it right.</p>
+
+      <h2>6. Accuracy of Information</h2>
+      <p>Our AI tools use current market data and are designed to reflect up-to-date dealer tactics, fee benchmarks, and pricing data. However, market conditions change rapidly. CNTROFR makes no warranty that any specific piece of analysis is accurate, complete, or applicable to your specific situation. Use our output as one informed input — not the only one.</p>
+
+      <h2>7. Privacy & Data</h2>
+      <p>We collect only what is necessary to process payments and deliver services. We do not sell, rent, or share your personal information with third parties, including automobile dealers, lenders, or advertisers. For full details, see our Privacy Policy.</p>
+
+      <h2>8. Intellectual Property</h2>
+      <p>All content, design, code, and analysis frameworks on CNTROFR.com are the intellectual property of CNTROFR LLC. You may not copy, reproduce, or build derivative products from our platform without express written consent.</p>
+
+      <h2>9. Limitation of Liability</h2>
+      <p>CNTROFR LLC shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of our platform or reliance on our analysis. Our maximum liability in any circumstance is limited to the amount you paid for the service in question.</p>
+
+      <h2>10. Governing Law</h2>
+      <p>These Terms are governed by the laws of the State of Colorado. Any disputes shall be resolved in the courts of Denver County, Colorado.</p>
+
+      <h2>11. Changes to These Terms</h2>
+      <p>We may update these Terms from time to time. Continued use of the platform after changes constitutes acceptance of the updated Terms. We'll always post the effective date at the top of this page.</p>
+
+      <h2>12. Contact</h2>
+      <p>Questions about these Terms? Email us at <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a>. We respond to every message.</p>
     </div>
   );
 }
@@ -709,6 +894,7 @@ const FAQS = [
   {q:"Can you help me find a vehicle?",a:"That's not our lane. There are plenty of great marketplace tools out there for that part of the process. We're here once you've found the one you want and it's time to talk numbers."},
   {q:"What if the dealer won't budge?",a:"Having the right information is powerful, but the dealership still has to agree to terms. If they won't move, be confident and walk. They are not the only game in town, and a dealer that won't negotiate fairly on one line item is likely doing it everywhere else too."},
   {q:"Is this legit for both new and used car dealerships?",a:"Yes. Franchise dealers, independent lots, certified pre-owned programs — the F&I playbook and the fee games are industry-wide. CNTROFR is built on insider knowledge from both sides of that desk."},
+  {q:"Why is your Pro subscription only 7 days?",a:"Simple — if you're not ready to pull the trigger in 7 days, you're not prepared to make a purchase. Do your homework first, then come back when you're ready to move. We'll be here. No pressure, no recurring charges, no gotchas."},
   {q:"I have a question that isn't answered here. How do I reach you?",a:"Email us directly at info@cntrofr.com — we respond to every message personally. You can also use the contact form on this page and we'll get back to you within 24 hours."},
 ];
 
@@ -831,7 +1017,7 @@ const TABS = [
 ];
 
 export default function App() {
-  const [view,setView]=useState("home");
+  const [view,setView]=useState("home"); // home | tools | contact | tos
   const [tab,setTab]=useState("deal");
   const [modal,setModal]=useState(null);
   const [access,setAccess]=useState([]);
@@ -853,13 +1039,26 @@ export default function App() {
             :<>
               <button className="hbtn" onClick={()=>setView("contact")}>Contact</button>
               <button className="hbtn" onClick={()=>{setView("tools");setTab("deal")}}>Free Tool</button>
-              <button className="hbtn-y" onClick={()=>buy(PLANS[1])}>Get Pro — $49</button>
+              <button className="hbtn-y" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro — Coming Soon</button>
             </>
           }
         </div>
       </div>
 
       {view==="home"&&<>
+        <div className="jumpnav">
+          {[["Tools","#tools"],["How It Works","#how"],["Mission","#mission"],["Pricing","#pricing"],["FAQ","#faq"],["Contact","#contact"]].map(([label,href])=>(
+            <button key={label} className="jnav-btn" onClick={()=>{document.querySelector(href)?.scrollIntoView({behavior:"smooth"})}}>{label}</button>
+          ))}
+        </div>
+        <div className="beta-banner">
+          <div className="beta-plate">PIT STOP</div>
+          <div className="beta-text">
+            <strong>We're fine-tuning under the hood.</strong> The free Deal Analyzer is live and fully loaded — premium tools drop soon.<br/>
+            <em>Not taking payments yet. We'll let you know when we're ready to rip.</em>
+          </div>
+          <div className="beta-plate">BETA</div>
+        </div>
         <div className="hero">
           <div className="hero-road" />
           <div className="hero-center-plate">
@@ -873,7 +1072,7 @@ export default function App() {
           <div className="hero-tagline">Don't Sign. Counter.</div>
           <p className="hero-sub">CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers.</p>
           <div className="hero-btns">
-            <button className="btn-lg" onClick={()=>buy(PLANS[1])}>Get Pro Access — $49</button>
+            <button className="btn-lg" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
             <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>Try Free Deal Analyzer</button>
           </div>
           <div className="stats">
@@ -882,8 +1081,8 @@ export default function App() {
             <div className="stat"><div className="stat-n">$0</div><div className="stat-l">Dealer kickbacks. Ever.</div></div>
           </div>
         </div>
-        <div className="alert"><p>⚠️ The FTC rule protecting buyers from hidden dealer fees was <strong>sued and killed by the dealer lobby in 2025.</strong> Dealers can now legally hide fees. You need CNTROFR more than ever.</p></div>
-        <div className="sec">
+        <div id="tools" className="alert"><p>⚠️ The FTC rule protecting buyers from hidden dealer fees was <strong>sued and killed by the dealer lobby in 2025.</strong> Dealers can now legally hide fees. You need CNTROFR more than ever.</p></div>
+        <div id="how" className="sec">
           <div className="sec-eye">How It Works</div>
           <h2 className="sec-h2">Three Steps to Your Counter</h2>
           <p className="sec-sub">No account. No waiting. Enter your deal and get your counteroffer.</p>
@@ -923,7 +1122,22 @@ export default function App() {
             </table>
           </div>
         </div>
-        <div className="sec" style={{paddingTop:0}}>
+        <div id="mission" className="mission">
+          <div className="mission-inner">
+            <div className="mission-eye">Our Mission</div>
+            <h2 className="mission-h">The Dealer Has A Playbook.<br/><span className="y">Now You Do Too.</span></h2>
+            <p className="mission-body">
+              We built CNTROFR because <strong>the house always wins — until now.</strong> No dealer kickbacks. No advertiser relationships. No suits pulling strings behind the curtain. Just raw, unfiltered intelligence about your deal, handed to you before you sign your name to anything.<br/><br/>
+              The dealership has lawyers, trainers, and <strong>ten thousand deals worth of experience</strong> working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you.<br/><br/>
+              We studied the same playbooks. We know the scripts. <strong>Now you do too.</strong><br/><br/>
+              And here's something else worth saying: <strong>a fair deal is good for everyone.</strong> Your salesperson is working long hours and holidays to feed their family — they deserve your respect and your business if they treat you right. The greed lives at the top. CNTROFR targets that, not the people on the floor.<br/><br/>
+              Don't sign. Counter.
+            </p>
+            <div className="mission-sig">— The CNTROFR Team · Built For Buyers · Funded By None</div>
+          </div>
+        </div>
+
+        <div id="pricing" className="sec" style={{paddingTop:0}}>
           <div className="sec-eye">Pricing</div>
           <h2 className="sec-h2">Simple. Transparent. Yours.</h2>
           <p className="sec-sub">Pay once. No account. No subscription. Instant access.</p>
@@ -935,22 +1149,71 @@ export default function App() {
                 <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.btn}`} onClick={()=>buy(p)}>Get {p.name}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} style={{opacity:.45,cursor:"not-allowed"}} disabled>{p.hot?"Coming Soon — Pro Bundle":p.id==="guide"?"Coming Soon":"Coming Soon"}</button>
               </div>
             ))}
           </div>
         </div>
-        <FAQ />
-        <Contact />
+        <div className="sec" style={{paddingTop:0}}>
+          <div className="sec-eye">Why CNTROFR Saves You More Than Money</div>
+          <h2 className="sec-h2">The Average Car Deal Takes <span style={{color:"var(--red)"}}>14+ Hours.</span></h2>
+          <p className="sec-sub">Research, visits, negotiation, F&I office, paperwork — most buyers go in blind and pay for it.</p>
+          <div className="timesave">
+            <div className="tsgrid">
+              <div className="ts-card bad">
+                <div className="ts-num">14h</div>
+                <div className="ts-label">Average Time Spent Car Shopping</div>
+                <div className="ts-desc">Multiple dealer visits, hours of online research, and still walking in without knowing what the dealer knows about your deal.</div>
+              </div>
+              <div className="ts-card bad">
+                <div className="ts-num">$3,200</div>
+                <div className="ts-label">Average Overpayment Per Deal</div>
+                <div className="ts-desc">Between inflated vehicle price, lowball trade-in, mystery fees, and F&I markups — most buyers leave thousands on the table.</div>
+              </div>
+              <div className="ts-card good">
+                <div className="ts-num">~10m</div>
+                <div className="ts-label">Time to Run a Full CNTROFR Analysis</div>
+                <div className="ts-desc">Enter your deal. Get your verdict, your counter, and your scripts. Walk back in knowing what they know.</div>
+              </div>
+              <div className="ts-card good">
+                <div className="ts-num">$49</div>
+                <div className="ts-label">Cost of Pro Access vs. Thousands Saved</div>
+                <div className="ts-desc">Instead of spending hours Googling things you couldn't possibly know to prepare for — let us hand it to you in minutes.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="sec" style={{paddingTop:0}}>
+          <div className="equitable">
+            <div className="eq-quote">"A Great Deal Is Good For Both People At The Table."</div>
+            <p className="eq-body">
+              CNTROFR exists to expose greed — not to burn down the industry. <strong>Lots of people love cars. Lots of salespeople love selling them.</strong> That relationship can and should be a good one.<br/><br/>
+              The profit pressure that makes car buying miserable doesn't come from the floor. It comes from ownership and management structures built to extract maximum margin from every deal. Your salesperson often sees none of it.<br/><br/>
+              <strong>If you had a great experience — say so.</strong> Leave your salesperson a five-star review. Mention them by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them.<br/><br/>
+              CNTROFR's job is to make sure you're not overpaying. Your job — if the experience was good — is to make sure the right people get the credit.
+            </p>
+            <div className="eq-cta">⭐ Had a great experience? Leave your salesperson a review on Google, DealerRater, and Cars.com. It costs you nothing and means everything to them.</div>
+          </div>
+        </div>
+
+        <div id="faq"><FAQ /></div>
+        <div id="contact"><Contact /></div>
         <div className="footer">
           <div className="footer-plate"><div className="fp">CNTROFR</div></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>
+            <div className="powered-by">
+              <span>Powered by</span>
+              <span className="powered-by-logo">Claude AI by Anthropic</span>
+            </div>
+          </div>
           <p>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers — ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
           <div className="footer-links">
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
             <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Use</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
           </div>
         </div>
       </>}
@@ -980,6 +1243,18 @@ export default function App() {
         </div>
       )}
 
+      {view==="tos"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+          </div>
+          <TermsOfService />
+          <div className="footer">
+            <div className="footer-plate"><div className="fp">CNTROFR</div></div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC · <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+          </div>
+        </>
+      )}
       {modal&&<PayModal plan={modal} onClose={()=>setModal(null)} onSuccess={onPaid} />}
     </>
   );
