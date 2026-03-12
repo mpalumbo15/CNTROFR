@@ -232,7 +232,7 @@ const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 async function ai(prompt, web = false) {
   try {
-    const body = { model: "claude-sonnet-4-5", max_tokens: 1500, messages: [{ role: "user", content: prompt }] };
+    const body = { model: "claude-sonnet-4-5", max_tokens: 3000, messages: [{ role: "user", content: prompt }] };
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
 
     const controller = new AbortController();
@@ -266,7 +266,7 @@ async function ai(prompt, web = false) {
       }));
       const body2 = {
         model: "claude-sonnet-4-5",
-        max_tokens: 1500,
+        max_tokens: 3000,
         tools: [{ type: "web_search_20250305", name: "web_search" }],
         messages: [
           { role: "user", content: prompt },
