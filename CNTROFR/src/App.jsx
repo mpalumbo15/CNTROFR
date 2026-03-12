@@ -241,6 +241,17 @@ const S = `
   .tooltip-bubble { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--y); border-radius: 10px; padding: 10px 14px; width: 240px; font-size: 11px; color: var(--text2); line-height: 1.65; font-weight: 600; z-index: 100; pointer-events: none; opacity: 0; transition: opacity .2s; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
   .tooltip-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--y); }
   .tooltip-wrap:hover .tooltip-bubble { opacity: 1; }
+  /* ── CONDITION TOGGLE ── */
+  .cond-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+  .cond-btn { flex: 1; padding: 10px 8px; font-family: Nunito; font-size: 12px; font-weight: 900; border-radius: 10px; cursor: pointer; transition: all .2s; border: 2px solid var(--b1); background: var(--bg); color: var(--muted); text-align: center; }
+  .cond-btn:hover { border-color: var(--b2); color: var(--text2); }
+  .cond-btn.active { background: var(--y); border-color: var(--y); color: #111; }
+  .cond-btn.active-cpo { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .cond-tag { display: inline-block; font-size: 9px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px; border-radius: 100px; margin-left: 8px; }
+  .cond-tag-new { background: rgba(0,201,107,.12); color: var(--green); border: 1px solid rgba(0,201,107,.25); }
+  .cond-tag-used { background: rgba(255,214,0,.12); color: var(--y); border: 1px solid rgba(255,214,0,.25); }
+  .cond-tag-cpo { background: rgba(59,158,255,.12); color: var(--blue); border: 1px solid rgba(59,158,255,.25); }
+
   .disclaimer { background: rgba(255,214,0,.05); border: 1px solid rgba(255,214,0,.15); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; font-size: 11px; color: var(--muted); line-height: 1.65; font-weight: 600; }
   .disclaimer strong { color: var(--y); }
   /* ── JUMP NAV ── */
@@ -445,17 +456,18 @@ function Loading({ msg, web }) {
 }
 
 function DealAnalyzer() {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" });
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" }); const [condition, setCondition] = useState("used");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
     setL(true); setR(null); setM(null);
     setLM("Analyzing your deal...");
     const t = await ai(`You are a veteran automotive insider with deep knowledge of current dealer sales training programs — including techniques taught by Grant Cardone, Joe Verde, and Reynolds & Reynolds dealer training. You understand payment packing, four-square manipulation, trade-in lowballing, and modern F&I profit extraction strategies. Use only current market data and tactics — no outdated information. Analyze this deal from the buyer's perspective.
-${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | ${f.mileage ? f.mileage+" miles" : "New / mileage not provided"} | MSRP $${f.msrp} | Asking $${f.offer}
+${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":""} | ${condition==="new" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} | MSRP $${f.msrp} | Asking $${f.offer}
 Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 
+${condition==="cpo" ? "## CPO PREMIUM CHECK — Is the CPO markup justified? What does the certification actually cover and what does it exclude? Is the factory warranty still active or expired?" : ""}
 ## OVERALL VERDICT — GO, NEGOTIATE, or WALK AWAY. One sentence why.
 ## VEHICLE PRICE — Is this fair given the mileage and trim? How much room is left? If mileage is above average (15,000/yr), factor depreciation impact explicitly.
 ## TRADE-IN — Fair offer or lowball? Account for negative equity if owed exceeds offered.
@@ -469,7 +481,7 @@ Do not provide financing rate or payment advice.`);
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
-      const mkt = await ai(`Search for current ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
+      const mkt = await ai(`Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
 
 ## MARKET VERDICT — Is $${f.offer} above, at, or below market?
 ## COMPARABLE LISTINGS — Dealer name, city, price, mileage for each.
@@ -484,6 +496,27 @@ Do not provide financing rate or payment advice.`);
     <div>
       <div className="phd"><h2>Deal <span>Analyzer</span></h2><p>Enter your numbers. Get your counter before you sign.</p></div>
       <div className="disclaimer"><strong>Note:</strong> CNTROFR analyzes deal pricing, trade-in value, and add-on products only. We do not provide financing or credit advice. Consult a financial professional for loan decisions.</div>
+      <div className="cond-toggle">
+        <button className={`cond-btn ${condition==="new"?"active":""}`} onClick={()=>setCondition("new")}>
+          🆕 New
+        </button>
+        <button className={`cond-btn ${condition==="used"?"active":""}`} onClick={()=>setCondition("used")}>
+          🔑 Used
+        </button>
+        <button className={`cond-btn ${condition==="cpo"?"active active-cpo":""}`} onClick={()=>setCondition("cpo")}>
+          ✅ CPO
+        </button>
+      </div>
+      {condition==="cpo" && (
+        <div style={{background:"rgba(59,158,255,.06)",border:"1px solid rgba(59,158,255,.2)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:11,color:"#A0C8FF",fontWeight:700,lineHeight:1.7}}>
+          <strong style={{color:"var(--blue)"}}>CPO heads up:</strong> Certified Pre-Owned programs vary wildly by manufacturer. We'll analyze what the certification actually covers, what it doesn't, whether the dealer is marking up the CPO premium, and if you'd be better off with an independent warranty instead.
+        </div>
+      )}
+      {condition==="new" && (
+        <div style={{background:"rgba(0,201,107,.06)",border:"1px solid rgba(0,201,107,.2)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:11,color:"#80E8B0",fontWeight:700,lineHeight:1.7}}>
+          <strong style={{color:"var(--green)"}}>New vehicle:</strong> Mileage field not required. We'll focus on MSRP vs. market value, dealer markup above sticker, allocation games, and any mandatory add-ons the dealer is bundling.
+        </div>
+      )}
       <div className="card">
         <div className="ch"><span className="clbl">The Vehicle</span></div>
         <div className="cb">
@@ -504,6 +537,7 @@ Do not provide financing rate or payment advice.`);
           </div>
           <div className="sp" />
           <div className="g2">
+            {condition!=="new" && (
             <div className="fld">
               <label style={{display:"flex",alignItems:"center"}}>
                 Mileage
@@ -512,8 +546,9 @@ Do not provide financing rate or payment advice.`);
                   <div className="tooltip-bubble">Average mileage is roughly 12,000–15,000 miles per year. High mileage accelerates depreciation and affects what the car is truly worth. We use this to flag whether the asking price reflects reality — or ignores the odometer entirely.</div>
                 </div>
               </label>
-              <input placeholder="e.g. 34,200 — leave blank if new" value={f.mileage} onChange={s("mileage")} />
+              <input placeholder="e.g. 34,200" value={f.mileage} onChange={s("mileage")} />
             </div>
+            )}
             <div className="fld"><label>MSRP (Sticker)</label><input placeholder="32,000" value={f.msrp} onChange={s("msrp")} /></div>
           </div>
           <div className="sp" />
