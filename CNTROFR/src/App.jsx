@@ -555,7 +555,7 @@ function Contact() {
   const send = async () => {
     setSending(true);
     try {
-      await fetch("https://formspree.io/f/xpwzgkdq", {
+      await fetch("https://formspree.io/f/mojkdrrg", {
         method:"POST", headers:{"Content-Type":"application/json","Accept":"application/json"},
         body: JSON.stringify(f)
       });
