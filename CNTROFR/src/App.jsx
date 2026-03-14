@@ -28,8 +28,8 @@ const S = `
   .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); background: var(--y); }
   .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
   .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); background: var(--y); }
-  .burger-menu { position: fixed; top: 56px; right: 0; width: 240px; background: var(--bg2); border-left: 2px solid var(--b1); border-bottom: 2px solid var(--b1); border-radius: 0 0 0 16px; z-index: 999; display: flex; flex-direction: column; padding: 8px; gap: 4px; box-shadow: -4px 8px 32px rgba(0,0,0,.4); animation: slideIn .2s ease; }
-  @keyframes slideIn { from { opacity:0; transform: translateX(16px); } to { opacity:1; transform: translateX(0); } }
+  .burger-menu { position: fixed; top: 56px; left: 0; width: 240px; background: var(--bg2); border-right: 2px solid var(--b1); border-bottom: 2px solid var(--b1); border-radius: 0 0 16px 0; z-index: 999; display: flex; flex-direction: column; padding: 8px; gap: 4px; box-shadow: 4px 8px 32px rgba(0,0,0,.4); animation: slideIn .2s ease; }
+  @keyframes slideIn { from { opacity:0; transform: translateX(-16px); } to { opacity:1; transform: translateX(0); } }
   .bmenu-item { background: none; border: none; color: var(--text2); font-family: Nunito; font-size: 13px; font-weight: 800; padding: 12px 16px; text-align: left; cursor: pointer; border-radius: 8px; transition: all .15s; letter-spacing: .3px; }
   .bmenu-item:hover { background: var(--bg3); color: var(--y); }
   .bmenu-item.highlight { background: var(--y); color: #111; margin-top: 4px; text-align: center; }
@@ -277,11 +277,7 @@ const S = `
 
   .disclaimer { background: rgba(255,214,0,.05); border: 1px solid rgba(255,214,0,.15); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; font-size: 11px; color: var(--muted); line-height: 1.65; font-weight: 600; }
   .disclaimer strong { color: var(--y); }
-  /* ── JUMP NAV ── */
-  .jumpnav { background: var(--bg3); border-bottom: 1px solid var(--b1); padding: 0 28px; display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
-  .jumpnav::-webkit-scrollbar { display: none; }
-  .jnav-btn { background: none; border: none; color: var(--muted); font-family: Nunito; font-size: 11px; font-weight: 800; letter-spacing: .5px; padding: 10px 14px; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all .2s; }
-  .jnav-btn:hover { color: var(--y); border-bottom-color: var(--y); }
+
 
   /* ── MISSION ── */
   .mission { background: linear-gradient(135deg, #0E0E14 0%, #16161E 50%, #0E0E14 100%); border-top: 3px solid var(--y); border-bottom: 3px solid var(--y); padding: 64px 24px; text-align: center; position: relative; overflow: hidden; }
@@ -1236,14 +1232,12 @@ export default function App() {
     <>
       <style>{S}</style>
       <div className="hdr">
+        <button className={`burger ${menuOpen?"open":""}`} onClick={()=>setMenuOpen(m=>!m)} aria-label="Menu">
+          <span/><span/><span/>
+        </button>
         <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
           <div className="hdr-plate">CNTROFR</div>
           <div className="hdr-tagline">Don't Sign. Counter.</div>
-        </div>
-        <div className="hdr-right">
-          <button className={`burger ${menuOpen?"open":""}`} onClick={()=>setMenuOpen(m=>!m)} aria-label="Menu">
-            <span/><span/><span/>
-          </button>
         </div>
       </div>
       {menuOpen && (
@@ -1263,11 +1257,7 @@ export default function App() {
       )}
 
       {view==="home"&&<>
-        <div className="jumpnav">
-          {[["Tools","#tools"],["How It Works","#how"],["Mission","#mission"],["Pricing","#pricing"],["FAQ","#faq"],["Contact","#contact"]].map(([label,href])=>(
-            <button key={label} className="jnav-btn" onClick={()=>{document.querySelector(href)?.scrollIntoView({behavior:"smooth"})}}>{label}</button>
-          ))}
-        </div>
+
         <div className="beta-banner">
           <div className="beta-plate">PIT STOP</div>
           <div className="beta-text">
