@@ -112,8 +112,9 @@ const S = `
   .faq-icon { font-family: 'Bebas Neue'; font-size: 20px; color: var(--y); flex-shrink: 0; transition: transform .2s; }
   .faq-item.open .faq-icon { transform: rotate(45deg); }
   .faq-a { padding: 14px 20px 16px; font-size: 13px; color: var(--text2); line-height: 1.75; font-weight: 600; border-top: 1px solid var(--b1); }
-  .pgrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 32px; }
-  @media(max-width:640px){ .pgrid { grid-template-columns: 1fr; } }
+  .pgrid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-top: 32px; }
+  @media(max-width:900px){ .pgrid { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:520px){ .pgrid { grid-template-columns: 1fr; } }
   .pcard { background: var(--bg2); border: 2px solid var(--b1); border-radius: 18px; padding: 28px 22px; position: relative; transition: all .2s; }
   .pcard:hover { transform: translateY(-3px); }
   .pcard.hot { border-color: var(--y); }
@@ -1174,6 +1175,7 @@ function Contact() {
 }
 
 const PLANS = [
+  {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't — yet","No account. No login. Ever."],btn:"out",unlocks:["firsttime"]},
   {id:"single",name:"Single Report",price:19,desc:"One full deal analysis.",features:["Deal Analyzer — full breakdown","GO / NEGOTIATE / WALK verdict","Your counter offer strategy","No account. No login. Ever."],btn:"out",unlocks:["deal"]},
   {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses"],btn:"fill",unlocks:["deal","fee","review","fi","addons"]},
   {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:[]},
