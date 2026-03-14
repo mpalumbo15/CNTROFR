@@ -22,6 +22,19 @@ const S = `
   .hbtn:hover { border-color: var(--y); color: var(--y); }
   .hbtn-y { background: var(--y); color: #111; border: none; padding: 8px 22px; font-family: Nunito; font-size: 12px; font-weight: 900; cursor: pointer; border-radius: 8px; transition: background .2s; box-shadow: 0 2px 12px rgba(255,214,0,.3); }
   .hbtn-y:hover { background: var(--yd); }
+  .burger { background: none; border: none; cursor: pointer; padding: 8px; display: flex; flex-direction: column; gap: 5px; border-radius: 8px; transition: background .2s; }
+  .burger:hover { background: var(--bg3); }
+  .burger span { display: block; width: 22px; height: 2px; background: var(--text2); border-radius: 2px; transition: all .3s; }
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); background: var(--y); }
+  .burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); background: var(--y); }
+  .burger-menu { position: fixed; top: 56px; right: 0; width: 240px; background: var(--bg2); border-left: 2px solid var(--b1); border-bottom: 2px solid var(--b1); border-radius: 0 0 0 16px; z-index: 999; display: flex; flex-direction: column; padding: 8px; gap: 4px; box-shadow: -4px 8px 32px rgba(0,0,0,.4); animation: slideIn .2s ease; }
+  @keyframes slideIn { from { opacity:0; transform: translateX(16px); } to { opacity:1; transform: translateX(0); } }
+  .bmenu-item { background: none; border: none; color: var(--text2); font-family: Nunito; font-size: 13px; font-weight: 800; padding: 12px 16px; text-align: left; cursor: pointer; border-radius: 8px; transition: all .15s; letter-spacing: .3px; }
+  .bmenu-item:hover { background: var(--bg3); color: var(--y); }
+  .bmenu-item.highlight { background: var(--y); color: #111; margin-top: 4px; text-align: center; }
+  .bmenu-item.highlight:hover { background: var(--yd); }
+  .bmenu-divider { height: 1px; background: var(--b1); margin: 4px 8px; }
   .hero { max-width: 900px; margin: 0 auto; padding: 80px 24px 60px; text-align: center; position: relative; }
   .hero-road { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: repeating-linear-gradient(90deg, var(--y) 0px, var(--y) 40px, transparent 40px, transparent 80px); opacity: .3; }
   .hero-center-plate { display: flex; justify-content: center; margin-bottom: 32px; }
@@ -43,6 +56,16 @@ const S = `
   .stats { display: flex; justify-content: center; gap: 48px; margin-top: 56px; padding-top: 36px; border-top: 1px solid var(--b1); flex-wrap: wrap; }
   .stat-n { font-family: 'Bebas Neue'; font-size: 40px; color: var(--y); letter-spacing: 1px; }
   .stat-l { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; letter-spacing: .5px; }
+  /* ── SEVERITY / WARNING STYLES ── */
+  .severity-wrap { margin-top: 10px; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+  .extreme-warn { background: rgba(255,40,40,.1); border: 2px solid rgba(255,40,40,.4); border-radius: 12px; padding: 16px 18px; margin-top: 16px; }
+  .extreme-warn-title { font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 2px; color: var(--red); margin-bottom: 6px; }
+  .ftb-box { background: rgba(255,214,0,.06); border: 2px solid rgba(255,214,0,.2); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .ftb-title { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 2px; color: var(--y); margin-bottom: 8px; }
+  .ftb-body { font-size: 13px; color: var(--text2); line-height: 1.85; font-weight: 600; }
+  .buyers-badge { display: inline-block; background: var(--y); color: #111; font-family: 'Bebas Neue'; font-size: 11px; letter-spacing: 3px; padding: 3px 12px; border-radius: 4px; margin-bottom: 8px; }
+
   /* ── BETA BANNER ── */
   .beta-banner { background: repeating-linear-gradient(45deg, #111118 0px, #111118 12px, #16161E 12px, #16161E 24px); border-top: 3px solid var(--y); border-bottom: 3px solid var(--y); padding: 14px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
   .beta-plate { background: var(--y); border: 2px solid #B8A000; border-radius: 5px; padding: 2px 10px; font-family: 'Bebas Neue'; font-size: 14px; letter-spacing: 3px; color: #111; box-shadow: 0 2px 0 #8A7800; white-space: nowrap; }
@@ -468,6 +491,7 @@ Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRa
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 
 ${condition==="cpo" ? "## CPO PREMIUM CHECK — Is the CPO markup justified? What does the certification actually cover and what does it exclude? Is the factory warranty still active or expired?" : ""}
+## EXTREME WARNING — Only include this section if truly extraordinary red flags exist that go beyond normal negotiation concerns (examples: severe accident + above market price + high mileage combo, signs of title washing, VIN anomalies mentioned, dealer withholding required disclosures, deal structure that looks predatory). If no extreme flags exist, omit this section entirely. If it does trigger, make it unmistakable.
 ## OVERALL VERDICT — GO, NEGOTIATE, or WALK AWAY. One sentence why.
 ## VEHICLE PRICE — Is this fair given the mileage and trim? How much room is left? If mileage is above average (15,000/yr), factor depreciation impact explicitly.
 ## TRADE-IN — Fair offer or lowball? Account for negative equity if owed exceeds offered.
@@ -517,6 +541,7 @@ Do not provide financing rate or payment advice.`);
           <strong style={{color:"var(--green)"}}>New vehicle:</strong> Mileage field not required. We'll focus on MSRP vs. market value, dealer markup above sticker, allocation games, and any mandatory add-ons the dealer is bundling.
         </div>
       )}
+
       <div className="card">
         <div className="ch"><span className="clbl">The Vehicle</span></div>
         <div className="cb">
@@ -537,6 +562,30 @@ Do not provide financing rate or payment advice.`);
           </div>
           <div className="sp" />
           <div className="g2">
+            {condition!=="new" && (
+            <div className="fld">
+              <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer",fontSize:12,fontWeight:800,color:"var(--text2)"}}>
+                <input type="checkbox" checked={accidentReported} onChange={e=>{setAccidentReported(e.target.checked);if(!e.target.checked)setAccidentSeverity("");}} style={{accentColor:"var(--y)",width:14,height:14}} />
+                Accident Reported (CarFax / AutoCheck)
+              </label>
+              {accidentReported && (
+                <div className="severity-wrap">
+                  <div className="fld">
+                    <label>Accident Severity</label>
+                    <select value={accidentSeverity} onChange={e=>setAccidentSeverity(e.target.value)} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
+                      <option value="">Select severity</option>
+                      <option value="minor">Minor — cosmetic damage, airbags not deployed</option>
+                      <option value="moderate">Moderate — structural repair, possible frame work</option>
+                      <option value="severe">Severe — major structural, airbag deployment, total loss candidate</option>
+                    </select>
+                  </div>
+                  <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,marginTop:6,lineHeight:1.6}}>
+                    If the dealer is not providing a CarFax or AutoCheck report — that is a red flag. Walk away.
+                  </div>
+                </div>
+              )}
+            </div>
+            )}
             {condition!=="new" && (
             <div className="fld">
               <label style={{display:"flex",alignItems:"center"}}>
@@ -759,14 +808,14 @@ const FI = [
 ];
 function FIDecoder() {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
-  const [warrantyBrand, setWB] = useState("");
+  const [warrantyBrand, setWB] = useState(""); const [drivingHabits, setDrivingHabits] = useState(""); const [ownershipLength, setOwnershipLength] = useState("");
   const WARRANTY_COS = ["","Safe-Guard Products","JM&A Group","Assurant Dealer Services","EFG Companies","Protective Asset Protection"];
   const toggle = id => setSel(s=>({...s,[id]:!s[id]}));
   const picked = FI.filter(p=>sel[p.id]);
   const run = async () => {
     setL(true); setR(null);
     const list = picked.map(p=>`- ${p.name}: $${prices[p.id]||"unknown"}`).join("\n");
-    const t = await ai(`You are a former F&I manager with knowledge of current dealer training programs and modern warranty product structures. Reference current claims data where available. Use only up-to-date information. Vehicle: ${veh||"not specified"}${warrantyBrand ? "\nWarranty provider: "+warrantyBrand : ""}\nProducts:\n${list}
+    const t = await ai(`You are a former F&I manager with knowledge of current dealer training programs and modern warranty product structures. Reference current claims data where available. Use only up-to-date information. Vehicle: ${veh||"not specified"}${warrantyBrand ? "\nWarranty provider: "+warrantyBrand : ""}${drivingHabits ? "\nDriving habits: "+drivingHabits : ""}${ownershipLength ? "\nPlanned ownership: "+ownershipLength : ""}\nProducts:\n${list}
 Search for current claims approval vs denial rates for these products${warrantyBrand ? " specifically from "+warrantyBrand : ""}. Look for CFPB complaints, BBB data, and consumer reports on each.
 
 For EACH product:
@@ -777,6 +826,8 @@ For EACH product:
 - Where to buy it cheaper if applicable
 - Exact script to decline or negotiate down
 ## OVERALL F&I STRATEGY — What to keep, cut, and estimated total savings.
+## PRODUCT PENETRATION INSIGHT — F&I managers are assessed on product penetration (how many products per deal), not just gross profit. This means they have flexibility to discount everything on their menu if they think a yes is on the table. The buyer who says "I want to think about it" and asks for time gets that time — always. Use that time. Come back with a counter, not a no.
+## MAINTENANCE REMINDER — Briefly note that staying current on manufacturer-recommended maintenance is required to keep most warranties valid and maximizes resale value. If the vehicle or ownership profile suggests high maintenance costs, flag it honestly. If the cost of upkeep is too high for the buyer's situation, they may be looking at the wrong vehicle.
 ## OPENING LINE — Your first words walking into the F&I office.`);
     setR(t); setL(false);
   };
@@ -798,6 +849,33 @@ For EACH product:
         </div>
         <div style={{fontSize:10,color:"var(--muted)",marginTop:8,fontWeight:700,lineHeight:1.6}}>
           * Top 5 selected by dealership market share (F&I industry data). Not an endorsement. All providers analyzed objectively.
+        </div>
+      </div></div>
+      <div className="card"><div className="ch"><span className="clbl">Your Situation</span><span className="clbl-sub">Helps us match coverage to your actual needs</span></div><div className="cb">
+        <div className="g2">
+          <div className="fld">
+            <label>Driving Habits</label>
+            <select value={drivingHabits||""} onChange={e=>setDrivingHabits(e.target.value)} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
+              <option value="">Select your driving style</option>
+              <option value="low">Low mileage — under 8,000 miles/year</option>
+              <option value="average">Average — 10,000 to 15,000 miles/year</option>
+              <option value="high">High mileage — 15,000 to 25,000 miles/year</option>
+              <option value="extreme">Extreme — 25,000+ miles/year (traveling sales, rideshare, etc.)</option>
+            </select>
+          </div>
+          <div className="fld">
+            <label>Estimated Ownership Length</label>
+            <select value={ownershipLength||""} onChange={e=>setOwnershipLength(e.target.value)} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
+              <option value="">How long do you plan to keep it?</option>
+              <option value="short">1-2 years (short term / lease alternative)</option>
+              <option value="medium">3-4 years (typical cycle)</option>
+              <option value="long">5-7 years (keeping it a while)</option>
+              <option value="forever">8+ years (running it into the ground)</option>
+            </select>
+          </div>
+        </div>
+        <div style={{fontSize:10,color:"var(--muted)",marginTop:8,fontWeight:700,lineHeight:1.6}}>
+          A traveling salesperson putting on 30,000 miles a year needs completely different coverage than someone driving 6,000 miles locally. Your answers change everything about what's actually worth buying.
         </div>
       </div></div>
       <div className="card">
@@ -985,18 +1063,25 @@ const FAQS = [
   {q:"What if the dealer won't budge?",a:"Having the right information is powerful, but the dealership still has to agree to terms. If they won't move, be confident and walk. They are not the only game in town, and a dealer that won't negotiate fairly on one line item is likely doing it everywhere else too."},
   {q:"Is this legit for both new and used car dealerships?",a:"Yes. Franchise dealers, independent lots, certified pre-owned programs — the F&I playbook and the fee games are industry-wide. CNTROFR is built on insider knowledge from both sides of that desk."},
   {q:"Why is your Pro subscription only 7 days?",a:"Simple — if you're not ready to pull the trigger in 7 days, you're not prepared to make a purchase. Do your homework first, then come back when you're ready to move. We'll be here. No pressure, no recurring charges, no gotchas."},
+  {q:"What should I spend all the money I saved on?",a:"Honestly? You could save it for registration, insurance, or your first service appointment. But we'd probably spend it on sandwiches and video games. And that's exactly the point — it's your money. Your choice. We just made sure it stayed yours."},
+  {q:"This is my first time buying a car. Is CNTROFR for me?",a:"Absolutely — and we built something specifically for you. First time buyers are the most vulnerable in the dealership. You don't know what you don't know, and the dealer knows everything. Use our First Time Buyer tool before you go anywhere near a showroom. Things change fast in this industry and most people only do this every 5-10 years. You deserve to walk in prepared."},
+  {q:"Is CNTROFR for shoppers or buyers?",a:"Buyers. If you're still deciding what you want, come back when you're ready to ink up. We're built for the person who knows what they want and is ready to go get it on fair terms. That focus is exactly what makes us different from every other car research site out there."},
   {q:"I have a question that isn't answered here. How do I reach you?",a:"Email us directly at info@cntrofr.com — we respond to every message personally. You can also use the contact form on this page and we'll get back to you within 24 hours."},
 ];
 
+const TOP_FAQS = 4;
+
 function FAQ() {
   const [open, setOpen] = useState(null);
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? FAQS : FAQS.slice(0, TOP_FAQS);
   return (
     <div className="sec">
       <div className="sec-eye">Got Questions</div>
       <h2 className="sec-h2">Frequently Asked</h2>
       <p className="sec-sub">Everything you need to know before you buy.</p>
       <div className="faq-list">
-        {FAQS.map((f,i)=>(
+        {visible.map((f,i)=>(
           <div key={i} className={`faq-item ${open===i?"open":""}`}>
             <div className="faq-q" onClick={()=>setOpen(open===i?null:i)}>
               <span>{f.q}</span>
@@ -1006,6 +1091,30 @@ function FAQ() {
           </div>
         ))}
       </div>
+      {!showAll && (
+        <div style={{textAlign:"center",marginTop:16}}>
+          <button
+            onClick={()=>setShowAll(true)}
+            style={{background:"none",border:"2px solid var(--b1)",color:"var(--muted)",fontFamily:"Nunito",fontSize:12,fontWeight:800,padding:"10px 28px",borderRadius:100,cursor:"pointer",letterSpacing:".5px",transition:"all .2s"}}
+            onMouseOver={e=>{e.target.style.borderColor="var(--y)";e.target.style.color="var(--y)";}}
+            onMouseOut={e=>{e.target.style.borderColor="var(--b1)";e.target.style.color="var(--muted)";}}
+          >
+            See All Questions ({FAQS.length - TOP_FAQS} more) ↓
+          </button>
+        </div>
+      )}
+      {showAll && (
+        <div style={{textAlign:"center",marginTop:16}}>
+          <button
+            onClick={()=>{setShowAll(false);setOpen(null);}}
+            style={{background:"none",border:"2px solid var(--b1)",color:"var(--muted)",fontFamily:"Nunito",fontSize:12,fontWeight:800,padding:"10px 28px",borderRadius:100,cursor:"pointer",letterSpacing:".5px",transition:"all .2s"}}
+            onMouseOver={e=>{e.target.style.borderColor="var(--y)";e.target.style.color="var(--y)";}}
+            onMouseOut={e=>{e.target.style.borderColor="var(--b1)";e.target.style.color="var(--muted)";}}
+          >
+            Show Less ↑
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -1115,6 +1224,7 @@ const TABS = [
 
 export default function App() {
   const [view,setView]=useState("home"); // home | tools | contact | tos
+  const [menuOpen,setMenuOpen]=useState(false);
   const [tab,setTab]=useState("deal");
   const [modal,setModal]=useState(null);
   const [access,setAccess]=useState([]);
@@ -1126,21 +1236,31 @@ export default function App() {
     <>
       <style>{S}</style>
       <div className="hdr">
-        <div className="hdr-logo" onClick={()=>setView("home")}>
+        <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
           <div className="hdr-plate">CNTROFR</div>
           <div className="hdr-tagline">Don't Sign. Counter.</div>
         </div>
         <div className="hdr-right">
-          {view==="tools"
-            ?<button className="hbtn" onClick={()=>setView("home")}>← Home</button>
-            :<>
-              <button className="hbtn" onClick={()=>setView("contact")}>Contact</button>
-              <button className="hbtn" onClick={()=>{setView("tools");setTab("deal")}}>Free Tool</button>
-              <button className="hbtn-y" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro — Coming Soon</button>
-            </>
-          }
+          <button className={`burger ${menuOpen?"open":""}`} onClick={()=>setMenuOpen(m=>!m)} aria-label="Menu">
+            <span/><span/><span/>
+          </button>
         </div>
       </div>
+      {menuOpen && (
+        <div className="burger-menu">
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);window.scrollTo(0,0);}}>🏠 Home</button>
+          <button className="bmenu-item" onClick={()=>{setView("tools");setTab("deal");setMenuOpen(false);}}>⚡ Free Deal Analyzer</button>
+          <div className="bmenu-divider"/>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 All Tools</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#mission")?.scrollIntoView({behavior:"smooth"}),100);}}>🎯 Mission</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 Pricing</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#faq")?.scrollIntoView({behavior:"smooth"}),100);}}>❓ FAQ</button>
+          <div className="bmenu-divider"/>
+          <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}>✉️ Contact</button>
+          <div className="bmenu-divider"/>
+          <button className="bmenu-item highlight" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
+        </div>
+      )}
 
       {view==="home"&&<>
         <div className="jumpnav">
@@ -1230,6 +1350,7 @@ export default function App() {
               And here's something else worth saying: <strong>a fair deal is good for everyone.</strong> Your salesperson is working long hours and holidays to feed their family — they deserve your respect and your business if they treat you right. The greed lives at the top. CNTROFR targets that, not the people on the floor.<br/><br/>
               Don't sign. Counter.
             </p>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:"clamp(18px, 3vw, 26px)",letterSpacing:"1px",color:"var(--y)",margin:"0 0 16px",lineHeight:1.3}}>"I built the tool I wish my customers had."</div>
             <div className="mission-sig">— The CNTROFR Team · Built For Buyers · Funded By None</div>
           </div>
         </div>
