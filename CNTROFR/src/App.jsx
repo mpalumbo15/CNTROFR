@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 const S = `
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; } body { -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
   :root {
     --y: #FFD600; --yd: #E8C200; --yp: rgba(255,214,0,0.1);
     --red: #FF4444; --green: #00C96B; --blue: #3B9EFF;
@@ -11,7 +11,7 @@ const S = `
     --muted: #606080; --text: #EEEAF8; --text2: #A8A4C8;
   }
   body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; overflow-x: hidden; }
-  .hdr { position: sticky; top: 0; z-index: 200; background: rgba(14,14,20,.96); backdrop-filter: blur(12px); border-bottom: 2px solid var(--b1); padding: 0 28px; display: flex; align-items: center; height: 62px; gap: 16px; }
+  .hdr { position: sticky; top: 0; z-index: 200; background: rgba(14,14,20,.96); backdrop-filter: blur(12px); border-bottom: 2px solid var(--b1); padding: 0 16px; display: flex; align-items: center; height: 56px; gap: 12px; }
   .hdr-logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
   .hdr-plate { background: var(--y); border: 2px solid #B8A000; border-radius: 5px; padding: 3px 10px; box-shadow: 0 2px 0 #8A7800, 0 3px 10px rgba(255,214,0,.25); font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 4px; color: #111; position: relative; }
   .hdr-plate::before, .hdr-plate::after { content: '●'; position: absolute; top: 50%; transform: translateY(-50%); font-size: 6px; color: #B8A000; }
@@ -49,7 +49,7 @@ const S = `
   .hero-tagline { font-family: 'Bebas Neue'; font-size: clamp(14px, 3vw, 22px); letter-spacing: 6px; color: var(--y); margin-bottom: 14px; }
   .hero-sub { font-size: 15px; color: var(--text2); max-width: 500px; margin: 0 auto 36px; line-height: 1.75; font-weight: 600; }
   .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .btn-lg { background: var(--y); color: #111; border: none; padding: 15px 40px; font-family: Nunito; font-size: 16px; font-weight: 900; cursor: pointer; border-radius: 12px; transition: all .2s; box-shadow: 0 4px 22px rgba(255,214,0,.3); }
+  .btn-lg { background: var(--y); color: #111; border: none; padding: 16px 40px; font-family: Nunito; font-size: 16px; font-weight: 900; cursor: pointer; border-radius: 12px; transition: all .2s; box-shadow: 0 4px 22px rgba(255,214,0,.3); width: 100%; } @media(min-width:600px){ .btn-lg { width: auto; } }
   .btn-lg:hover { background: var(--yd); transform: translateY(-1px); }
   .btn-lg-ghost { background: transparent; border: 2px solid var(--b2); color: var(--text2); padding: 13px 28px; font-family: Nunito; font-size: 15px; font-weight: 800; cursor: pointer; border-radius: 12px; transition: all .2s; }
   .btn-lg-ghost:hover { border-color: var(--y); color: var(--y); }
@@ -76,7 +76,7 @@ const S = `
   .alert { background: rgba(255,68,68,.07); border-top: 1px solid rgba(255,68,68,.2); border-bottom: 1px solid rgba(255,68,68,.2); padding: 12px 24px; text-align: center; }
   .alert p { font-size: 12px; color: #FF8888; font-weight: 700; }
   .alert p strong { color: var(--red); }
-  .sec { max-width: 900px; margin: 0 auto; padding: 64px 24px; }
+  .sec { max-width: 900px; margin: 0 auto; padding: 48px 16px; } @media(min-width:600px){ .sec { padding: 64px 24px; } }
   .sec-eye { font-family: 'Bebas Neue'; font-size: 12px; letter-spacing: 4px; color: var(--y); text-align: center; margin-bottom: 10px; }
   .sec-h2 { font-family: 'Bebas Neue'; font-size: clamp(28px, 5vw, 44px); letter-spacing: 1px; text-align: center; margin-bottom: 6px; }
   .sec-sub { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 36px; font-weight: 600; }
@@ -178,7 +178,7 @@ const S = `
   .secnote span { color: var(--green); }
   .tarea { max-width: 900px; margin: 0 auto; padding: 28px 24px 60px; }
   .tnav { display: flex; gap: 6px; padding-bottom: 22px; flex-wrap: wrap; }
-  .ttab { background: var(--bg2); border: 2px solid var(--b1); color: var(--muted); padding: 8px 18px; font-family: Nunito; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 100px; transition: all .2s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .ttab { background: var(--bg2); border: 2px solid var(--b1); color: var(--muted); padding: 10px 20px; font-family: Nunito; font-size: 13px; font-weight: 800; cursor: pointer; border-radius: 100px; transition: all .2s; white-space: nowrap; display: flex; align-items: center; gap: 6px; min-height: 44px; }
   .ttab:hover:not(.lk) { border-color: var(--b2); color: var(--text2); }
   .ttab.on { background: var(--y); border-color: var(--y); color: #111; }
   .ttab.lk { opacity: .4; cursor: not-allowed; }
@@ -186,7 +186,7 @@ const S = `
   .upbox { background: var(--bg2); border: 2px solid var(--b1); border-radius: 16px; padding: 56px 32px; text-align: center; }
   .upbox h3 { font-family: 'Bebas Neue'; font-size: 28px; letter-spacing: 2px; margin-bottom: 10px; }
   .upbox p { font-size: 13px; color: var(--text2); max-width: 320px; margin: 0 auto 24px; line-height: 1.7; font-weight: 600; }
-  .card { background: var(--bg2); border: 2px solid var(--b1); border-radius: 14px; margin-bottom: 16px; }
+  .card { background: var(--bg2); border: 2px solid var(--b1); border-radius: 14px; margin-bottom: 14px; }
   .ch { padding: 14px 20px; border-bottom: 1px solid var(--b1); }
   .clbl { font-size: 10px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase; color: var(--y); }
   .cb { padding: 20px; }
@@ -194,8 +194,8 @@ const S = `
   .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
   @media(max-width:540px){ .g2,.g3 { grid-template-columns: 1fr; } }
   .fld { display: flex; flex-direction: column; gap: 5px; }
-  .fld label { font-size: 10px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
-  .fld input, .fld select, .fld textarea { background: var(--bg); border: 2px solid var(--b1); color: var(--text); font-family: 'JetBrains Mono'; font-size: 12px; padding: 9px 12px; border-radius: 8px; outline: none; transition: border-color .2s; width: 100%; }
+  .fld label { font-size: 11px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .fld input, .fld select, .fld textarea { background: var(--bg); border: 2px solid var(--b1); color: var(--text); font-family: 'JetBrains Mono'; font-size: 16px; padding: 12px 14px; border-radius: 10px; outline: none; transition: border-color .2s; width: 100%; -webkit-appearance: none; } @media(min-width:600px){ .fld input, .fld select, .fld textarea { font-size: 13px; padding: 9px 12px; } }
   .fld input:focus, .fld select:focus, .fld textarea:focus { border-color: var(--y); }
   .fld input::placeholder { color: var(--muted); }
   .fld select option { background: #111; }
@@ -267,7 +267,7 @@ const S = `
   .tooltip-wrap:hover .tooltip-bubble { opacity: 1; }
   /* ── CONDITION TOGGLE ── */
   .cond-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
-  .cond-btn { flex: 1; padding: 10px 8px; font-family: Nunito; font-size: 12px; font-weight: 900; border-radius: 10px; cursor: pointer; transition: all .2s; border: 2px solid var(--b1); background: var(--bg); color: var(--muted); text-align: center; }
+  .cond-btn { flex: 1; padding: 12px 8px; font-family: Nunito; font-size: 13px; font-weight: 900; border-radius: 10px; cursor: pointer; transition: all .2s; border: 2px solid var(--b1); background: var(--bg); color: var(--muted); text-align: center; min-height: 44px; }
   .cond-btn:hover { border-color: var(--b2); color: var(--text2); }
   .cond-btn.active { background: var(--y); border-color: var(--y); color: #111; }
   .cond-btn.active-cpo { background: var(--blue); border-color: var(--blue); color: #fff; }
@@ -414,11 +414,10 @@ function MD({ text }) {
 function Res({ verdict, vc, text, onReset }) {
   return (
     <div className="card ranim">
-      <div className="vstrip">
-        <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>VERDICT</span>
-        <span className={`badge ${vc}`}>{verdict}</span>
-        <div style={{flex:1}} />
-        <button className="ghost-btn" onClick={onReset}>New</button>
+      <div className="verdict-hero">
+        <div className="verdict-label">Your Verdict</div>
+        <div className={`verdict-badge-lg ${vc}`}>{verdict}</div>
+        <button className="verdict-new-btn" onClick={onReset}>← Run Another Deal</button>
       </div>
       <MD text={text} />
     </div>
