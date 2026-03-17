@@ -475,7 +475,7 @@ function Loading({ msg, web }) {
 }
 
 function DealAnalyzer() {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" }); const [condition, setCondition] = useState("used");
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
@@ -1474,10 +1474,3 @@ export default function App() {
             <div className="footer-plate"><div className="fp">CNTROFR</div></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC · <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
-        </>
-      )}
-      {modal&&<PayModal plan={modal} onClose={()=>setModal(null)} onSuccess={onPaid} />}
-    </>
-  );
-}
-
