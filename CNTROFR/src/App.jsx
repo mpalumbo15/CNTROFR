@@ -1174,7 +1174,7 @@ function Contact() {
 }
 
 const PLANS = [
-  {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't — yet","No account. No login. Ever."],btn:"out",unlocks:["firsttime"]},
+  {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't — yet","No account. No login. Ever."],btn:"out",unlocks:[]},
   {id:"single",name:"Single Report",price:19,desc:"One full deal analysis.",features:["Deal Analyzer — full breakdown","GO / NEGOTIATE / WALK verdict","Your counter offer strategy","No account. No login. Ever."],btn:"out",unlocks:["deal"]},
   {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses"],btn:"fill",unlocks:["deal","fee","review","fi","addons"]},
   {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:[]},
@@ -1226,8 +1226,8 @@ export default function App() {
   const [modal,setModal]=useState(null);
   const [access,setAccess]=useState([]);
   const buy=plan=>setModal(plan);
-  const onPaid=plan=>{setModal(null);setAccess(plan.unlocks);if(plan.unlocks.length){setView("tools");setTab(plan.unlocks[0]);}};
-  const canUse=id=>TABS.find(t=>t.id===id)?.free||access.includes(id);
+  const onPaid=plan=>{setModal(null);setAccess(plan.unlocks||[]);const validTab=(plan.unlocks||[]).find(id=>TABS.find(t=>t.id===id));if(validTab){setView("tools");setTab(validTab);}else if((plan.unlocks||[]).includes("firsttime")){setView("tools");setTab("deal");}};
+  const canUse=id=>TABS.find(t=>t.id===id)?.free||access.includes(id)||false;
   const Active=TABS.find(t=>t.id===tab)?.component||DealAnalyzer;
   return (
     <>
