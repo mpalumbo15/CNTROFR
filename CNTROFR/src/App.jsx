@@ -276,6 +276,34 @@ const S = `
   .cond-tag-used { background: rgba(255,214,0,.12); color: var(--y); border: 1px solid rgba(255,214,0,.25); }
   .cond-tag-cpo { background: rgba(59,158,255,.12); color: var(--blue); border: 1px solid rgba(59,158,255,.25); }
 
+  /* ── LOAN GLOSSARY ── */
+  .loan-gloss { background: var(--bg2); border: 2px solid var(--b1); border-radius: 14px; margin-bottom: 16px; overflow: hidden; }
+  .loan-gloss-hd { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; border-bottom: 1px solid transparent; transition: all .2s; }
+  .loan-gloss-hd:hover { background: var(--bg3); }
+  .loan-gloss-hd.open { border-bottom-color: var(--b1); }
+  .loan-gloss-title { font-family: 'Bebas Neue'; font-size: 14px; letter-spacing: 2px; color: var(--y); }
+  .loan-gloss-sub { font-size: 10px; font-weight: 800; color: var(--muted); margin-top: 2px; }
+  .loan-gloss-icon { font-family: 'Bebas Neue'; font-size: 20px; color: var(--y); transition: transform .2s; }
+  .loan-gloss-icon.open { transform: rotate(45deg); }
+  .loan-gloss-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .loan-type { background: var(--bg3); border-radius: 10px; padding: 14px 16px; border-left: 3px solid var(--b2); }
+  .loan-type.simple { border-left-color: var(--green); }
+  .loan-type.compound { border-left-color: var(--y); }
+  .loan-type.balloon { border-left-color: var(--red); }
+  .loan-type-name { font-family: 'Bebas Neue'; font-size: 16px; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .loan-type.simple .loan-type-name { color: var(--green); }
+  .loan-type.compound .loan-type-name { color: var(--y); }
+  .loan-type.balloon .loan-type-name { color: var(--red); }
+  .loan-type-def { font-size: 12px; color: var(--text2); line-height: 1.75; font-weight: 600; margin-bottom: 6px; }
+  .loan-type-tag { display: inline-block; font-size: 9px; font-weight: 900; letter-spacing: 1.5px; padding: 2px 8px; border-radius: 100px; }
+  .loan-type.simple .loan-type-tag { background: rgba(0,201,107,.12); color: var(--green); }
+  .loan-type.compound .loan-type-tag { background: rgba(255,214,0,.12); color: var(--y); }
+  .loan-type.balloon .loan-type-tag { background: rgba(255,68,68,.12); color: var(--red); }
+  .prepay-note { background: rgba(59,158,255,.06); border: 1px solid rgba(59,158,255,.2); border-radius: 10px; padding: 12px 14px; font-size: 11px; color: #A0C8FF; font-weight: 700; line-height: 1.75; }
+  .prepay-note strong { color: var(--blue); }
+  .prepay-states { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .prepay-state { background: rgba(0,201,107,.1); border: 1px solid rgba(0,201,107,.2); color: var(--green); font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 100px; letter-spacing: 1px; }
+
   .disclaimer { background: rgba(255,214,0,.05); border: 1px solid rgba(255,214,0,.15); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; font-size: 11px; color: var(--muted); line-height: 1.65; font-weight: 600; }
   .disclaimer strong { color: var(--y); }
 
@@ -482,6 +510,14 @@ function DealAnalyzer() {
     setL(true); setR(null); setM(null);
     setLM("Analyzing your deal...");
     const t = await ai(`You are a veteran automotive insider with deep knowledge of current dealer sales training programs — including techniques taught by Grant Cardone, Joe Verde, and Reynolds & Reynolds dealer training. You understand payment packing, four-square manipulation, trade-in lowballing, and modern F&I profit extraction strategies. Use only current market data and tactics — no outdated information. Analyze this deal from the buyer's perspective.
+
+INSIDER KNOWLEDGE TO APPLY:
+- Dealers sell below invoice regularly using dealer cash and manufacturer programs that are NOT customer-facing. "We're at invoice" is almost never true cost. Franchise dealers have unit quotas — volume matters more than gross on individual deals.
+- A buyer who asks the salesperson to negotiate without making an offer first signals zero preparation. Counter scripts must always START with the buyer making a specific offer, not asking what the dealer will take.
+- Loan type matters: Simple interest loans calculate interest on remaining balance — paying early saves money and penalties are rare. Precomputed/compound interest loans front-load interest and often include prepayment penalties (look for "Rule of 78" or "precomputed interest" in contracts). Balloon loans have a large final payment — high risk without an exit plan. If the deal involves a balloon structure, flag it prominently.
+- There are two types of pre-approval and they serve different purposes. An amount-based pre-approval tells the buyer what they qualify for — it's scenario planning and sets a ceiling for shopping. A vehicle-specific pre-approval is tied to the actual car, VIN, and deal terms — this is the transactional weapon. Bringing a vehicle-specific pre-approval to the table limits rate markup, forces the dealer to beat a real competing offer, and removes the F&I office's biggest lever. Scripts should distinguish between the two when relevant.
+- Any F&I product tied to an interest rate change is illegal in most states unless it appears on the lender's call sheet. Flag this immediately if the deal structure suggests it.
+- Pressure tactics and hard closes are a red flag. A buyer's physical presence is their greatest leverage. If pressure appears, the correct move is to leave and reconnect in writing via text or email — not to capitulate.
 ${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":""} | ${condition==="new" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} | MSRP $${f.msrp} | Asking $${f.offer}
 Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
@@ -492,8 +528,8 @@ ${condition==="cpo" ? "## CPO PREMIUM CHECK — Is the CPO markup justified? Wha
 ## VEHICLE PRICE — Is this fair given the mileage and trim? How much room is left? If mileage is above average (15,000/yr), factor depreciation impact explicitly.
 ## TRADE-IN — Fair offer or lowball? Account for negative equity if owed exceeds offered.
 ## ADD-ONS — Worth It / Overpriced / Skip It for each.
-## YOUR COUNTER — 3-4 specific things to say before signing.
-## RED FLAGS — Any dealer tactics at play?
+## YOUR COUNTER — 3-4 word-for-word things to say. Scripts must sound like an informed buyer, not a comparison shopper. No "I saw this online" language. Buyer makes a specific offer — they do not ask what the dealer will take. If pre-approval from outside lender is relevant, include how to use it at the table. If any pressure tactics appear in this deal, call them out and give the exact words to shut them down.
+## RED FLAGS — Any dealer tactics at play? Specifically flag: (1) any suggestion that F&I products affect interest rate — this is illegal unless on lender call sheet, (2) invoice pricing claims — dealers have dealer cash and quota incentives that make below-invoice sales common, (3) hard close pressure tactics — buyer's presence is leverage, walking is always an option, (4) verbal-only promises — if it's not in writing it does not exist.
 
 Do not provide financing rate or payment advice.`);
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
@@ -515,7 +551,8 @@ Do not provide financing rate or payment advice.`);
   return (
     <div>
       <div className="phd"><h2>Deal <span>Analyzer</span></h2><p>Enter your numbers. Get your counter before you sign.</p></div>
-      <div className="disclaimer"><strong>Note:</strong> CNTROFR analyzes deal pricing, trade-in value, and add-on products only. We do not provide financing or credit advice. Consult a financial professional for loan decisions.</div>
+      <LoanGlossary />
+      <div className="disclaimer"><strong>Pro tip — know your pre-approvals:</strong> There are two kinds and they are not the same thing. A <strong>amount-based pre-approval</strong> tells you what you can spend — it's scenario planning, gives you a ceiling, and lets you shop with confidence. A <strong>vehicle-specific pre-approval</strong> is tied to the actual car, VIN, and deal — this is the one you bring to the table. It limits rate markup, forces the dealer to compete with your lender, and removes the F&I office's biggest lever. Get both before you walk in. CNTROFR analyzes deal pricing, trade-in value, and add-on products only. We do not provide financing or credit advice.</div>
       <div className="cond-toggle">
         <button className={`cond-btn ${condition==="new"?"active":""}`} onClick={()=>setCondition("new")}>
           🆕 New
@@ -714,7 +751,7 @@ ${f.reviews?"Customer reviews pasted by user:\n"+f.reviews:"No reviews pasted �
     setV(m?m[1].trim().toUpperCase():"ANALYZED"); setCR(customer);
 
     setLM("Checking employee sentiment on Glassdoor & Indeed...");
-    const employee = await ai(`You are an automotive dealership culture analyst. Search Glassdoor and Indeed for employee reviews of "${f.dealer}" in ${f.city}, ${f.state}.
+    const employee = await ai(`You are an automotive dealership culture analyst. Search Glassdoor, Indeed, and Blind for employee reviews of "${f.dealer}" in ${f.city}, ${f.state}. Also check LinkedIn for employee tenure patterns — high turnover (average tenure under 1 year) is a significant red flag.
 
 This matters because angry, burned-out, or pressured employees directly impact the customer experience on the lot.
 
@@ -811,7 +848,13 @@ function FIDecoder() {
   const run = async () => {
     setL(true); setR(null);
     const list = picked.map(p=>`- ${p.name}: $${prices[p.id]||"unknown"}`).join("\n");
-    const t = await ai(`You are a former F&I manager with knowledge of current dealer training programs and modern warranty product structures. Reference current claims data where available. Use only up-to-date information. Vehicle: ${veh||"not specified"}${warrantyBrand ? "\nWarranty provider: "+warrantyBrand : ""}${drivingHabits ? "\nDriving habits: "+drivingHabits : ""}${ownershipLength ? "\nPlanned ownership: "+ownershipLength : ""}\nProducts:\n${list}
+    const t = await ai(`You are a former F&I manager with knowledge of current dealer training programs and modern warranty product structures. Reference current claims data where available. Use only up-to-date information.
+
+INSIDER KNOWLEDGE TO APPLY:
+- F&I managers are measured on product penetration per deal, NOT just gross. They will discount the entire menu if they believe a yes is possible. The buyer who says "I want to think about it" and asks for time always gets that time.
+- Tying F&I product pricing to interest rate changes is illegal in most states unless listed on the lender's call sheet. If a buyer reports this happening, flag it as a potential illegal tactic.
+- A buyer with a vehicle-specific pre-approval (tied to actual VIN and deal terms) has neutralized the F&I office's biggest weapon — rate markup. This is different from an amount-based pre-approval which is scenario planning only. Vehicle-specific pre-approval forces the dealer to compete with a real number. Scripts should reflect this leverage and instruct the buyer to present it early in the F&I conversation.
+- The hard close in F&I (urgency, limited time offers, "this rate only works today") is a tactic, not reality. Rates and products are available tomorrow. Walking out and returning loses nothing. Vehicle: ${veh||"not specified"}${warrantyBrand ? "\nWarranty provider: "+warrantyBrand : ""}${drivingHabits ? "\nDriving habits: "+drivingHabits : ""}${ownershipLength ? "\nPlanned ownership: "+ownershipLength : ""}\nProducts:\n${list}
 Search for current claims approval vs denial rates for these products${warrantyBrand ? " specifically from "+warrantyBrand : ""}. Look for CFPB complaints, BBB data, and consumer reports on each.
 
 For EACH product:
@@ -1060,10 +1103,67 @@ const FAQS = [
   {q:"Is this legit for both new and used car dealerships?",a:"Yes. Franchise dealers, independent lots, certified pre-owned programs — the F&I playbook and the fee games are industry-wide. CNTROFR is built on insider knowledge from both sides of that desk."},
   {q:"Why is your Pro subscription only 7 days?",a:"Simple — if you're not ready to pull the trigger in 7 days, you're not prepared to make a purchase. Do your homework first, then come back when you're ready to move. We'll be here. No pressure, no recurring charges, no gotchas."},
   {q:"What should I spend all the money I saved on?",a:"Honestly? You could save it for registration, insurance, or your first service appointment. But we'd probably spend it on sandwiches and video games. And that's exactly the point — it's your money. Your choice. We just made sure it stayed yours."},
-  {q:"This is my first time buying a car. Is CNTROFR for me?",a:"Absolutely — and we built something specifically for you. First time buyers are the most vulnerable in the dealership. You don't know what you don't know, and the dealer knows everything. Use our First Time Buyer tool before you go anywhere near a showroom. Things change fast in this industry and most people only do this every 5-10 years. You deserve to walk in prepared."},
+  {q:"This is my first time buying a car. Is CNTROFR for me?",a:"Absolutely — and we built something specifically for you. First time buyers are the most vulnerable in the dealership. You don't know what you don't know, and the dealer knows everything. Use our First Time Buyer tool before you go anywhere near a showroom and check the Loan Type guide in the Deal Analyzer before you sign anything. Things change fast in this industry and most people only do this every 5-10 years. You deserve to walk in prepared."},
   {q:"Is CNTROFR for shoppers or buyers?",a:"Buyers. If you're still deciding what you want, come back when you're ready to ink up. We're built for the person who knows what they want and is ready to go get it on fair terms. That focus is exactly what makes us different from every other car research site out there."},
   {q:"I have a question that isn't answered here. How do I reach you?",a:"Email us directly at info@cntrofr.com — we respond to every message personally. You can also use the contact form on this page and we'll get back to you within 24 hours."},
 ];
+
+function LoanGlossary() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="loan-gloss">
+      <div className={`loan-gloss-hd ${open?"open":""}`} onClick={()=>setOpen(o=>!o)}>
+        <div>
+          <div className="loan-gloss-title">Know Your Loan Type</div>
+          <div className="loan-gloss-sub">Simple · Compound · Balloon — what you're signing matters</div>
+        </div>
+        <span className={`loan-gloss-icon ${open?"open":""}`}>+</span>
+      </div>
+      {open && (
+        <div className="loan-gloss-body">
+          <div className="loan-type simple">
+            <div className="loan-type-name">Simple Interest</div>
+            <div className="loan-type-def">
+              Interest is calculated only on your remaining balance. Every payment you make reduces what you owe, and paying early saves you real money. What you see is what you pay — no tricks.
+            </div>
+            <span className="loan-type-tag">MOST COMMON · BUYER FRIENDLY</span>
+          </div>
+          <div className="loan-type compound">
+            <div className="loan-type-name">Precomputed (Compound) Interest</div>
+            <div className="loan-type-def">
+              Interest is front-loaded — calculated on the full loan amount upfront and baked into your payment schedule. Paying early doesn't save you nearly as much as it would on a simple loan. These often carry prepayment penalties. Look for "Rule of 78" or "precomputed interest" language in the contract — those are the tells.
+            </div>
+            <span className="loan-type-tag">WATCH OUT · READ THE CONTRACT</span>
+          </div>
+          <div className="loan-type balloon">
+            <div className="loan-type-name">Balloon Loan</div>
+            <div className="loan-type-def">
+              Lower monthly payments that feel great — until the end, when one massive "balloon" payment is due on the remaining balance. Common in lease-to-own and some dealer-direct financing. If you can't make that final payment, you're in trouble. Unless you have a clear exit plan, avoid these entirely.
+            </div>
+            <span className="loan-type-tag">HIGH RISK · AVOID WITHOUT EXIT PLAN</span>
+          </div>
+          <div className="prepay-note">
+            <strong>Prepayment penalties — what to ask and where to look:</strong>
+            <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:8}}>
+              <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+                <span style={{color:"var(--green)",fontWeight:900,flexShrink:0}}>ASK</span>
+                <span>"Does this loan have a prepayment penalty if I pay it off early?"</span>
+              </div>
+              <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+                <span style={{color:"var(--y)",fontWeight:900,flexShrink:0}}>FIND</span>
+                <span>In the contract — search for "prepayment," "Rule of 78," or "precomputed interest." If any of those appear, read carefully before signing.</span>
+              </div>
+              <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+                <span style={{color:"var(--blue)",fontWeight:900,flexShrink:0}}>KNOW</span>
+                <span>Federal law prohibits prepayment penalties on any auto loan longer than 60 months. If your term is under 60 months, ask the question — don't assume.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const TOP_FAQS = 4;
 
