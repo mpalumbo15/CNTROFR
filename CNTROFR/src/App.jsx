@@ -518,7 +518,7 @@ INSIDER KNOWLEDGE TO APPLY:
 - There are two types of pre-approval and they serve different purposes. An amount-based pre-approval tells the buyer what they qualify for — it's scenario planning and sets a ceiling for shopping. A vehicle-specific pre-approval is tied to the actual car, VIN, and deal terms — this is the transactional weapon. Bringing a vehicle-specific pre-approval to the table limits rate markup, forces the dealer to beat a real competing offer, and removes the F&I office's biggest lever. Scripts should distinguish between the two when relevant.
 - Any F&I product tied to an interest rate change is illegal in most states unless it appears on the lender's call sheet. Flag this immediately if the deal structure suggests it.
 - Pressure tactics and hard closes are a red flag. A buyer's physical presence is their greatest leverage. If pressure appears, the correct move is to leave and reconnect in writing via text or email — not to capitulate.
-${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":""} | ${condition==="new" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} | MSRP $${f.msrp} | Asking $${f.offer}
+${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":""} | ${condition==="new" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} | ${condition==="new" ? "MSRP" : "Dealer Asking Price"} $${f.msrp} | Buyer's Offer $${f.offer}
 Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 
@@ -600,6 +600,12 @@ Do not provide financing rate or payment advice.`);
               <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer",fontSize:12,fontWeight:800,color:"var(--text2)"}}>
                 <input type="checkbox" checked={accidentReported} onChange={e=>{setAccidentReported(e.target.checked);if(!e.target.checked)setAccidentSeverity("");}} style={{accentColor:"var(--y)",width:14,height:14}} />
                 Accident Reported (CarFax / AutoCheck)
+                <div className="tooltip-wrap">
+                  <span className="tooltip-icon">!</span>
+                  <div className="tooltip-bubble" style={{background:"rgba(255,68,68,.12)",borderColor:"rgba(255,68,68,.3)",color:"var(--text2)"}}>
+                    <strong style={{color:"var(--red)"}}>Vehicle history reports are non-negotiable.</strong> A reputable dealer provides CarFax or AutoCheck at no cost — always. If a dealer refuses to provide one, asks you to pay for it, or says "the car is as-is so it doesn't matter" — stop the deal and leave. There is no exception to this rule.
+                  </div>
+                </div>
               </label>
               {accidentReported && (
                 <div className="severity-wrap">
@@ -613,7 +619,7 @@ Do not provide financing rate or payment advice.`);
                     </select>
                   </div>
                   <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,marginTop:6,lineHeight:1.6}}>
-                    If the dealer is not providing a CarFax or AutoCheck report — that is a red flag. Walk away.
+                    Reputable dealers provide vehicle history reports free of charge. If they won't provide one or want you to pay for it — walk away immediately. No exceptions.
                   </div>
                 </div>
               )}
@@ -631,7 +637,7 @@ Do not provide financing rate or payment advice.`);
               <input placeholder="e.g. 34,200" value={f.mileage} onChange={s("mileage")} />
             </div>
             )}
-            <div className="fld"><label>MSRP (Sticker)</label><input placeholder="32,000" value={f.msrp} onChange={s("msrp")} /></div>
+            <div className="fld"><label>{condition==="new" ? "MSRP (Sticker Price)" : "Dealer Asking Price"}</label><input placeholder={condition==="new" ? "32,000" : "24,500"} value={f.msrp} onChange={s("msrp")} /></div>
           </div>
           <div className="sp" />
           <div className="g2">
