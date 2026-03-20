@@ -373,7 +373,13 @@ async function ai(prompt, web = false) {
     clearTimeout(timeout);
 
     const d = await r.json();
-    if (d.error) return `Error: ${d.error.message || JSON.stringify(d.error)}`;
+    if (d.error) {
+      const msg = d.error.message || JSON.stringify(d.error);
+      if (msg.includes("rate limit") || msg.includes("rate_limit") || d.error.type === "rate_limit_error") {
+        return "RATE_LIMIT";
+      }
+      return `Error: ${msg}`;
+    }
 
     // Handle both regular responses and tool_use responses (web search)
     const blocks = d.content || [];
@@ -410,7 +416,11 @@ async function ai(prompt, web = false) {
       });
       clearTimeout(timeout2);
       const d2 = await r2.json();
-      if (d2.error) return preText || `Error: ${d2.error.message}`;
+      if (d2.error) {
+        const msg2 = d2.error.message || "";
+        if (msg2.includes("rate limit") || msg2.includes("rate_limit") || d2.error.type === "rate_limit_error") return "RATE_LIMIT";
+        return preText || `Error: ${msg2}`;
+      }
       const text2 = (d2.content || []).filter(b => b.type === "text").map(b => b.text).filter(Boolean).join("\n");
       return text2 || preText || "No results returned.";
     }
@@ -439,15 +449,32 @@ function MD({ text }) {
   return <div className="aout">{els}</div>;
 }
 
-function Res({ verdict, vc, text, onReset }) {
+function Res({ verdict, vc, text, onReset, onRetry }) {
+  const isRateLimit = text === "RATE_LIMIT";
   return (
     <div className="card ranim">
-      <div className="verdict-hero">
-        <div className="verdict-label">Your Verdict</div>
-        <div className={`verdict-badge-lg ${vc}`}>{verdict}</div>
-        <button className="verdict-new-btn" onClick={onReset}>← Run Another Deal</button>
-      </div>
-      <MD text={text} />
+      {isRateLimit ? (
+        <div style={{padding:"28px 20px",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
+          <div style={{fontFamily:"'Bebas Neue'",fontSize:32,letterSpacing:2,color:"var(--y)"}}>PIT STOP</div>
+          <div style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.75,maxWidth:340}}>
+            Too many analyses running at once — our AI engine needs a quick breather. Wait 30 seconds and try again. Your deal info is still entered below.
+          </div>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center"}}>
+            <button className="hbtn-y" style={{padding:"11px 28px"}} onClick={onRetry}>↻ Try Again</button>
+            <button className="verdict-new-btn" onClick={onReset}>← Start Over</button>
+          </div>
+          <div style={{fontSize:10,color:"var(--muted)",fontWeight:700}}>This is temporary — usually clears in under a minute.</div>
+        </div>
+      ) : (
+        <>
+          <div className="verdict-hero">
+            <div className="verdict-label">Your Verdict</div>
+            <div className={`verdict-badge-lg ${vc}`}>{verdict}</div>
+            <button className="verdict-new-btn" onClick={onReset}>← Run Another Deal</button>
+          </div>
+          <MD text={text} />
+        </>
+      )}
     </div>
   );
 }
@@ -676,7 +703,7 @@ Do not provide financing rate or payment advice.`);
       {loading && <Loading msg={loadMsg} web={!!f.zip} />}
       {res && !loading && (
         <>
-          <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);}} />
+          <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);}} onRetry={run} />
           {market && (
             <div className="card ranim">
               <div className="vstrip">
