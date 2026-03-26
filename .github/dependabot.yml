@@ -1,0 +1,6 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/CNTROFR"
+    schedule:
+      interval: "weekly"
