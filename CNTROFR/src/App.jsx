@@ -308,6 +308,19 @@ const S = `
   .disclaimer strong { color: var(--y); }
 
 
+  /* ── MANIFESTO ── */
+  .manifesto { background: #0A0A10; border-top: 3px solid var(--y); border-bottom: 3px solid var(--y); padding: 72px 24px; text-align: center; position: relative; overflow: hidden; }
+  .manifesto::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(255,214,0,.04) 0%, transparent 70%); pointer-events: none; }
+  .manifesto-inner { max-width: 720px; margin: 0 auto; position: relative; z-index: 1; }
+  .manifesto-eye { font-family: 'Bebas Neue'; font-size: 11px; letter-spacing: 6px; color: var(--y); margin-bottom: 24px; }
+  .manifesto-line { font-family: 'Bebas Neue'; font-size: clamp(28px, 6vw, 52px); letter-spacing: 2px; line-height: 1.05; color: var(--text); margin-bottom: 8px; }
+  .manifesto-line .y { color: var(--y); }
+  .manifesto-line .dim { color: var(--muted); }
+  .manifesto-divider { width: 48px; height: 3px; background: var(--y); margin: 28px auto; }
+  .manifesto-sub { font-size: 15px; font-weight: 700; color: var(--text2); line-height: 1.9; max-width: 560px; margin: 0 auto 28px; }
+  .manifesto-sub strong { color: var(--text); font-weight: 900; }
+  .manifesto-stamp { display: inline-block; border: 2px solid var(--y); border-radius: 4px; padding: 6px 20px; font-family: 'Bebas Neue'; font-size: 16px; letter-spacing: 4px; color: var(--y); }
+
   /* ── MISSION ── */
   .mission { background: linear-gradient(135deg, #0E0E14 0%, #16161E 50%, #0E0E14 100%); border-top: 3px solid var(--y); border-bottom: 3px solid var(--y); padding: 64px 24px; text-align: center; position: relative; overflow: hidden; }
   .mission::before { content: 'CNTROFR'; position: absolute; font-family: 'Bebas Neue'; font-size: 180px; color: rgba(255,214,0,.03); top: 50%; left: 50%; transform: translate(-50%,-50%); letter-spacing: 20px; pointer-events: none; white-space: nowrap; }
@@ -343,6 +356,14 @@ const S = `
   .powered-by { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,.04); border: 1px solid var(--b1); border-radius: 100px; padding: 5px 12px; margin-top: 16px; }
   .powered-by span { font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
   .powered-by-logo { font-size: 10px; font-weight: 900; color: var(--text2); letter-spacing: .5px; }
+
+  /* ── COLORADO BADGE ── */
+  .co-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.04); border: 1px solid var(--b1); border-radius: 6px; padding: 4px 10px; margin-top: 12px; }
+  .co-flag { display: inline-flex; align-items: center; gap: 0; width: 24px; height: 16px; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+  .co-flag-top { background: #002868; flex: 1; height: 100%; }
+  .co-flag-mid { background: #FFFFFF; flex: 0 0 4px; height: 100%; position: relative; }
+  .co-flag-bot { background: #BF0A30; flex: 1; height: 100%; }
+  .co-text { font-size: 9px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 
   .footer { border-top: 2px solid var(--b1); padding: 36px 24px; text-align: center; }
   .footer-plate { display: flex; justify-content: center; margin-bottom: 12px; }
@@ -529,7 +550,7 @@ function Loading({ msg, web }) {
   );
 }
 
-function DealAnalyzer() {
+function DealAnalyzer({ firstTimeBuyer }) {
   const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
@@ -545,16 +566,20 @@ INSIDER KNOWLEDGE TO APPLY:
 - There are two types of pre-approval and they serve different purposes. An amount-based pre-approval tells the buyer what they qualify for — it's scenario planning and sets a ceiling for shopping. A vehicle-specific pre-approval is tied to the actual car, VIN, and deal terms — this is the transactional weapon. Bringing a vehicle-specific pre-approval to the table limits rate markup, forces the dealer to beat a real competing offer, and removes the F&I office's biggest lever. Scripts should distinguish between the two when relevant.
 - Any F&I product tied to an interest rate change is illegal in most states unless it appears on the lender's call sheet. Flag this immediately if the deal structure suggests it.
 - Pressure tactics and hard closes are a red flag. A buyer's physical presence is their greatest leverage. If pressure appears, the correct move is to leave and reconnect in writing via text or email — not to capitulate.
-${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":""} | ${condition==="new" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} | ${condition==="new" ? "MSRP" : "Dealer Asking Price"} $${f.msrp} | Buyer's Offer $${f.offer}
+- CNTROFR is not a weapon against salespeople. A prepared buyer comes to terms faster — that benefits both sides. Forced add-ons, surprise fees, and junk line items make a good salesperson's job harder too. The target is always the system, never the floor staff. Counter scripts should reflect this — firm, informed, and respectful. Never adversarial toward the salesperson personally.
+${firstTimeBuyer ? "FIRST TIME BUYER MODE: This person has never purchased a vehicle before. Define every industry term you use. Explain why each tactic exists. Walk them through what to expect at each stage of the process. Be thorough — they need to understand not just what to do but why. Extra emphasis on what questions to ask and what to watch for." : ""}
+- EV AUTO-DETECTION: Search the vehicle year, make, and model to determine if it is electric. Do not rely solely on the name — many EVs share model names with ICE vehicles (Audi Q6 e-tron, Kia EV6, Ford Mustang Mach-E, Chevy Equinox EV, BMW iX, Mercedes EQS, Hyundai Ioniq 6, VW ID.4, Volvo EX90, Rivian R1T/R1S, Lucid Air, Polestar 2, all Tesla models, etc.). If electric: flag rapid depreciation, technology obsolescence risk (EV tech updates faster than ICE — current models can feel outdated in 2-3 years), strongly recommend leasing over buying, note GAP insurance is mandatory if buying.
+- MID-CYCLE REFRESH DETECTION: Search whether this year/make/model is an outgoing body style or a recently refreshed generation. If OUTGOING: flag that newer generation exists or is imminent, note resale and depreciation impact, buyer has stronger price leverage. If NEW GENERATION: note first-year production considerations, stronger resale outlook. If MID-CYCLE: standard analysis applies.
+${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":""} | ${condition==="new" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} ${f.msrp ? "| Dealer Asking Price $"+f.msrp : ""} ${f.offer ? "| Dealer's Offer to Buyer $"+f.offer : ""}
 Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
-Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
+Dealer add-ons (pre-finance office line items — NOT warranties or GAP): ${f.addons||"none"} | Notes: ${f.notes||"none"}
 
-${condition==="cpo" ? "## CPO PREMIUM CHECK — Is the CPO markup justified? What does the certification actually cover and what does it exclude? Is the factory warranty still active or expired?" : ""}
+${condition==="cpo" ? "## CPO ELIGIBILITY CHECK — First, search the manufacturer's official CPO program requirements for this exact make. Verify: (1) Maximum mileage allowed — most manufacturers cap CPO certification between 80,000-85,000 miles. Nissan caps at 80,000 miles, Toyota at 85,000, Honda at 85,000, Ford at 80,000, GM brands at 75,000-80,000 — search for the exact figure for this make. (2) Maximum vehicle age — most programs cover 6-7 model years back from current year. (3) Whether this specific vehicle qualifies based on the year and mileage provided. IF THE VEHICLE DOES NOT QUALIFY FOR CPO: Flag this at the top immediately. State clearly what the manufacturer requires and why this vehicle falls outside those parameters. Note that this may be a listing error, a marketing mistake, or a deliberate attempt to charge a CPO premium on a non-qualifying vehicle — not always malicious but the buyer must verify. Advise buyer to request the actual CPO certification paperwork and factory inspection checklist before proceeding. IF THE VEHICLE QUALIFIES: Analyze the CPO premium — is the markup justified? What does the certification actually cover vs. exclude? How much warranty runway remains? What does the manufacturer inspection require and did this dealer likely complete it?" : ""}
 ## EXTREME WARNING — Only include this section if truly extraordinary red flags exist that go beyond normal negotiation concerns (examples: severe accident + above market price + high mileage combo, signs of title washing, VIN anomalies mentioned, dealer withholding required disclosures, deal structure that looks predatory). If no extreme flags exist, omit this section entirely. If it does trigger, make it unmistakable.
 ## OVERALL VERDICT — GO, NEGOTIATE, or WALK AWAY. One sentence why.
 ## VEHICLE PRICE — Is this fair given the mileage and trim? How much room is left? If mileage is above average (15,000/yr), factor depreciation impact explicitly.
 ## TRADE-IN — Fair offer or lowball? Account for negative equity if owed exceeds offered.
-## ADD-ONS — Worth It / Overpriced / Skip It for each.
+## ADD-ONS — For each dealer-installed add-on: Worth It / Overpriced / Skip It. Note that warranties and GAP are finance office products handled separately — if buyer has listed them here redirect them to the F&I Decoder.
 ## YOUR COUNTER — 3-4 word-for-word things to say. Scripts must sound like an informed buyer, not a comparison shopper. No "I saw this online" language. Buyer makes a specific offer — they do not ask what the dealer will take. If pre-approval from outside lender is relevant, include how to use it at the table. If any pressure tactics appear in this deal, call them out and give the exact words to shut them down.
 ## RED FLAGS — Any dealer tactics at play? Specifically flag: (1) any suggestion that F&I products affect interest rate — this is illegal unless on lender call sheet, (2) invoice pricing claims — dealers have dealer cash and quota incentives that make below-invoice sales common, (3) hard close pressure tactics — buyer's presence is leverage, walking is always an option, (4) verbal-only promises — if it's not in writing it does not exist.
 
@@ -566,7 +591,10 @@ Do not provide financing rate or payment advice.`);
       await new Promise(r => setTimeout(r, 3000));
       const mkt = await ai(`Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
 
-## MARKET VERDICT — Is $${f.offer} above, at, or below market?
+Search CarGurus, AutoTrader, and Cars.com for comparable listings. If a CarGurus price rating is available for this vehicle (Great Deal / Good Deal / Fair / High / Overpriced), include it and note that CarGurus is a dealer-funded platform — their rating is one useful data point based on listed price vs. market database, not an independent verdict.
+
+## CARGURUS RATING — If found, state the rating and what it means in plain English. Note the dealer-funded context briefly.
+## MARKET VERDICT — Is the dealer's offer of $${f.offer} above, at, or below market? If a sticker price was also provided, note the spread between asking and offer.
 ## COMPARABLE LISTINGS — Dealer name, city, price, mileage for each.
 ## LEVERAGE — Exact words to use these comps at the table.
 ## BOTTOM LINE — What should this buyer actually pay?`, true);
@@ -579,7 +607,7 @@ Do not provide financing rate or payment advice.`);
     <div>
       <div className="phd"><h2>Deal <span>Analyzer</span></h2><p>Enter your numbers. Get your counter before you sign.</p></div>
       <LoanGlossary />
-      <div className="disclaimer"><strong>Pro tip — know your pre-approvals:</strong> There are two kinds and they are not the same thing. A <strong>amount-based pre-approval</strong> tells you what you can spend — it's scenario planning, gives you a ceiling, and lets you shop with confidence. A <strong>vehicle-specific pre-approval</strong> is tied to the actual car, VIN, and deal — this is the one you bring to the table. It limits rate markup, forces the dealer to compete with your lender, and removes the F&I office's biggest lever. Get both before you walk in. CNTROFR analyzes deal pricing, trade-in value, and add-on products only. We do not provide financing or credit advice.</div>
+      <div className="disclaimer"><strong>Starting from a CarGurus listing?</strong> Their deal ratings (Great Deal, Good Deal, Fair, etc.) are based on listed price vs. market data — useful as a starting point. We factor it into our analysis alongside independent sources and note that CarGurus is dealer-funded. <strong>Pro tip — know your pre-approvals:</strong> There are two kinds and they are not the same thing. A <strong>amount-based pre-approval</strong> tells you what you can spend — it's scenario planning, gives you a ceiling, and lets you shop with confidence. A <strong>vehicle-specific pre-approval</strong> is tied to the actual car, VIN, and deal — this is the one you bring to the table. It limits rate markup, forces the dealer to compete with your lender, and removes the F&I office's biggest lever. Get both before you walk in. CNTROFR analyzes deal pricing, trade-in value, and add-on products only. We do not provide financing or credit advice.</div>
       <div className="cond-toggle">
         <button className={`cond-btn ${condition==="new"?"active":""}`} onClick={()=>setCondition("new")}>
           🆕 New
@@ -664,11 +692,22 @@ Do not provide financing rate or payment advice.`);
               <input placeholder="e.g. 34,200" value={f.mileage} onChange={s("mileage")} />
             </div>
             )}
-            <div className="fld"><label>{condition==="new" ? "MSRP (Sticker Price)" : "Dealer Asking Price"}</label><input placeholder={condition==="new" ? "32,000" : "24,500"} value={f.msrp} onChange={s("msrp")} /></div>
+            {condition==="new" && (
+              <div className="fld"><label>Dealer Asking Price (Sticker)</label><input placeholder="32,000" value={f.msrp} onChange={s("msrp")} /></div>
+            )}
           </div>
           <div className="sp" />
           <div className="g2">
-            <div className="fld"><label>Their Asking Price</label><input placeholder="29,500" value={f.offer} onChange={s("offer")} /></div>
+            <div className="fld">
+              <label style={{display:"flex",alignItems:"center"}}>
+                Dealer's Offer to You
+                <div className="tooltip-wrap">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-bubble">The price the dealer has actually offered you — not the sticker. If they're asking $29,000 but offered you $27,200, that's the number that goes here. This is what we're countering.</div>
+                </div>
+              </label>
+              <input placeholder="27,200" value={f.offer} onChange={s("offer")} />
+            </div>
             <div className="fld"><label style={{display:"flex",alignItems:"center"}}>Expected Price Range<div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Optional — if you've already checked KBB, Edmunds, or CarGurus, drop the range here. We'll factor it into the analysis and tell you if the dealer is inside or outside of fair market.</div></div></label><input placeholder="e.g. 27,000 – 29,500 (from KBB)" value={f.marketRange||""} onChange={s("marketRange")} /></div>
           </div>
         </div>
@@ -685,7 +724,16 @@ Do not provide financing rate or payment advice.`);
       <div className="card">
         <div className="ch"><span className="clbl">Add-Ons & Notes</span></div>
         <div className="cb">
-          <div className="fld" style={{marginBottom:12}}><label>Add-Ons</label><input placeholder="Extended warranty $2,100 · GAP $895 · Paint protection $499" value={f.addons} onChange={s("addons")} /></div>
+          <div className="fld" style={{marginBottom:12}}>
+            <label style={{display:"flex",alignItems:"center"}}>
+              Dealer Add-Ons
+              <div className="tooltip-wrap">
+                <span className="tooltip-icon">?</span>
+                <div className="tooltip-bubble">Add-ons are products the dealer installs or adds before you reach the finance office — things that appear as separate line items on your quote. Examples: window tint, paint sealant, VIN etching, GPS/LoJack, brake light strobes, door edge guards. Warranties and GAP are finance office products — use the F&I Decoder for those.</div>
+              </div>
+            </label>
+            <input placeholder="Tint $399 · VIN etch $299 · Pulse brake light $599" value={f.addons} onChange={s("addons")} />
+          </div>
           <div className="fld"><label>Anything Else We Should Know</label><textarea placeholder="Been on lot 60 days, competing offer, etc..." value={f.notes} onChange={s("notes")} /></div>
         </div>
       </div>
@@ -769,7 +817,7 @@ function ReviewPurity() {
     setL(true); setCR(null); setER(null); setKR(null);
 
     setLM("Auditing customer reviews...");
-    const customer = await ai(`You are a reputation integrity analyst specializing in dealer review manipulation.
+    const customer = await ai(`You are a reputation integrity analyst specializing in dealer review manipulation. Include CarGurus reviews and their dealer rating/price ratings in your scan — note that CarGurus is dealer-funded so their ratings reflect platform relationships as well as pure market data.
 Dealer: ${f.dealer}, ${f.city} ${f.state}
 ${f.reviews?"Customer reviews pasted by user:\n"+f.reviews:"No reviews pasted — search Google Reviews, DealerRater, and Cars.com for this dealer and analyze what you find."}
 
@@ -1355,6 +1403,7 @@ const TABS = [
 export default function App() {
   const [view,setView]=useState("home"); // home | tools | contact | tos
   const [menuOpen,setMenuOpen]=useState(false);
+  const [firstTimeBuyer,setFTB]=useState(false);
   const [tab,setTab]=useState("deal");
   const [modal,setModal]=useState(null);
   const [access,setAccess]=useState([]);
@@ -1463,6 +1512,22 @@ export default function App() {
             </table>
           </div>
         </div>
+        <div className="manifesto">
+          <div className="manifesto-inner">
+            <div className="manifesto-eye">This Is For Everyone</div>
+            <div className="manifesto-line">We Are <span className="y">Nameless.</span></div>
+            <div className="manifesto-line">Without <span className="y">Identity</span> Or <span className="y">Color.</span></div>
+            <div className="manifesto-line"><span className="dim">Yet We Are</span> <span className="y">Everyone.</span></div>
+            <div className="manifesto-divider" />
+            <p className="manifesto-sub">
+              We are the scared first-time buyer. The person who got taken last time and swore never again. The one sitting in a parking lot right now working up the nerve to go back inside.<br/><br/>
+              We are the disruption in a toxic industry — <strong>built by no one, funded by no one, owned by everyone who's ever felt powerless at that desk.</strong><br/><br/>
+              No name. No face. No agenda. Just the truth about your deal.
+            </p>
+            <div className="manifesto-stamp">CNTROFR — For Buyers. Not Shoppers.</div>
+          </div>
+        </div>
+
         <div id="mission" className="mission">
           <div className="mission-inner">
             <div className="mission-eye">Our Mission</div>
@@ -1471,7 +1536,6 @@ export default function App() {
               We built CNTROFR because <strong>the house always wins — until now.</strong> No dealer kickbacks. No advertiser relationships. No suits pulling strings behind the curtain. Just raw, unfiltered intelligence about your deal, handed to you before you sign your name to anything.<br/><br/>
               The dealership has lawyers, trainers, and <strong>ten thousand deals worth of experience</strong> working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you.<br/><br/>
               We studied the same playbooks. We know the scripts. <strong>Now you do too.</strong><br/><br/>
-              And here's something else worth saying: <strong>a fair deal is good for everyone.</strong> Your salesperson is working long hours and holidays to feed their family — they deserve your respect and your business if they treat you right. The greed lives at the top. CNTROFR targets that, not the people on the floor.<br/><br/>
               Don't sign. Counter.
             </p>
             <div style={{fontFamily:"'Bebas Neue'",fontSize:"clamp(18px, 3vw, 26px)",letterSpacing:"1px",color:"var(--y)",margin:"0 0 16px",lineHeight:1.3}}>"I built the tool I wish my customers had."</div>
@@ -1530,30 +1594,39 @@ export default function App() {
           <div className="equitable">
             <div className="eq-quote">"A Great Deal Is Good For Both People At The Table."</div>
             <p className="eq-body">
-              CNTROFR exists to expose greed — not to burn down the industry. <strong>Lots of people love cars. Lots of salespeople love selling them.</strong> That relationship can and should be a good one.<br/><br/>
-              The profit pressure that makes car buying miserable doesn't come from the floor. It comes from ownership and management structures built to extract maximum margin from every deal. Your salesperson often sees none of it.<br/><br/>
-              <strong>If you had a great experience — say so.</strong> Leave your salesperson a five-star review. Mention them by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them.<br/><br/>
-              CNTROFR's job is to make sure you're not overpaying. Your job — if the experience was good — is to make sure the right people get the credit.
+              CNTROFR is not a weapon. It's a level playing field.<br/><br/>
+              <strong>Lots of people love cars. Lots of salespeople love selling them.</strong> That relationship can and should be a good one — and when it is, it's genuinely great. The person across the desk from you might be one of those people. Someone who just loves cars, loves helping buyers find the right one, and wants nothing more than to get you into something you're excited about.<br/><br/>
+              The pressure that makes car buying miserable doesn't come from the floor. It comes from the top. Forced add-ons, surprise fees, and extra line items on the quote sheet make a good salesperson's job <em>harder</em> — not easier. They want a clean deal just as much as you do.<br/><br/>
+              <strong>A confident buyer comes to terms faster.</strong> That's good for everyone at the table. CNTROFR exists to make sure you walk in prepared — not to start a fight, but to make sure the right deal gets done for both sides.<br/><br/>
+              The greed lives at the top. We target that. Not the people on the floor.<br/><br/>
+              <strong>If your salesperson did right by you — say so.</strong> Leave them a five-star review by name. It feeds their family and builds their career. The greed at the top doesn't get to take that from them.
             </p>
             <div className="eq-cta">⭐ Had a great experience? Leave your salesperson a review on Google, DealerRater, and Cars.com. It costs you nothing and means everything to them.</div>
           </div>
         </div>
 
         <div id="faq"><FAQ /></div>
-        <div id="contact"><Contact /></div>
         <div className="footer">
           <div className="footer-plate"><div className="fp">CNTROFR</div></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
-          <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>
+          <div style={{display:"flex",justifyContent:"center",gap:12,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
             <div className="powered-by">
               <span>Powered by</span>
               <span className="powered-by-logo">Claude AI by Anthropic</span>
+            </div>
+            <div className="co-badge">
+              <div className="co-flag">
+                <div className="co-flag-top"/>
+                <div className="co-flag-mid"/>
+                <div className="co-flag-bot"/>
+              </div>
+              <span className="co-text">Made in Colorado</span>
             </div>
           </div>
           <p>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers — ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
           <div className="footer-links">
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
-            <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("contact");window.scrollTo(0,0)}}>Contact Us</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
           </div>
@@ -1572,6 +1645,15 @@ export default function App() {
       {view==="tools"&&(
         <div className="tarea">
           {access.length>0&&<div className="access-ok">✓ &nbsp;Pro Access Active — All 5 tools unlocked</div>}
+          <div style={{padding:"12px 16px 0"}}>
+            <label style={{display:"flex",alignItems:"center",gap:10,background:"rgba(255,214,0,.06)",border:"2px solid rgba(255,214,0,.2)",borderRadius:10,padding:"10px 14px",cursor:"pointer"}}>
+              <input type="checkbox" checked={firstTimeBuyer} onChange={e=>setFTB(e.target.checked)} style={{accentColor:"var(--y)",width:16,height:16,flexShrink:0}} />
+              <div>
+                <div style={{fontFamily:"Nunito",fontSize:13,fontWeight:900,color:"var(--y)"}}>First Time Buyer Mode</div>
+                <div style={{fontFamily:"Nunito",fontSize:11,fontWeight:700,color:"var(--muted)",marginTop:2}}>Never bought a car before? Toggle this on — every tool will give you extra context and clearer explanations.</div>
+              </div>
+            </label>
+          </div>
           <div className="tnav">
             {TABS.map(t=>(
               <button key={t.id} className={`ttab ${tab===t.id?"on":""} ${!canUse(t.id)?"lk":""}`} onClick={()=>{if(!canUse(t.id))buy(PLANS[1]);else setTab(t.id);}}>
@@ -1581,7 +1663,7 @@ export default function App() {
               </button>
             ))}
           </div>
-          {canUse(tab)?<Active />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[1])}>Unlock Pro — $49</button></div>}
+          {canUse(tab)?<Active firstTimeBuyer={firstTimeBuyer} />:<div className="upbox"><h3>Pro Feature</h3>{firstTimeBuyer&&<div className="ftb-box" style={{marginBottom:16}}><div className="ftb-title">First Time Buyer — You're In The Right Place</div><p className="ftb-body">Unlock Pro to get full explanations, decoded F&I products, and step-by-step guidance built specifically for first-time buyers.</p></div>}<p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[1])}>Unlock Pro — $49</button></div>}
         </div>
       )}
 
