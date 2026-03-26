@@ -359,11 +359,6 @@ const S = `
 
   /* ── COLORADO BADGE ── */
   .co-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.04); border: 1px solid var(--b1); border-radius: 6px; padding: 4px 10px; margin-top: 12px; }
-  .co-flag { display: inline-flex; flex-direction: column; width: 24px; height: 16px; border-radius: 2px; overflow: hidden; flex-shrink: 0; position: relative; }
-  .co-flag-top { background: #002868; flex: 1; width: 100%; }
-  .co-flag-mid { background: #FFFFFF; flex: 0 0 5px; width: 100%; }
-  .co-flag-bot { background: #BF0A30; flex: 1; width: 100%; }
-  .co-flag-c { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 10px; height: 10px; border-radius: 50%; background: #FFD600; display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 900; color: #BF0A30; line-height: 1; }
   .co-text { font-size: 9px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 
   .footer { border-top: 2px solid var(--b1); padding: 36px 24px; text-align: center; }
@@ -1616,12 +1611,7 @@ export default function App() {
               <span className="powered-by-logo">Claude AI by Anthropic</span>
             </div>
             <div className="co-badge">
-              <div className="co-flag">
-                <div className="co-flag-top"/>
-                <div className="co-flag-mid"/>
-                <div className="co-flag-bot"/>
-                <div className="co-flag-c">C</div>
-              </div>
+              <span style={{fontSize:14}}>🏔️</span>
               <span className="co-text">Made in Colorado</span>
             </div>
           </div>
