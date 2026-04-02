@@ -1098,6 +1098,17 @@ This matters because angry, burned-out, or pressured employees directly impact t
 
     setL(false); setLM("");
   };
+  const savePurityPDF = () => {
+    const rows = (customerRes||"").split("\n").map(l => {
+      if (l.startsWith("## ")) return "<h2>" + l.slice(3) + "</h2>";
+      if (l.startsWith("### ")) return "<h3>" + l.slice(4) + "</h3>";
+      return "<p>" + l + "</p>";
+    }).join("");
+    const title = "Review Purity — " + f.dealer + ", " + f.city + " " + f.state;
+    const w = window.open("", "_blank");
+    w.document.write("<html><head><title>CNTROFR — " + title + "</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;color:#333;line-height:1.7;}h2{color:#333;border-bottom:2px solid #FFD600;padding-bottom:4px;}h3{color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;}ul{padding-left:18px;}</style></head><body><h1>" + title + "</h1><p style='color:#999;font-size:12px'>Generated " + new Date().toLocaleDateString() + " · cntrofr.com</p>" + rows + "</body></html>");
+    w.document.close(); w.print();
+  };
   const vc = v => /AUTHENTIC/.test(v)?"bg":/HIGH BOT/.test(v)?"br":/SUSPICIOUS/.test(v)?"ba":"bb";
   return (
     <div>
@@ -1130,7 +1141,7 @@ This matters because angry, burned-out, or pressured employees directly impact t
             <MD text={customerRes} />
             <div className="result-actions">
               <button className="action-btn" onClick={()=>navigator.clipboard.writeText(customerRes)}>📋 Copy</button>
-              <button className="action-btn" onClick={()=>{const w=window.open("","_blank");w.document.write(`<html><head><title>CNTROFR — Review Purity: ${f.dealer}</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;color:#333;line-height:1.7;}h2{color:#333;border-bottom:2px solid #FFD600;padding-bottom:4px;}h3{color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;}ul{padding-left:18px;}</style></head><body><h1>Review Purity — ${f.dealer}, ${f.city} ${f.state}</h1><p style="color:#999;font-size:12px">Generated ${new Date().toLocaleDateString()} · cntrofr.com</p>${(customerRes||"").split("\n").map(l=>l.startsWith("## ")?`<h2>${l.slice(3)}</h2>`:l.startsWith("### ")?`<h3>${l.slice(4)}</h3>`:`<p>${l}</p>`).join("")}</body></html>`);w.document.close();w.print();}}>📄 Save PDF</button>
+              <button className="action-btn" onClick={savePurityPDF}>📄 Save PDF</button>
             </div>
           </div>
           {employeeRes && (
