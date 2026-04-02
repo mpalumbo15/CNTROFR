@@ -1183,11 +1183,24 @@ const PLANS = [
   {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:[]},
 ];
 
+const BETA_CODE = "CNTROFR-BETA";
+const BETA_ACTIVE = true;
+
 function PayModal({plan,onClose,onSuccess}) {
   const [card,setCard]=useState("");const [exp,setExp]=useState("");const [cvc,setCvc]=useState("");const [busy,setBusy]=useState(false);
+  const [promoOpen,setPromoOpen]=useState(false);const [promoCode,setPromoCode]=useState("");const [promoMsg,setPromoMsg]=useState("");const [promoOk,setPromoOk]=useState(false);
   const fmt=v=>v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
   const fmtExp=v=>{const d=v.replace(/\D/g,"").slice(0,4);return d.length>2?d.slice(0,2)+"/"+d.slice(2):d;};
   const ready=card.replace(/\s/g,"").length===16&&exp.length===5&&cvc.length>=3;
+  const applyPromo = () => {
+    const code = promoCode.trim().toUpperCase();
+    if (BETA_ACTIVE && code === BETA_CODE) {
+      onSuccess(plan);
+    } else {
+      setPromoOk(false);
+      setPromoMsg("Code not recognized or not yet active.");
+    }
+  };
   const pay=async()=>{setBusy(true);await new Promise(r=>setTimeout(r,1800));setBusy(false);onSuccess(plan);};
   return (
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
@@ -1197,6 +1210,20 @@ function PayModal({plan,onClose,onSuccess}) {
           <div className="order-sum">
             <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Total Due</span><span className="oprice">${plan.price}</span></div>
             <div className="oname">CNTROFR — {plan.name}</div>
+          </div>
+          <div style={{marginBottom:14}}>
+            <button onClick={()=>setPromoOpen(o=>!o)} style={{background:"none",border:"none",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,cursor:"pointer",textDecoration:"underline",padding:0}}>
+              {promoOpen?"▾ Hide":"▸ Have a beta or promo code?"}
+            </button>
+            {promoOpen&&(
+              <div style={{marginTop:8}}>
+                <div style={{display:"flex",gap:8}}>
+                  <input value={promoCode} onChange={e=>setPromoCode(e.target.value)} placeholder="ENTER CODE" style={{flex:1,background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"JetBrains Mono",fontSize:13,padding:"9px 12px",borderRadius:8,outline:"none",textTransform:"uppercase",letterSpacing:1}} />
+                  <button onClick={applyPromo} style={{background:"var(--y)",color:"#111",border:"none",padding:"9px 18px",fontFamily:"Nunito",fontSize:12,fontWeight:900,cursor:"pointer",borderRadius:8,whiteSpace:"nowrap"}}>Apply</button>
+                </div>
+                {promoMsg&&<div style={{fontSize:11,fontWeight:800,marginTop:6,color:promoOk?"var(--green)":"var(--red)"}}>{promoMsg}</div>}
+              </div>
+            )}
           </div>
           <div className="sbox">
             <div className="slbl">Card Number</div>
