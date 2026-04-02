@@ -1038,7 +1038,7 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.
         </div>
       </div>
       {loading && <Loading msg="Researching fee standards" web={true} />}
-      {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge ba">FEE ANALYSIS</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
+      {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge ba">FEE ANALYSIS</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/><div className="result-actions"><button className="action-btn" onClick={()=>navigator.clipboard.writeText(res)}>📋 Copy</button></div></div>}
     </div>
   );
 }
@@ -1051,16 +1051,17 @@ function ReviewPurity() {
     setL(true); setCR(null); setER(null); setKR(null);
 
     setLM("Auditing customer reviews...");
-    const customer = await ai(`You are a reputation integrity analyst specializing in dealer review manipulation. Include CarGurus reviews and their dealer rating/price ratings in your scan — note that CarGurus is dealer-funded so their ratings reflect platform relationships as well as pure market data.
+    const customer = await ai(`You are a reputation integrity analyst specializing in dealer review manipulation.
 Dealer: ${f.dealer}, ${f.city} ${f.state}
-${f.reviews?"Customer reviews pasted by user:\n"+f.reviews:"No reviews pasted — search Google Reviews, DealerRater, and Cars.com for this dealer and analyze what you find."}
+${f.reviews?"Customer reviews pasted by user:\n"+f.reviews:"No reviews pasted — search Google Reviews, DealerRater, Cars.com, and CarGurus for this dealer and analyze what you find."}
 
+## CARGURUS PROFILE — Search CarGurus for "${f.dealer}" in ${f.city}, ${f.state}. Report: their overall CarGurus dealer rating (1-5), the CarGurus "Deal Rating" distribution for their inventory (what % are Great Deal / Good Deal / Fair / High / Overpriced), and their response rate/time if shown. Important context to include: CarGurus is a dealer-funded platform — dealers pay for placement and leads, which creates an inherent conflict of interest. A high CarGurus rating reflects both customer satisfaction AND the dealer's commercial relationship with the platform. Use it as one data point, not a verdict.
 ## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
 ## BOT FARMING SIGNALS — Specific patterns: review velocity, generic language, duplicate phrasing, suspiciously clustered 5-star bursts.
 ## WHAT THE REAL COMPLAINTS SAY — Themes from legitimate 1-3 star reviews. Ignore obvious bad-faith reviews.
 ## WHAT THE PRAISE SAYS — Are the 5-star reviews specific and believable or vague and scripted?
 ## MANAGEMENT RESPONSE PATTERNS — Do they respond defensively, dismissively, or genuinely?
-## PLATFORM CROSS-CHECK — How does the rating compare across Google, DealerRater, and Cars.com? Big gaps are a red flag.
+## PLATFORM CROSS-CHECK — Compare ratings across Google, DealerRater, Cars.com, and CarGurus. Flag gaps greater than 0.5 stars between platforms — that usually means reputation management is happening somewhere.
 ## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW with one-line reasoning.`, true);
     const m = customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
     setV(m?m[1].trim().toUpperCase():"ANALYZED"); setCR(customer);
@@ -1122,10 +1123,15 @@ This matters because angry, burned-out, or pressured employees directly impact t
             <div className="vstrip">
               <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>CUSTOMER REVIEWS</span>
               <span className={`badge ${vc(v)}`}>{v||"ANALYZED"}</span>
+              <span className="badge bb" style={{fontSize:8,letterSpacing:1}}>CarGurus ✓</span>
               <div style={{flex:1}}/>
               <button className="ghost-btn" onClick={()=>{setCR(null);setER(null);setKR(null);}}>Reset</button>
             </div>
             <MD text={customerRes} />
+            <div className="result-actions">
+              <button className="action-btn" onClick={()=>navigator.clipboard.writeText(customerRes)}>📋 Copy</button>
+              <button className="action-btn" onClick={()=>{const w=window.open("","_blank");w.document.write(`<html><head><title>CNTROFR — Review Purity: ${f.dealer}</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;color:#333;line-height:1.7;}h2{color:#333;border-bottom:2px solid #FFD600;padding-bottom:4px;}h3{color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;}ul{padding-left:18px;}</style></head><body><h1>Review Purity — ${f.dealer}, ${f.city} ${f.state}</h1><p style="color:#999;font-size:12px">Generated ${new Date().toLocaleDateString()} · cntrofr.com</p>${(customerRes||"").split("\n").map(l=>l.startsWith("## ")?`<h2>${l.slice(3)}</h2>`:l.startsWith("### ")?`<h3>${l.slice(4)}</h3>`:`<p>${l}</p>`).join("")}</body></html>`);w.document.close();w.print();}}>📄 Save PDF</button>
+            </div>
           </div>
           {employeeRes && (
             <div className="card ranim">
@@ -1134,6 +1140,9 @@ This matters because angry, burned-out, or pressured employees directly impact t
                 <span className="badge ba">👔 GLASSDOOR + INDEED</span>
               </div>
               <MD text={employeeRes} />
+              <div className="result-actions">
+                <button className="action-btn" onClick={()=>navigator.clipboard.writeText(employeeRes)}>📋 Copy</button>
+              </div>
             </div>
           )}
           {complaintRes && (
@@ -1143,6 +1152,9 @@ This matters because angry, burned-out, or pressured employees directly impact t
                 <span className="badge br">📋 BBB + AG + CFPB</span>
               </div>
               <MD text={complaintRes} />
+              <div className="result-actions">
+                <button className="action-btn" onClick={()=>navigator.clipboard.writeText(complaintRes)}>📋 Copy</button>
+              </div>
             </div>
           )}
         </>
@@ -1244,7 +1256,7 @@ For EACH product:
         </div>
       </div>
       {loading && <Loading msg="Decoding F&I products" web={true} />}
-      {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge ba">F&I DECODED</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
+      {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge ba">F&I DECODED</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/><div className="result-actions"><button className="action-btn" onClick={()=>navigator.clipboard.writeText(res)}>📋 Copy</button></div></div>}
     </div>
   );
 }
@@ -1294,7 +1306,7 @@ For EACH:
         </div>
       </div>
       {loading && <Loading msg="Loading counter scripts" web={false} />}
-      {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge br">FIGHT BACK</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
+      {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge br">FIGHT BACK</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/><div className="result-actions"><button className="action-btn" onClick={()=>navigator.clipboard.writeText(res)}>📋 Copy</button></div></div>}
     </div>
   );
 }
@@ -1995,6 +2007,19 @@ export default function App() {
         </div>
 
         <div id="faq"><FAQ /></div>
+
+        <div style={{background:"var(--bg2)",borderTop:"1px solid var(--b1)",borderBottom:"1px solid var(--b1)",padding:"28px 24px",textAlign:"center"}}>
+          <div style={{maxWidth:560,margin:"0 auto"}}>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:13,letterSpacing:3,color:"var(--y)",marginBottom:8}}>Your Privacy Is The Product</div>
+            <p style={{fontSize:12,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:14}}>
+              CNTROFR collects <strong style={{color:"var(--text)"}}>zero personal information</strong> when you use our tools. No account. No login. No email required. The deal data you enter is analyzed and discarded — we keep only anonymous market signals that make the platform smarter for every buyer after you.
+            </p>
+            <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
+              <button onClick={()=>{setView("privacy");window.scrollTo(0,0);}} style={{background:"none",border:"2px solid var(--b1)",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,padding:"8px 18px",borderRadius:8,cursor:"pointer",transition:"all .2s"}} onMouseOver={e=>{e.currentTarget.style.borderColor="var(--y)";e.currentTarget.style.color="var(--y)";}} onMouseOut={e=>{e.currentTarget.style.borderColor="var(--b1)";e.currentTarget.style.color="var(--muted)";}}>Read Privacy Policy →</button>
+              <a href="mailto:info@cntrofr.com" style={{display:"inline-flex",alignItems:"center",background:"none",border:"2px solid var(--b1)",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,padding:"8px 18px",borderRadius:8,cursor:"pointer",textDecoration:"none",transition:"border-color .2s"}} onMouseOver={e=>{e.currentTarget.style.borderColor="var(--y)";e.currentTarget.style.color="var(--y)";}} onMouseOut={e=>{e.currentTarget.style.borderColor="var(--b1)";e.currentTarget.style.color="var(--muted)";}}>Privacy Question? Email Us →</a>
+            </div>
+          </div>
+        </div>
         <div className="footer">
           <div className="footer-plate"><div className="fp">CNTROFR</div></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
