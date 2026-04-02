@@ -1410,7 +1410,6 @@ export default function App() {
         </div>
 
         <div id="faq"><FAQ /></div>
-        <div id="contact"><Contact /></div>
         <div className="footer">
           <div className="footer-plate"><div className="fp">CNTROFR</div></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
