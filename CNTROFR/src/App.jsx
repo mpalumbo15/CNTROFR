@@ -1283,7 +1283,7 @@ export default function App() {
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}>✉️ Contact</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item highlight" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
+          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Pro Access — $49</button>
         </div>
       )}
 
@@ -1310,7 +1310,7 @@ export default function App() {
           <div className="hero-tagline">Don't Sign. Counter.</div>
           <p className="hero-sub">CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers.</p>
           <div className="hero-btns">
-            <button className="btn-lg" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
+            <button className="btn-lg" onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button>
             <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>Try Free Deal Analyzer</button>
           </div>
           <div className="stats">
@@ -1388,7 +1388,7 @@ export default function App() {
                 <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.hot?"fill":"out"}`} style={{opacity:.45,cursor:"not-allowed"}} disabled>{p.hot?"Coming Soon — Pro Bundle":p.id==="guide"?"Coming Soon":"Coming Soon"}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro — $49":p.id==="guide"?"Get Counter Guide — $14":p.id==="firsttime"?"First Time Buyer — $15":"Single Report — $19"}</button>
               </div>
             ))}
           </div>
