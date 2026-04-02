@@ -369,12 +369,135 @@ const S = `
   .footer a { color: var(--text2); text-decoration: none; }
   .footer a:hover { color: var(--y); }
   .footer-links { display: flex; justify-content: center; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+
+  /* ── COOKIE BANNER ── */
+  .cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 600; background: var(--bg2); border-top: 2px solid var(--b1); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: 0 -4px 24px rgba(0,0,0,.4); animation: slideUp .3s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .cookie-text { font-size: 12px; color: var(--text2); font-weight: 700; flex: 1; min-width: 200px; line-height: 1.65; }
+  .cookie-text strong { color: var(--y); }
+  .cookie-dismiss { background: var(--y); color: #111; border: none; padding: 9px 22px; font-family: Nunito; font-size: 12px; font-weight: 900; cursor: pointer; border-radius: 8px; transition: background .2s; white-space: nowrap; flex-shrink: 0; }
+  .cookie-dismiss:hover { background: var(--yd); }
+
+  /* ── COPY / SAVE BUTTONS ── */
+  .result-actions { display: flex; gap: 10px; padding: 12px 20px; border-top: 1px solid var(--b1); flex-wrap: wrap; }
+  .action-btn { background: none; border: 2px solid var(--b2); color: var(--text2); padding: 8px 16px; font-family: Nunito; font-size: 11px; font-weight: 800; cursor: pointer; border-radius: 8px; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+  .action-btn:hover { border-color: var(--y); color: var(--y); }
+  .action-btn.copied { border-color: var(--green); color: var(--green); }
+
+  /* ── PROMO CODE ── */
+  .promo-wrap { margin-bottom: 14px; }
+  .promo-toggle { background: none; border: none; color: var(--muted); font-family: Nunito; font-size: 11px; font-weight: 800; cursor: pointer; text-decoration: underline; padding: 0; transition: color .2s; }
+  .promo-toggle:hover { color: var(--y); }
+  .promo-input-row { display: flex; gap: 8px; margin-top: 8px; }
+  .promo-input { flex: 1; background: var(--bg); border: 2px solid var(--b1); color: var(--text); font-family: 'JetBrains Mono'; font-size: 13px; padding: 9px 12px; border-radius: 8px; outline: none; transition: border-color .2s; text-transform: uppercase; letter-spacing: 1px; }
+  .promo-input:focus { border-color: var(--y); }
+  .promo-apply { background: var(--y); color: #111; border: none; padding: 9px 18px; font-family: Nunito; font-size: 12px; font-weight: 900; cursor: pointer; border-radius: 8px; transition: background .2s; white-space: nowrap; }
+  .promo-apply:hover { background: var(--yd); }
+  .promo-ok { font-size: 11px; color: var(--green); font-weight: 800; margin-top: 6px; }
+  .promo-err { font-size: 11px; color: var(--red); font-weight: 800; margin-top: 6px; }
+
+  /* ── BEST PRACTICES DISCLAIMER ── */
+  .bp-disclaimer { background: rgba(59,158,255,.06); border: 1px solid rgba(59,158,255,.2); border-radius: 10px; padding: 12px 16px; margin: 14px 0 0; font-size: 11px; color: #A0C8FF; font-weight: 700; line-height: 1.65; }
+  .bp-disclaimer strong { color: var(--blue); }
+
+  /* ── USED / CPO DISCLAIMER ── */
+  .used-disclaimer { background: rgba(255,214,0,.05); border: 1px solid rgba(255,214,0,.15); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; font-size: 11px; color: var(--text2); font-weight: 700; line-height: 1.65; }
+  .used-disclaimer strong { color: var(--y); }
+
+  /* ── STREAMING CURSOR ── */
+  .streaming-cursor { display: inline-block; width: 2px; height: 14px; background: var(--y); animation: blink .7s step-end infinite; margin-left: 2px; vertical-align: middle; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── CUSTOM ORDER CONDITION ── */
+  .cond-btn.active-custom { background: var(--muted); border-color: var(--muted); color: #fff; }
+
+  /* ── COLLAPSIBLE PACKAGES FIELD ── */
+  .collapsible-field { margin-top: 12px; }
+  .collapsible-toggle { background: none; border: 2px solid var(--b1); color: var(--muted); font-family: Nunito; font-size: 11px; font-weight: 800; padding: 7px 14px; border-radius: 8px; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+  .collapsible-toggle:hover { border-color: var(--b2); color: var(--text2); }
+  .collapsible-toggle.open { border-color: var(--y); color: var(--y); }
+  .collapsible-body { margin-top: 10px; animation: fadeIn .2s ease; }
 `;
 
-const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
-async function ai(prompt, web = false) {
+const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+async function saveDeal(data) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   try {
+    await fetch(`${SUPABASE_URL}/rest/v1/deals`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({ ...data, timestamp: new Date().toISOString() })
+    });
+  } catch(e) {}
+}
+
+async function saveGapFlag(description) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/gap_flags`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({ description, timestamp: new Date().toISOString() })
+    });
+  } catch(e) {}
+}
+
+
+async function ai(prompt, web = false, onChunk = null) {
+  try {
+    // Streaming path: non-web, onChunk provided
+    if (!web && onChunk) {
+      const body = { model: "claude-sonnet-4-5", max_tokens: 2000, stream: true, messages: [{ role: "user", content: prompt }] };
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 55000);
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      const reader = r.body.getReader();
+      const decoder = new TextDecoder();
+      let full = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const ev = JSON.parse(line.slice(6));
+              if (ev.type === "content_block_delta" && ev.delta?.type === "text_delta") {
+                full += ev.delta.text;
+                onChunk(full);
+              }
+            } catch(e) {}
+          }
+        }
+      }
+      // Parse gap flags from response
+      const gapMatches = full.match(/\[GAP_FLAG:[^\]]+\]/g);
+      if (gapMatches) gapMatches.forEach(m => saveGapFlag(m.replace(/\[GAP_FLAG:\s*/,"").replace(/\]$/,"")));
+      return full || "No analysis returned. Please try again.";
+    }
+
+    // Non-streaming path (existing logic)
     const body = { model: "claude-sonnet-4-5", max_tokens: 2000, messages: [{ role: "user", content: prompt }] };
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
 
@@ -439,10 +562,17 @@ async function ai(prompt, web = false) {
         return preText || `Error: ${msg2}`;
       }
       const text2 = (d2.content || []).filter(b => b.type === "text").map(b => b.text).filter(Boolean).join("\n");
+      // Parse gap flags
+      const gapMatches2 = (text2||"").match(/\[GAP_FLAG:[^\]]+\]/g);
+      if (gapMatches2) gapMatches2.forEach(m => saveGapFlag(m.replace(/\[GAP_FLAG:\s*/,"").replace(/\]$/,"")));
       return text2 || preText || "No results returned.";
     }
 
-    return textBlocks.join("\n") || "No analysis returned. Please try again.";
+    const result = textBlocks.join("\n") || "No analysis returned. Please try again.";
+    const gapMatches = result.match(/\[GAP_FLAG:[^\]]+\]/g);
+    if (gapMatches) gapMatches.forEach(m => saveGapFlag(m.replace(/\[GAP_FLAG:\s*/,"").replace(/\]$/,"")));
+    return result;
+
   } catch(e) {
     if (e.name === "AbortError") return "Request timed out — the web search took too long. Try again without the zip code for a faster result.";
     return `Connection error: ${e.message}`;
@@ -466,8 +596,18 @@ function MD({ text }) {
   return <div className="aout">{els}</div>;
 }
 
-function Res({ verdict, vc, text, onReset, onRetry }) {
+function Res({ verdict, vc, text, onReset, onRetry, streaming }) {
+  const [copied, setCopied] = useState(false);
   const isRateLimit = text === "RATE_LIMIT";
+  const copyResults = () => {
+    navigator.clipboard.writeText(text || "").then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  };
+  const savePDF = () => {
+    const printWin = window.open("", "_blank");
+    printWin.document.write(`<html><head><title>CNTROFR Deal Analysis</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;color:#333;line-height:1.7;}h2{color:#333;border-bottom:2px solid #FFD600;padding-bottom:4px;}h3{color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;}ul{padding-left:18px;}li{margin-bottom:4px;}.header{text-align:center;margin-bottom:32px;border-bottom:3px solid #FFD600;padding-bottom:16px;}.badge{display:inline-block;background:#FFD600;color:#111;padding:6px 20px;border-radius:4px;font-weight:900;font-size:18px;letter-spacing:2px;margin-bottom:8px;}</style></head><body><div class="header"><div class="badge">${verdict}</div><h1 style="margin:8px 0">CNTROFR Deal Analysis</h1><p style="color:#666;font-size:12px">Generated ${new Date().toLocaleDateString()} · cntrofr.com</p></div>${(text||"").split("\n").map(l=>l.startsWith("## ")?`<h2>${l.slice(3)}</h2>`:l.startsWith("### ")?`<h3>${l.slice(4)}</h3>`:`<p>${l}</p>`).join("")}</body></html>`);
+    printWin.document.close();
+    printWin.print();
+  };
   return (
     <div className="card ranim">
       {isRateLimit ? (
@@ -490,6 +630,13 @@ function Res({ verdict, vc, text, onReset, onRetry }) {
             <button className="verdict-new-btn" onClick={onReset}>← Run Another Deal</button>
           </div>
           <MD text={text} />
+          {streaming && <div style={{padding:"0 20px 12px"}}><span className="streaming-cursor"/></div>}
+          {!streaming && text && text !== "RATE_LIMIT" && (
+            <div className="result-actions">
+              <button className={`action-btn ${copied?"copied":""}`} onClick={copyResults}>{copied ? "✓ Copied!" : "📋 Copy Results"}</button>
+              <button className="action-btn" onClick={savePDF}>📄 Save as PDF</button>
+            </div>
+          )}
         </>
       )}
     </div>
@@ -546,14 +693,36 @@ function Loading({ msg, web }) {
   );
 }
 
+function CookieBanner() {
+  const [show, setShow] = useState(() => !sessionStorage.getItem("cookie_dismissed"));
+  if (!show) return null;
+  return (
+    <div className="cookie-banner">
+      <div className="cookie-text">
+        <strong>This website doesn't want your cookies.</strong> You're welcome. No tracking, no ad networks, no behavioral data collected. Just the tools you came for.
+      </div>
+      <button className="cookie-dismiss" onClick={() => { sessionStorage.setItem("cookie_dismissed","1"); setShow(false); }}>Got It ✓</button>
+    </div>
+  );
+}
+
 function DealAnalyzer({ firstTimeBuyer }) {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
-  const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", dealerName:"", dealerCity:"", dealerState:"", owners:"", packages:"" });
+  const [condition, setCondition] = useState("used");
+  const [accidentReported, setAccidentReported] = useState(false);
+  const [accidentSeverity, setAccidentSeverity] = useState("");
+  const [showPackages, setShowPackages] = useState(false);
+  const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [streaming, setStreaming] = useState(false); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
-    setL(true); setR(null); setM(null);
+    setL(true); setR(null); setM(null); setStreaming(false);
     setLM("Analyzing your deal...");
-    const t = await ai(`You are a veteran automotive insider with deep knowledge of current dealer sales training programs — including techniques taught by Grant Cardone, Joe Verde, and Reynolds & Reynolds dealer training. You understand payment packing, four-square manipulation, trade-in lowballing, and modern F&I profit extraction strategies. Use only current market data and tactics — no outdated information. Analyze this deal from the buyer's perspective.
+
+    const dealerInfo = f.dealerName ? `Dealer: ${f.dealerName}${f.dealerCity ? ", "+f.dealerCity : ""}${f.dealerState ? " "+f.dealerState : ""} | ` : "";
+    const ownersLine = (condition==="used" && f.owners) ? `Number of previous owners: ${f.owners} | ` : "";
+    const packagesLine = f.packages ? `Manufacturer factory packages from window sticker: ${f.packages} | ` : "";
+
+    const prompt = `You are a veteran automotive insider with deep knowledge of current dealer sales training programs — including techniques taught by Grant Cardone, Joe Verde, and Reynolds & Reynolds dealer training. You understand payment packing, four-square manipulation, trade-in lowballing, and modern F&I profit extraction strategies. Use only current market data and tactics — no outdated information. Analyze this deal from the buyer's perspective.
 
 INSIDER KNOWLEDGE TO APPLY:
 - Dealers sell below invoice regularly using dealer cash and manufacturer programs that are NOT customer-facing. "We're at invoice" is almost never true cost. Franchise dealers have unit quotas — volume matters more than gross on individual deals.
@@ -563,29 +732,53 @@ INSIDER KNOWLEDGE TO APPLY:
 - Any F&I product tied to an interest rate change is illegal in most states unless it appears on the lender's call sheet. Flag this immediately if the deal structure suggests it.
 - Pressure tactics and hard closes are a red flag. A buyer's physical presence is their greatest leverage. If pressure appears, the correct move is to leave and reconnect in writing via text or email — not to capitulate.
 - CNTROFR is not a weapon against salespeople. A prepared buyer comes to terms faster — that benefits both sides. Forced add-ons, surprise fees, and junk line items make a good salesperson's job harder too. The target is always the system, never the floor staff. Counter scripts should reflect this — firm, informed, and respectful. Never adversarial toward the salesperson personally.
+- TRADE-IN: Modern dealer quote systems can always break out the trade-in value as a separate line item — this is legally required for accurate tax savings and negative equity disclosure. If a dealer claims the system can't do it or rolls everything into a monthly payment without separating the trade, that is a choice, not a limitation. Call it out directly. Script: "I need to see the trade-in value as its own line item before we discuss anything else."
+- DEALER HANDLING FEE: The dealer handling fee (D&H) is a fixed store charge that legally must be posted in the dealership and charged equally to all customers — dealers cannot negotiate it as a line item for audit compliance reasons. However, a high D&H fee is leverage on the vehicle price itself. Script: "I understand the D&H is fixed — but given that fee, I need you to come down on the vehicle price to keep the total fair."
+- STATE FEES: Actual government/state fees (registration, title, taxes) are non-negotiable and typically under $50. Do not conflate these with dealer doc fees or made-up administrative charges.
+- GAP FLAGS: If you encounter any product, fee, or line item in this deal that you cannot identify or verify, include a [GAP_FLAG: brief description] marker at the end of your response so our team can review it.
 ${firstTimeBuyer ? "FIRST TIME BUYER MODE: This person has never purchased a vehicle before. Define every industry term you use. Explain why each tactic exists. Walk them through what to expect at each stage of the process. Be thorough — they need to understand not just what to do but why. Extra emphasis on what questions to ask and what to watch for." : ""}
 - EV AUTO-DETECTION: Search the vehicle year, make, and model to determine if it is electric. Do not rely solely on the name — many EVs share model names with ICE vehicles (Audi Q6 e-tron, Kia EV6, Ford Mustang Mach-E, Chevy Equinox EV, BMW iX, Mercedes EQS, Hyundai Ioniq 6, VW ID.4, Volvo EX90, Rivian R1T/R1S, Lucid Air, Polestar 2, all Tesla models, etc.). If electric: flag rapid depreciation, technology obsolescence risk (EV tech updates faster than ICE — current models can feel outdated in 2-3 years), strongly recommend leasing over buying, note GAP insurance is mandatory if buying.
 - MID-CYCLE REFRESH DETECTION: Search whether this year/make/model is an outgoing body style or a recently refreshed generation. If OUTGOING: flag that newer generation exists or is imminent, note resale and depreciation impact, buyer has stronger price leverage. If NEW GENERATION: note first-year production considerations, stronger resale outlook. If MID-CYCLE: standard analysis applies.
-${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":""} | ${condition==="new" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} ${f.msrp ? "| Dealer Asking Price $"+f.msrp : ""} ${f.offer ? "| Dealer's Offer to Buyer $"+f.offer : ""}
-Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
+${dealerInfo}${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":condition==="custom"?" (Custom Order — F&I/fees/add-ons focus)":""} | ${condition==="new"||condition==="custom" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} ${f.msrp ? "| Dealer Asking Price $"+f.msrp : ""} ${f.offer ? "| Dealer's Offer to Buyer $"+f.offer : ""}
+${ownersLine}${packagesLine}Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
 Dealer add-ons (pre-finance office line items — NOT warranties or GAP): ${f.addons||"none"} | Notes: ${f.notes||"none"}
 
-${condition==="cpo" ? "## CPO ELIGIBILITY CHECK — First, search the manufacturer's official CPO program requirements for this exact make. Verify: (1) Maximum mileage allowed — most manufacturers cap CPO certification between 80,000-85,000 miles. Nissan caps at 80,000 miles, Toyota at 85,000, Honda at 85,000, Ford at 80,000, GM brands at 75,000-80,000 — search for the exact figure for this make. (2) Maximum vehicle age — most programs cover 6-7 model years back from current year. (3) Whether this specific vehicle qualifies based on the year and mileage provided. IF THE VEHICLE DOES NOT QUALIFY FOR CPO: Flag this at the top immediately. State clearly what the manufacturer requires and why this vehicle falls outside those parameters. Note that this may be a listing error, a marketing mistake, or a deliberate attempt to charge a CPO premium on a non-qualifying vehicle — not always malicious but the buyer must verify. Advise buyer to request the actual CPO certification paperwork and factory inspection checklist before proceeding. IF THE VEHICLE QUALIFIES: Analyze the CPO premium — is the markup justified? What does the certification actually cover vs. exclude? How much warranty runway remains? What does the manufacturer inspection require and did this dealer likely complete it?" : ""}
+${condition==="custom" ? "## CUSTOM ORDER ANALYSIS — Custom orders significantly limit price leverage since the vehicle doesn't exist yet. Lead with this. Focus analysis on: (1) F&I products — every one is still fully negotiable, (2) add-ons — dealer cannot force pre-installs on a custom order, (3) fees — doc fee, D&H, and any delivery fees, (4) delivery protection — what happens if the vehicle arrives damaged or wrong spec? Get it in writing. Opener: 'Custom orders limit price leverage — but F&I, add-ons, and fees are still fully negotiable. Here's where your money is at risk.'" : ""}
+${condition==="cpo" ? "## CPO ELIGIBILITY CHECK — First, search the manufacturer's official CPO program requirements for this exact make. Verify: (1) Maximum mileage allowed — most manufacturers cap CPO certification between 80,000-85,000 miles. Nissan caps at 80,000 miles, Toyota at 85,000, Honda at 85,000, Ford at 80,000, GM brands at 75,000-80,000 — search for the exact figure for this make. (2) Maximum vehicle age — most programs cover 6-7 model years back from current year. (3) Whether this specific vehicle qualifies based on the year and mileage provided. IF THE VEHICLE DOES NOT QUALIFY FOR CPO: Flag this at the top immediately. State clearly what the manufacturer requires and why this vehicle falls outside those parameters. IF THE VEHICLE QUALIFIES: Analyze the CPO premium — is the markup justified? What does the certification actually cover vs. exclude? Also note: buyers should request the completed CPO inspection checklist signed by the service manager — if the dealer cannot produce this document, the certification may be a rubber-stamp rather than a thorough inspection." : ""}
+${(condition==="used"||condition==="cpo") ? "## PRE-OWNED NOTE — Not all pre-owned vehicles are created equal. Mileage, accident history, number of owners, and service records all affect true value. Always insist on a vehicle history report (CarFax or AutoCheck) at no cost — if the dealer refuses or asks you to pay for it, walk away. No exceptions." : ""}
 ## EXTREME WARNING — Only include this section if truly extraordinary red flags exist that go beyond normal negotiation concerns (examples: severe accident + above market price + high mileage combo, signs of title washing, VIN anomalies mentioned, dealer withholding required disclosures, deal structure that looks predatory). If no extreme flags exist, omit this section entirely. If it does trigger, make it unmistakable.
 ## OVERALL VERDICT — GO, NEGOTIATE, or WALK AWAY. One sentence why.
-## VEHICLE PRICE — Is this fair given the mileage and trim? How much room is left? If mileage is above average (15,000/yr), factor depreciation impact explicitly.
+## VEHICLE PRICE — Is this fair given the mileage and trim? How much room is left? If mileage is above average (15,000/yr), factor depreciation impact explicitly.${f.packages ? " MANUFACTURER PACKAGES: Calculate the actual market value of the factory packages listed and factor into price analysis — tell the buyer if the dealer is marking up the package value." : ""}
 ## TRADE-IN — Fair offer or lowball? Account for negative equity if owed exceeds offered.
 ## ADD-ONS — For each dealer-installed add-on: Worth It / Overpriced / Skip It. Note that warranties and GAP are finance office products handled separately — if buyer has listed them here redirect them to the F&I Decoder.
 ## YOUR COUNTER — 3-4 word-for-word things to say. Scripts must sound like an informed buyer, not a comparison shopper. No "I saw this online" language. Buyer makes a specific offer — they do not ask what the dealer will take. If pre-approval from outside lender is relevant, include how to use it at the table. If any pressure tactics appear in this deal, call them out and give the exact words to shut them down.
 ## RED FLAGS — Any dealer tactics at play? Specifically flag: (1) any suggestion that F&I products affect interest rate — this is illegal unless on lender call sheet, (2) invoice pricing claims — dealers have dealer cash and quota incentives that make below-invoice sales common, (3) hard close pressure tactics — buyer's presence is leverage, walking is always an option, (4) verbal-only promises — if it's not in writing it does not exist.
 
-Do not provide financing rate or payment advice.`);
+Do not provide financing rate or payment advice.`;
+
+    setStreaming(true);
+    const t = await ai(prompt, false, (chunk) => setR(chunk));
+    setStreaming(false);
+
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
+
+    // Save anonymous deal data to Supabase
+    saveDeal({
+      make: f.vehicle ? f.vehicle.split(" ")[0] : null,
+      model: f.vehicle ? f.vehicle.split(" ").slice(1).join(" ") : null,
+      year: f.year || null,
+      condition,
+      zip: f.zip || null,
+      asking_price: f.offer ? parseFloat(f.offer.replace(/,/g,"")) : null,
+      addons: f.addons || null,
+      dealer_name: f.dealerName || null
+    });
+
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
-      const mkt = await ai(`Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
+      const mkt = await ai(`Search for current ${condition==="new"||condition==="custom"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
 
 Search CarGurus, AutoTrader, and Cars.com for comparable listings. If a CarGurus price rating is available for this vehicle (Great Deal / Good Deal / Fair / High / Overpriced), include it and note that CarGurus is a dealer-funded platform — their rating is one useful data point based on listed price vs. market database, not an independent verdict.
 
@@ -605,15 +798,10 @@ Search CarGurus, AutoTrader, and Cars.com for comparable listings. If a CarGurus
       <LoanGlossary />
       <div className="disclaimer"><strong>Starting from a CarGurus listing?</strong> Their deal ratings (Great Deal, Good Deal, Fair, etc.) are based on listed price vs. market data — useful as a starting point. We factor it into our analysis alongside independent sources and note that CarGurus is dealer-funded. <strong>Pro tip — know your pre-approvals:</strong> There are two kinds and they are not the same thing. A <strong>amount-based pre-approval</strong> tells you what you can spend — it's scenario planning, gives you a ceiling, and lets you shop with confidence. A <strong>vehicle-specific pre-approval</strong> is tied to the actual car, VIN, and deal — this is the one you bring to the table. It limits rate markup, forces the dealer to compete with your lender, and removes the F&I office's biggest lever. Get both before you walk in. CNTROFR analyzes deal pricing, trade-in value, and add-on products only. We do not provide financing or credit advice.</div>
       <div className="cond-toggle">
-        <button className={`cond-btn ${condition==="new"?"active":""}`} onClick={()=>setCondition("new")}>
-          🆕 New
-        </button>
-        <button className={`cond-btn ${condition==="used"?"active":""}`} onClick={()=>setCondition("used")}>
-          🔑 Used
-        </button>
-        <button className={`cond-btn ${condition==="cpo"?"active active-cpo":""}`} onClick={()=>setCondition("cpo")}>
-          ✅ CPO
-        </button>
+        <button className={`cond-btn ${condition==="new"?"active":""}`} onClick={()=>setCondition("new")}>🆕 New</button>
+        <button className={`cond-btn ${condition==="used"?"active":""}`} onClick={()=>setCondition("used")}>🔑 Used</button>
+        <button className={`cond-btn ${condition==="cpo"?"active active-cpo":""}`} onClick={()=>setCondition("cpo")}>✅ CPO</button>
+        <button className={`cond-btn ${condition==="custom"?"active active-custom":""}`} onClick={()=>setCondition("custom")}>📋 Custom Order</button>
       </div>
       {condition==="cpo" && (
         <div style={{background:"rgba(59,158,255,.06)",border:"1px solid rgba(59,158,255,.2)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:11,color:"#A0C8FF",fontWeight:700,lineHeight:1.7}}>
@@ -625,6 +813,25 @@ Search CarGurus, AutoTrader, and Cars.com for comparable listings. If a CarGurus
           <strong style={{color:"var(--green)"}}>New vehicle:</strong> Mileage field not required. We'll focus on MSRP vs. market value, dealer markup above sticker, allocation games, and any mandatory add-ons the dealer is bundling.
         </div>
       )}
+      {condition==="custom" && (
+        <div style={{background:"rgba(96,96,128,.12)",border:"1px solid rgba(96,96,128,.3)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:11,color:"var(--text2)",fontWeight:700,lineHeight:1.7}}>
+          <strong style={{color:"var(--text)"}}>Custom Order:</strong> Custom orders limit price leverage — but F&I, add-ons, and fees are still fully negotiable. We'll focus on where your money is at risk after the build sheet is locked.
+        </div>
+      )}
+      {(condition==="used" || condition==="cpo") && (
+        <div className="used-disclaimer"><strong>Not all pre-owned vehicles are created equal.</strong> Mileage, accident history, number of owners, and service records all affect true value. Always demand a vehicle history report before discussing numbers.</div>
+      )}
+
+      <div className="card">
+        <div className="ch"><span className="clbl">Dealer Info <span style={{color:"var(--muted)",fontSize:9,letterSpacing:0,fontWeight:700,marginLeft:6,textTransform:"none"}}>optional — helps identify parent company</span></span></div>
+        <div className="cb">
+          <div className="g3">
+            <div className="fld"><label>Dealer Name</label><input placeholder="AutoNation Toyota" value={f.dealerName} onChange={s("dealerName")} /></div>
+            <div className="fld"><label>City</label><input placeholder="Denver" value={f.dealerCity} onChange={s("dealerCity")} /></div>
+            <div className="fld"><label>State</label><input placeholder="CO" value={f.dealerState} onChange={s("dealerState")} /></div>
+          </div>
+        </div>
+      </div>
 
       <div className="card">
         <div className="ch"><span className="clbl">The Vehicle</span></div>
@@ -646,7 +853,7 @@ Search CarGurus, AutoTrader, and Cars.com for comparable listings. If a CarGurus
           </div>
           <div className="sp" />
           <div className="g2">
-            {condition!=="new" && (
+            {condition!=="new" && condition!=="custom" && (
             <div className="fld">
               <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer",fontSize:12,fontWeight:800,color:"var(--text2)"}}>
                 <input type="checkbox" checked={accidentReported} onChange={e=>{setAccidentReported(e.target.checked);if(!e.target.checked)setAccidentSeverity("");}} style={{accentColor:"var(--y)",width:14,height:14}} />
@@ -676,7 +883,7 @@ Search CarGurus, AutoTrader, and Cars.com for comparable listings. If a CarGurus
               )}
             </div>
             )}
-            {condition!=="new" && (
+            {condition!=="new" && condition!=="custom" && (
             <div className="fld">
               <label style={{display:"flex",alignItems:"center"}}>
                 Mileage
@@ -688,10 +895,25 @@ Search CarGurus, AutoTrader, and Cars.com for comparable listings. If a CarGurus
               <input placeholder="e.g. 34,200" value={f.mileage} onChange={s("mileage")} />
             </div>
             )}
-            {condition==="new" && (
+            {(condition==="new" || condition==="custom") && (
               <div className="fld"><label>Dealer Asking Price (Sticker)</label><input placeholder="32,000" value={f.msrp} onChange={s("msrp")} /></div>
             )}
           </div>
+          {condition==="used" && (
+            <div style={{marginTop:12}}>
+              <div className="fld">
+                <label>Number of Previous Owners</label>
+                <select value={f.owners} onChange={s("owners")} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
+                  <option value="">Unknown / not provided</option>
+                  <option value="1">1 — single owner</option>
+                  <option value="2">2 owners</option>
+                  <option value="3">3 owners</option>
+                  <option value="4">4 owners</option>
+                  <option value="5+">5+ owners</option>
+                </select>
+              </div>
+            </div>
+          )}
           <div className="sp" />
           <div className="g2">
             <div className="fld">
@@ -705,6 +927,21 @@ Search CarGurus, AutoTrader, and Cars.com for comparable listings. If a CarGurus
               <input placeholder="27,200" value={f.offer} onChange={s("offer")} />
             </div>
             <div className="fld"><label style={{display:"flex",alignItems:"center"}}>Expected Price Range<div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Optional — if you've already checked KBB, Edmunds, or CarGurus, drop the range here. We'll factor it into the analysis and tell you if the dealer is inside or outside of fair market.</div></div></label><input placeholder="e.g. 27,000 – 29,500 (from KBB)" value={f.marketRange||""} onChange={s("marketRange")} /></div>
+          </div>
+
+          <div className="collapsible-field">
+            <button className={`collapsible-toggle ${showPackages?"open":""}`} onClick={()=>setShowPackages(p=>!p)}>
+              {showPackages ? "▾" : "▸"} Manufacturer Factory Packages {showPackages ? "" : "(optional)"}
+            </button>
+            {showPackages && (
+              <div className="collapsible-body">
+                <div className="fld">
+                  <label style={{marginBottom:4}}>Packages from window sticker</label>
+                  <textarea placeholder="e.g. Technology Package $2,200 · Premium Audio Package $1,100 · Driver Assist Plus $1,400" value={f.packages} onChange={s("packages")} style={{minHeight:60}} />
+                  <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,marginTop:4,lineHeight:1.6}}>We'll calculate the actual market value of these packages and flag if the dealer is marking them up beyond factory cost.</div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -741,13 +978,14 @@ Search CarGurus, AutoTrader, and Cars.com for comparable listings. If a CarGurus
             <input placeholder="e.g. 80021 — leave blank to skip market scan" value={f.zip} onChange={s("zip")} maxLength={5} />
           </div>
           <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Optional but powerful — we find what other dealers nearby are charging for the same car and hand you that leverage.</div>
+          <div className="bp-disclaimer"><strong>CNTROFR works best when you have an active quote from the dealer or a specific offer in mind.</strong> The more detail you provide, the sharper your counter. If you're still shopping, come back when you're ready to move.</div>
           <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
       </div>
       {loading && <Loading msg={loadMsg} web={!!f.zip} />}
-      {res && !loading && (
+      {res && (
         <>
-          <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);}} onRetry={run} />
+          <Res verdict={v} vc={vc(v)} text={res} streaming={streaming} onReset={()=>{setR(null);setM(null);setStreaming(false);}} onRetry={run} />
           {market && (
             <div className="card ranim">
               <div className="vstrip">
@@ -862,7 +1100,7 @@ This matters because angry, burned-out, or pressured employees directly impact t
   const vc = v => /AUTHENTIC/.test(v)?"bg":/HIGH BOT/.test(v)?"br":/SUSPICIOUS/.test(v)?"ba":"bb";
   return (
     <div>
-      <div className="phd"><h2>Review <span>Purity</span></h2><p>Customer reviews. Employee culture. Complaint records. The full picture.</p></div>
+      <div className="phd"><h2>Review <span>Purity</span></h2><p>Customer reviews. Employee culture. Complaint records. Know who you're buying from — and whether the deal is even worth doing.</p></div>
       <div className="card">
         <div className="ch"><span className="clbl">Dealer to Audit</span></div>
         <div className="cb">
@@ -919,7 +1157,6 @@ const FI = [
 function FIDecoder() {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
   const [warrantyBrand, setWB] = useState(""); const [drivingHabits, setDrivingHabits] = useState(""); const [ownershipLength, setOwnershipLength] = useState("");
-  const WARRANTY_COS = ["","Safe-Guard Products","JM&A Group","Assurant Dealer Services","EFG Companies","Protective Asset Protection"];
   const toggle = id => setSel(s=>({...s,[id]:!s[id]}));
   const picked = FI.filter(p=>sel[p.id]);
   const run = async () => {
@@ -956,11 +1193,9 @@ For EACH product:
           <div className="fld">
             <label style={{display:"flex",alignItems:"center"}}>
               Warranty Provider
-              <div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">We selected the top 5 F&I warranty providers by dealership market share. Selecting yours lets us pull specific claims approval rates, known denial patterns, and coverage gaps for that provider.</div></div>
+              <div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Enter the warranty company name if shown on your paperwork. Lets us pull specific claims approval rates, known denial patterns, and coverage gaps for that provider. Leave blank if unknown.</div></div>
             </label>
-            <select value={warrantyBrand} onChange={e=>setWB(e.target.value)} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
-              {WARRANTY_COS.map(w=><option key={w} value={w}>{w||"Select provider (optional)"}</option>)}
-            </select>
+            <input placeholder="e.g. Safe-Guard, JM&A, Assurant — optional" value={warrantyBrand} onChange={e=>setWB(e.target.value)} />
           </div>
         </div>
         <div style={{fontSize:10,color:"var(--muted)",marginTop:8,fontWeight:700,lineHeight:1.6}}>
@@ -1068,36 +1303,43 @@ function PrivacyPolicy() {
   return (
     <div className="tos-wrap">
       <h1>Privacy Policy</h1>
-      <div className="tos-date">Effective Date: March 2025 · Last Updated: March 2025</div>
+      <div className="tos-date">Effective Date: March 2025 · Last Updated: April 2025</div>
 
       <h2>Our Philosophy</h2>
       <p>CNTROFR was built to keep your money in your pocket — and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
 
       <h2>What We Collect</h2>
-      <p>We only collect information in two situations:</p>
+      <p>We collect information in three situations:</p>
       <ul>
         <li><strong>Payment processing</strong> — handled entirely by Stripe. We never see or store your full card number, CVV, or billing details. Stripe handles all of that under their own PCI-compliant infrastructure.</li>
         <li><strong>Contact form submissions</strong> — if you reach out to us, we receive your name, email, and message. We use this only to respond to you.</li>
+        <li><strong>Anonymous deal data</strong> — when you submit a deal for analysis, we log a stripped, anonymous record: vehicle make, model, year, condition, zip code, asking price, and dealer name (if provided). No name. No email. No IP address. No identity of any kind. This data feeds a real-time market intelligence layer that makes CNTROFR's analysis more accurate over time. You benefit directly from every deal submitted — including your own.</li>
       </ul>
-      <p>The deal information you enter into our tools (vehicle details, trade-in numbers, zip codes, add-ons) is sent directly to the Anthropic Claude API to generate your analysis. <strong>We do not store, log, or retain any of this data on our servers.</strong> It is not linked to your identity in any way.</p>
+      <p>The deal information you enter (trade-in numbers, add-ons, notes) is sent to the Anthropic Claude API to generate your analysis. <strong>We do not store personally identifiable deal details on our servers.</strong> The anonymous deal record described above contains only aggregated market data fields.</p>
 
       <h2>What We Do NOT Collect</h2>
       <ul>
+        <li>Your name, email, or contact information (unless you contact us directly)</li>
         <li>Your Social Security number or government ID</li>
         <li>Your credit score or financial history</li>
-        <li>Your home address or physical location beyond zip code</li>
-        <li>Cookies for advertising or tracking purposes</li>
+        <li>Your home address or precise physical location</li>
+        <li>Advertising or tracking cookies</li>
         <li>Behavioral data sold to third parties</li>
         <li>Any data from minors — our platform is intended for adults 18 and over</li>
       </ul>
 
+      <h2>Access Codes</h2>
+      <p>When you purchase access to CNTROFR, we generate an access code tied to your package type and expiry. This code is stored in our database with the package type, expiry timestamp, and usage status only. It is not linked to your identity, email address, or payment information beyond what Stripe retains for the transaction.</p>
+
       <h2>Third-Party Services</h2>
-      <p>We use a small number of trusted third-party services to operate:</p>
       <ul>
-        <li><strong>Anthropic Claude API</strong> — processes your deal analysis. Subject to Anthropic's privacy policy at anthropic.com.</li>
+        <li><strong>Anthropic Claude API</strong> — processes your deal analysis in real time via a streaming connection. Subject to Anthropic's privacy policy at anthropic.com.</li>
         <li><strong>Stripe</strong> — handles payment processing. Subject to Stripe's privacy policy at stripe.com.</li>
+        <li><strong>Supabase</strong> — stores anonymous deal data and access codes. Data is encrypted at rest. Subject to Supabase's privacy policy at supabase.com.</li>
+        <li><strong>Cloudflare</strong> — provides network security, DDoS protection, and IP-based rate limiting. Standard request logs may be retained per Cloudflare's policy at cloudflare.com.</li>
+        <li><strong>hCaptcha</strong> — used for bot protection on form submissions. Privacy-respecting; does not use behavioral tracking. Subject to hCaptcha's privacy policy at hcaptcha.com.</li>
         <li><strong>Formspree</strong> — routes contact form submissions to our inbox. Subject to Formspree's privacy policy at formspree.io.</li>
-        <li><strong>Vercel</strong> — hosts the platform. Standard server logs (IP address, request time) may be retained per Vercel's policy.</li>
+        <li><strong>Vercel</strong> — hosts the platform. Standard server logs (IP address, request time) may be retained per Vercel's policy at vercel.com.</li>
       </ul>
       <p>None of these providers are authorized to use your data for their own marketing or to sell it to anyone else.</p>
 
@@ -1105,13 +1347,13 @@ function PrivacyPolicy() {
       <p>CNTROFR runs zero advertising — on the platform or behind the scenes. We take no money from dealers, lenders, manufacturers, or ad networks. We are funded exclusively by direct consumer purchases. There is no financial incentive for us to share your data with anyone.</p>
 
       <h2>Data Retention</h2>
-      <p>Contact form data is retained only as long as needed to resolve your inquiry. Payment records are retained by Stripe per their standard compliance requirements. We do not maintain any internal database of user profiles, deal histories, or analysis records.</p>
+      <p>Anonymous deal data is retained indefinitely as aggregate market intelligence — it contains no personally identifiable information. Contact form data is retained only as long as needed to resolve your inquiry. Payment records are retained by Stripe per their standard compliance requirements. Access codes expire per their package terms and are marked inactive upon expiry.</p>
 
       <h2>Your Rights</h2>
       <p>If you have contacted us and want your information removed from our records, email <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a> and we will delete it promptly. Colorado residents have additional rights under the Colorado Privacy Act (CPA) — contact us to exercise them.</p>
 
       <h2>Changes to This Policy</h2>
-      <p>If we ever change how we handle data, we will update this page and the effective date at the top. We will never quietly change our data practices — if something meaningful changes, we'll say so clearly.</p>
+      <p>If we ever change how we handle data, we will update this page and the effective date at the top. We will never quietly change our data practices.</p>
 
       <h2>Contact</h2>
       <p>Privacy questions? Email us at <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a>. We respond to every message personally.</p>
@@ -1123,7 +1365,7 @@ function TermsOfService() {
   return (
     <div className="tos-wrap">
       <h1>Terms of Service</h1>
-      <div className="tos-date">Effective Date: March 2025 · Last Updated: March 2025</div>
+      <div className="tos-date">Effective Date: March 2025 · Last Updated: April 2025</div>
 
       <h2>1. About CNTROFR</h2>
       <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, and prepare negotiation strategies.</p>
@@ -1132,7 +1374,7 @@ function TermsOfService() {
       <p>Everything on CNTROFR.com is for informational purposes only. Our analysis tools do not constitute legal advice, financial advice, credit counseling, or professional consulting of any kind. We do not recommend specific loan products, interest rates, lenders, or financing arrangements. Always consult a licensed professional before making significant financial decisions.</p>
 
       <h2>3. No Dealer Affiliations</h2>
-      <p>CNTROFR has no financial relationships with any automobile dealership, manufacturer, lender, or financing institution. We do not accept advertising from dealers or receive referral fees of any kind. Our only revenue comes from direct consumer purchases.</p>
+      <p>CNTROFR has no financial relationships with any automobile dealership, manufacturer, lender, or financing institution. We do not accept advertising from dealers or receive referral fees of any kind. Our only revenue comes from direct consumer purchases and referral partner arrangements where disclosed.</p>
 
       <h2>4. Use of Our Tools</h2>
       <p>By using CNTROFR tools, you agree to:</p>
@@ -1141,30 +1383,40 @@ function TermsOfService() {
         <li>Provide accurate information to receive meaningful analysis</li>
         <li>Understand that AI-generated analysis reflects general market knowledge, not guaranteed accuracy</li>
         <li>Not reproduce, resell, or redistribute our analysis output without written permission</li>
+        <li>Not use automated tools, bots, or scripts to access the platform</li>
       </ul>
 
-      <h2>5. Payment & Refunds</h2>
+      <h2>5. Anonymous Data Collection</h2>
+      <p>When you submit a deal for analysis, CNTROFR logs an anonymous record of market-relevant fields (vehicle make, model, year, condition, zip code, asking price, and dealer name if provided). This data contains no personally identifiable information and is used to build real-time market intelligence that improves analysis accuracy for all users. By using the platform, you consent to this anonymous data collection. For full details, see our Privacy Policy.</p>
+
+      <h2>6. Access Codes & Expiry</h2>
+      <p>Upon purchase, you receive an access code for the package selected. Single Report and First Time Buyer packages are single-use with no expiry. Pro Bundle packages are valid for 7 days from purchase with unlimited uses during that period. Counter Guide packages are single-use with no expiry. Access codes are non-transferable. Lost codes cannot be reissued — contact us at info@cntrofr.com if you experience a delivery issue.</p>
+
+      <h2>7. Promo & Referral Codes</h2>
+      <p>Promo and referral codes may be issued to partner businesses and individual referrers. Codes are single-tier only — no multi-level or pyramid structures. Discounts apply to the listed package price at checkout. Referral fees, where applicable, are paid monthly to qualifying partners per agreed terms. CNTROFR reserves the right to deactivate any code at any time.</p>
+
+      <h2>8. Payment & Refunds</h2>
       <p>All purchases are processed securely through Stripe. Access is granted immediately upon payment confirmation. Due to the instant digital nature of our services, all sales are final. If you experience a technical failure that prevented access, contact us at info@cntrofr.com within 48 hours and we will make it right.</p>
 
-      <h2>6. Accuracy of Information</h2>
+      <h2>9. Accuracy of Information</h2>
       <p>Our AI tools use current market data and are designed to reflect up-to-date dealer tactics, fee benchmarks, and pricing data. However, market conditions change rapidly. CNTROFR makes no warranty that any specific piece of analysis is accurate, complete, or applicable to your specific situation. Use our output as one informed input — not the only one.</p>
 
-      <h2>7. Privacy & Data</h2>
-      <p>We collect only what is necessary to process payments and deliver services. We do not sell, rent, or share your personal information with third parties, including automobile dealers, lenders, or advertisers. For full details, see our Privacy Policy.</p>
+      <h2>10. Third-Party Services</h2>
+      <p>CNTROFR uses Stripe for payments, Supabase for data storage, Cloudflare for network security, hCaptcha for bot protection, Anthropic for AI analysis, Formspree for contact routing, and Vercel for hosting. Use of CNTROFR implies acceptance of the relevant policies of these providers where they apply to your interaction with the platform.</p>
 
-      <h2>8. Intellectual Property</h2>
+      <h2>11. Intellectual Property</h2>
       <p>All content, design, code, and analysis frameworks on CNTROFR.com are the intellectual property of CNTROFR LLC. You may not copy, reproduce, or build derivative products from our platform without express written consent.</p>
 
-      <h2>9. Limitation of Liability</h2>
+      <h2>12. Limitation of Liability</h2>
       <p>CNTROFR LLC shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of our platform or reliance on our analysis. Our maximum liability in any circumstance is limited to the amount you paid for the service in question.</p>
 
-      <h2>10. Governing Law</h2>
+      <h2>13. Governing Law</h2>
       <p>These Terms are governed by the laws of the State of Colorado. Any disputes shall be resolved in the courts of Denver County, Colorado.</p>
 
-      <h2>11. Changes to These Terms</h2>
+      <h2>14. Changes to These Terms</h2>
       <p>We may update these Terms from time to time. Continued use of the platform after changes constitutes acceptance of the updated Terms. We'll always post the effective date at the top of this page.</p>
 
-      <h2>12. Contact</h2>
+      <h2>15. Contact</h2>
       <p>Questions about these Terms? Email us at <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a>. We respond to every message.</p>
     </div>
   );
@@ -1357,11 +1609,133 @@ const PLANS = [
   {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:[]},
 ];
 
+function MissionPage({ onBack }) {
+  return (
+    <div className="tos-wrap">
+      <div style={{marginBottom:24}}>
+        <button className="ghost-btn" onClick={onBack}>← Back to Home</button>
+      </div>
+      <h1>Our Mission</h1>
+      <div className="tos-date">CNTROFR LLC · Denver, Colorado · Built For Buyers</div>
+
+      <h2>The Manifesto</h2>
+      <p>We are the scared first-time buyer. The person who got taken last time and swore never again. The one sitting in a parking lot right now working up the nerve to go back inside.</p>
+      <p>We are the disruption in a toxic industry — built by no one, funded by no one, owned by everyone who's ever felt powerless at that desk.</p>
+      <p>No name. No face. No agenda. Just the truth about your deal.</p>
+
+      <h2>Why We Built This</h2>
+      <p>The dealership has lawyers, trainers, and ten thousand deals worth of experience working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you. They have scripts for every objection. They know when you're nervous. They know when you're in love with the car.</p>
+      <p>We studied the same playbooks. We sat in the training sessions. We know the tactics. <strong>Now you do too.</strong></p>
+      <p>CNTROFR was built because that information asymmetry is fixable — and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $400 and still take referral fees. Not the "free" tools that monetize your data the moment you click submit.</p>
+
+      <h2>Real-Time Market Intelligence</h2>
+      <p>CNTROFR gets smarter with every deal analyzed. Every time a buyer submits a deal, anonymous data — make, model, year, condition, zip, asking price, add-ons — is logged to build a real-time market intelligence layer. No personal information. No tracking. No identity. Just market truth.</p>
+      <p>Over time, this surfaces what dealers are actually charging in different markets, which add-ons get pushed hardest by which brands, how doc fees vary by state, and where the biggest gaps between asking price and fair market value appear. The AI gets sharper. The buyer gets sharper. The dealer's information advantage shrinks.</p>
+      <p><strong>That's the mission: make the deal fair, one anonymous data point at a time.</strong></p>
+
+      <h2>Zero Dealer Affiliations. Ever.</h2>
+      <p>CNTROFR has no financial relationships with any dealership, manufacturer, lender, or advertising network — and never will. Our only revenue comes from the buyers who use the platform. That alignment is the whole product. The moment we take dealer money, the platform is worthless. We know that. We built the business model around it.</p>
+
+      <h2>For Buyers. Not Shoppers.</h2>
+      <p>CNTROFR is built for the person who knows what they want and is ready to go get it on fair terms. If you're still browsing, go browse — there are great tools for that. Come back when you're ready to ink up. That focus is what makes us different from every other car research site. We're not trying to help you find a car. We're trying to make sure the one you already found doesn't cost you more than it should.</p>
+      <p style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,color:"var(--y)",marginTop:24}}>Don't Sign. Counter.</p>
+      <p style={{color:"var(--muted)",fontSize:12}}>— The CNTROFR Team · Built in Denver, Colorado</p>
+    </div>
+  );
+}
+
+function PremiumGate({ tab, onUnlock, buy, plans }) {
+  const [checked, setChecked] = useState({});
+  const tabName = tab?.label || "this tool";
+
+  const checklist = [
+    { id:"quote", label:"I have an active quote or offer from the dealer" },
+    { id:"numbers", label:"I know the vehicle year, make, model, and asking price" },
+    { id:"ready", label:"I'm ready to negotiate — not still shopping" },
+    { id:"time", label:"I haven't signed anything yet" },
+  ];
+  const allChecked = checklist.every(c => checked[c.id]);
+  const anyChecked = checklist.some(c => checked[c.id]);
+
+  return (
+    <div className="upbox" style={{textAlign:"left",padding:"32px 28px"}}>
+      <div style={{fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:2,marginBottom:6,color:"var(--text)"}}>Pro Feature</div>
+      <p style={{marginBottom:20}}><strong style={{color:"var(--y)"}}>{tabName}</strong> is included in Pro access. Before you unlock, make sure you're ready to get the most out of it.</p>
+
+      <div style={{fontFamily:"'Bebas Neue'",fontSize:12,letterSpacing:2,color:"var(--muted)",marginBottom:12}}>READINESS CHECK</div>
+      <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:24}}>
+        {checklist.map(c => (
+          <label key={c.id} style={{display:"flex",alignItems:"center",gap:12,cursor:"pointer",background:checked[c.id]?"rgba(0,201,107,.06)":"var(--bg3)",border:`2px solid ${checked[c.id]?"rgba(0,201,107,.25)":"var(--b1)"}`,borderRadius:10,padding:"12px 14px",transition:"all .2s"}}>
+            <input type="checkbox" checked={!!checked[c.id]} onChange={e=>setChecked(p=>({...p,[c.id]:e.target.checked}))} style={{accentColor:"var(--green)",width:16,height:16,flexShrink:0}} />
+            <span style={{fontSize:13,fontWeight:700,color:checked[c.id]?"var(--text)":"var(--text2)"}}>{c.label}</span>
+          </label>
+        ))}
+      </div>
+
+      {allChecked ? (
+        <div style={{animation:"fadeIn .3s ease"}}>
+          <button className="hbtn-y" style={{width:"100%",padding:"14px",fontSize:14,marginBottom:10}} onClick={()=>buy(plans[2])}>Unlock Pro — $49 · All 5 Tools · 7 Days</button>
+          <div style={{textAlign:"center",fontSize:11,color:"var(--muted)",fontWeight:700}}>One-time payment. No subscription. No account required. If you experience a technical issue, email info@cntrofr.com within 48 hours and we'll make it right.</div>
+        </div>
+      ) : anyChecked ? (
+        <div>
+          <button className="hbtn-y" style={{width:"100%",padding:"14px",fontSize:14,marginBottom:10}} onClick={()=>buy(plans[2])}>Unlock Pro — $49 · All 5 Tools · 7 Days</button>
+          <div style={{textAlign:"center",fontSize:11,color:"var(--muted)",fontWeight:700,marginBottom:8}}>One-time payment. No subscription. Instant access.</div>
+          <button onClick={()=>buy(plans[2])} style={{display:"block",width:"100%",background:"none",border:"none",color:"var(--b2)",fontSize:10,fontWeight:800,letterSpacing:".5px",cursor:"pointer",textAlign:"center",padding:4,transition:"color .2s"}} onMouseOver={e=>e.target.style.color="var(--muted)"} onMouseOut={e=>e.target.style.color="var(--b2)"}>Skip checklist and unlock anyway →</button>
+        </div>
+      ) : (
+        <button className="hbtn-y" style={{width:"100%",padding:"14px",fontSize:14,opacity:.5,cursor:"not-allowed"}} disabled>Check the boxes above to unlock</button>
+      )}
+    </div>
+  );
+}
+
+const BETA_CODE = "CNTROFR-BETA"; // Not active until triggered
+const BETA_ACTIVE = false; // Flip to true to activate beta access
+
+async function validatePromoCode(code) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/promo_codes?code=eq.${encodeURIComponent(code.toUpperCase())}&select=*`, {
+      headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}` }
+    });
+    const rows = await res.json();
+    return rows && rows.length > 0 ? rows[0] : null;
+  } catch(e) { return null; }
+}
+
 function PayModal({plan,onClose,onSuccess}) {
   const [card,setCard]=useState("");const [exp,setExp]=useState("");const [cvc,setCvc]=useState("");const [busy,setBusy]=useState(false);
+  const [promoOpen,setPromoOpen]=useState(false);const [promoCode,setPromoCode]=useState("");const [promoMsg,setPromoMsg]=useState("");const [promoOk,setPromoOk]=useState(false);const [discount,setDiscount]=useState(0);
   const fmt=v=>v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
   const fmtExp=v=>{const d=v.replace(/\D/g,"").slice(0,4);return d.length>2?d.slice(0,2)+"/"+d.slice(2):d;};
   const ready=card.replace(/\s/g,"").length===16&&exp.length===5&&cvc.length>=3;
+  const finalPrice = Math.max(0, plan.price - discount);
+
+  const applyPromo = async () => {
+    const code = promoCode.trim().toUpperCase();
+    if (BETA_ACTIVE && code === BETA_CODE) {
+      onSuccess(plan); return;
+    }
+    const promo = await validatePromoCode(code);
+    if (promo && promo.active) {
+      setDiscount(promo.discount_amount || 0);
+      setPromoOk(true);
+      setPromoMsg(`✓ Code applied — $${promo.discount_amount} off`);
+      // Track redemption
+      if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+        fetch(`${SUPABASE_URL}/rest/v1/promo_codes?code=eq.${encodeURIComponent(code)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Prefer": "return=minimal" },
+          body: JSON.stringify({ redemption_count: (promo.redemption_count||0)+1 })
+        }).catch(()=>{});
+      }
+    } else {
+      setPromoOk(false); setDiscount(0);
+      setPromoMsg("Code not recognized or expired.");
+    }
+  };
+
   const pay=async()=>{setBusy(true);await new Promise(r=>setTimeout(r,1800));setBusy(false);onSuccess(plan);};
   return (
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
@@ -1369,8 +1743,23 @@ function PayModal({plan,onClose,onSuccess}) {
         <div className="mtop"><h3>Complete Purchase</h3><button className="mx" onClick={onClose}>×</button></div>
         <div className="mbody">
           <div className="order-sum">
-            <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Total Due</span><span className="oprice">${plan.price}</span></div>
+            <div className="orow">
+              <span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Total Due</span>
+              <span className="oprice">${finalPrice}{discount>0&&<span style={{fontSize:14,color:"var(--green)",marginLeft:8,fontFamily:"Nunito"}}>-${discount} off</span>}</span>
+            </div>
             <div className="oname">CNTROFR — {plan.name}</div>
+          </div>
+          <div className="promo-wrap">
+            <button className="promo-toggle" onClick={()=>setPromoOpen(o=>!o)}>{promoOpen?"▾ Hide":"▸ Have a promo or referral code?"}</button>
+            {promoOpen && (
+              <div>
+                <div className="promo-input-row">
+                  <input className="promo-input" placeholder="ENTER CODE" value={promoCode} onChange={e=>setPromoCode(e.target.value)} />
+                  <button className="promo-apply" onClick={applyPromo}>Apply</button>
+                </div>
+                {promoMsg && <div className={promoOk?"promo-ok":"promo-err"}>{promoMsg}</div>}
+              </div>
+            )}
           </div>
           <div className="sbox">
             <div className="slbl">Card Number</div>
@@ -1380,8 +1769,9 @@ function PayModal({plan,onClose,onSuccess}) {
               <div><div className="slbl">CVC</div><input className="sinput" placeholder="•••" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} /></div>
             </div>
           </div>
-          <button className="paybtn" onClick={pay} disabled={!ready||busy}>{busy?"Processing...":"Pay $"+plan.price+" — Get Instant Access"}</button>
+          <button className="paybtn" onClick={pay} disabled={!ready||busy}>{busy?"Processing...":"Pay $"+finalPrice+" — Get Instant Access"}</button>
           <div className="secnote"><span>🔒</span> Secured by Stripe · No account required · Instant access</div>
+          <div style={{textAlign:"center",fontSize:10,color:"var(--muted)",marginTop:8,fontWeight:700}}>All sales final. Technical issue? Email info@cntrofr.com within 48 hours.</div>
         </div>
       </div>
     </div>
@@ -1397,7 +1787,7 @@ const TABS = [
 ];
 
 export default function App() {
-  const [view,setView]=useState("home"); // home | tools | contact | tos
+  const [view,setView]=useState("home"); // home | tools | contact | tos | privacy | mission
   const [menuOpen,setMenuOpen]=useState(false);
   const [firstTimeBuyer,setFTB]=useState(false);
   const [tab,setTab]=useState("deal");
@@ -1410,6 +1800,7 @@ export default function App() {
   return (
     <>
       <style>{S}</style>
+      <CookieBanner />
       <div className="hdr">
         <button className={`burger ${menuOpen?"open":""}`} onClick={()=>setMenuOpen(m=>!m)} aria-label="Menu">
           <span/><span/><span/>
@@ -1425,25 +1816,25 @@ export default function App() {
           <button className="bmenu-item" onClick={()=>{setView("tools");setTab("deal");setMenuOpen(false);}}>⚡ Free Deal Analyzer</button>
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 All Tools</button>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#mission")?.scrollIntoView({behavior:"smooth"}),100);}}>🎯 Mission</button>
+          <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>🎯 Mission</button>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 Pricing</button>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#faq")?.scrollIntoView({behavior:"smooth"}),100);}}>❓ FAQ</button>
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}>✉️ Contact</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item highlight" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
+          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Pro Access — $49</button>
         </div>
       )}
 
       {view==="home"&&<>
 
         <div className="beta-banner">
-          <div className="beta-plate">PIT STOP</div>
+          <div className="beta-plate">LIVE</div>
           <div className="beta-text">
-            <strong>We're fine-tuning under the hood.</strong> The free Deal Analyzer is live and fully loaded — premium tools drop soon.<br/>
-            <em>Not taking payments yet. We'll let you know when we're ready to rip.</em>
+            <strong>CNTROFR is live.</strong> Free Deal Analyzer available now — unlock all 5 tools with Pro access for $49.<br/>
+            <em>No account. No subscription. One-time payment. Instant access.</em>
           </div>
-          <div className="beta-plate">BETA</div>
+          <div className="beta-plate">PRO</div>
         </div>
         <div className="hero">
           <div className="hero-road" />
@@ -1458,7 +1849,7 @@ export default function App() {
           <div className="hero-tagline">Don't Sign. Counter.</div>
           <p className="hero-sub">CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers.</p>
           <div className="hero-btns">
-            <button className="btn-lg" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
+            <button className="btn-lg" onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button>
             <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>Try Free Deal Analyzer</button>
           </div>
           <div className="stats">
@@ -1483,7 +1874,7 @@ export default function App() {
           <h2 className="sec-h2">Five Tools. One Price.</h2>
           <p className="sec-sub">Everything you need from the moment you see a car to the second before you sign.</p>
           <div className="tgrid">
-            {[{icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"⭐",name:"Review Purity",desc:"Real complaints vs. sour grapes — bot farms exposed.",free:false},{icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded — dealer cost, real value, exit script.",free:false},{icon:"⚔️",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
+            {[{icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"⭐",name:"Review Purity",desc:"Real complaints vs. sour grapes — bot farms exposed. Know if this dealer deserves your money before you spend it.",free:false},{icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded — dealer cost, real value, exit script.",free:false},{icon:"⚔️",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
               <div key={i} className="tc">
                 <div className="tc-icon">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
@@ -1516,26 +1907,28 @@ export default function App() {
             <div className="manifesto-line"><span className="dim">Yet We Are</span> <span className="y">Everyone.</span></div>
             <div className="manifesto-divider" />
             <p className="manifesto-sub">
-              We are the scared first-time buyer. The person who got taken last time and swore never again. The one sitting in a parking lot right now working up the nerve to go back inside.<br/><br/>
-              We are the disruption in a toxic industry — <strong>built by no one, funded by no one, owned by everyone who's ever felt powerless at that desk.</strong><br/><br/>
-              No name. No face. No agenda. Just the truth about your deal.
+              We are the scared first-time buyer. The person who got taken last time and swore never again. The one sitting in a parking lot right now working up the nerve to go back inside.
             </p>
-            <div className="manifesto-stamp">CNTROFR — For Buyers. Not Shoppers.</div>
+            <div style={{display:"flex",gap:16,justifyContent:"center",alignItems:"center",flexWrap:"wrap",marginTop:8}}>
+              <div className="manifesto-stamp">CNTROFR — For Buyers. Not Shoppers.</div>
+              <button onClick={()=>{setView("mission");window.scrollTo(0,0);}} style={{background:"none",border:"2px solid rgba(255,214,0,.3)",color:"var(--y)",fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:"1px",padding:"6px 18px",borderRadius:4,cursor:"pointer",transition:"all .2s"}} onMouseOver={e=>e.target.style.borderColor="var(--y)"} onMouseOut={e=>e.target.style.borderColor="rgba(255,214,0,.3)"}>Read Our Full Story →</button>
+            </div>
           </div>
         </div>
 
         <div id="mission" className="mission">
           <div className="mission-inner">
             <div className="mission-eye">Our Mission</div>
-            <h2 className="mission-h">The Dealer Has A Playbook.<br/><span className="y">Now You Do Too.</span></h2>
+            <h2 className="mission-h">Real-Time Market Intelligence.<br/><span className="y">Every Deal. Every Buyer.</span></h2>
             <p className="mission-body">
-              We built CNTROFR because <strong>the house always wins — until now.</strong> No dealer kickbacks. No advertiser relationships. No suits pulling strings behind the curtain. Just raw, unfiltered intelligence about your deal, handed to you before you sign your name to anything.<br/><br/>
-              The dealership has lawyers, trainers, and <strong>ten thousand deals worth of experience</strong> working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you.<br/><br/>
-              We studied the same playbooks. We know the scripts. <strong>Now you do too.</strong><br/><br/>
-              Don't sign. Counter.
+              CNTROFR gets smarter with every deal analyzed. <strong>Anonymous market data builds a real-time intelligence layer</strong> — surfacing what dealers are actually charging, which add-ons show up most, and how fees vary by state and brand. No personal data. No tracking. Just market truth that gets sharper every day.<br/><br/>
+              <strong>The dealer has done this ten thousand times.</strong> Now you have the same playbook.
             </p>
             <div style={{fontFamily:"'Bebas Neue'",fontSize:"clamp(18px, 3vw, 26px)",letterSpacing:"1px",color:"var(--y)",margin:"0 0 16px",lineHeight:1.3}}>"I built the tool I wish my customers had."</div>
-            <div className="mission-sig">— The CNTROFR Team · Built For Buyers · Funded By None</div>
+            <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",alignItems:"center"}}>
+              <div className="mission-sig">— The CNTROFR Team · Built For Buyers · Funded By None</div>
+              <button onClick={()=>{setView("mission");window.scrollTo(0,0);}} style={{background:"none",border:"1px solid rgba(255,214,0,.25)",color:"var(--y)",fontFamily:"Nunito",fontSize:10,fontWeight:900,letterSpacing:"1px",padding:"5px 14px",borderRadius:4,cursor:"pointer",opacity:.7,transition:"opacity .2s"}} onMouseOver={e=>e.target.style.opacity="1"} onMouseOut={e=>e.target.style.opacity=".7"}>Full Mission →</button>
+            </div>
           </div>
         </div>
 
@@ -1551,7 +1944,7 @@ export default function App() {
                 <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.hot?"fill":"out"}`} style={{opacity:.45,cursor:"not-allowed"}} disabled>{p.hot?"Coming Soon — Pro Bundle":p.id==="guide"?"Coming Soon":"Coming Soon"}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro — $49":p.id==="guide"?"Get Counter Guide — $14":p.id==="firsttime"?"First Time Buyer — $15":"Single Report — $19"}</button>
               </div>
             ))}
           </div>
@@ -1619,6 +2012,7 @@ export default function App() {
           <div className="footer-links">
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("contact");window.scrollTo(0,0)}}>Contact Us</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("mission");window.scrollTo(0,0)}}>Our Mission</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
           </div>
@@ -1655,10 +2049,22 @@ export default function App() {
               </button>
             ))}
           </div>
-          {canUse(tab)?<Active firstTimeBuyer={firstTimeBuyer} />:<div className="upbox"><h3>Pro Feature</h3>{firstTimeBuyer&&<div className="ftb-box" style={{marginBottom:16}}><div className="ftb-title">First Time Buyer — You're In The Right Place</div><p className="ftb-body">Unlock Pro to get full explanations, decoded F&I products, and step-by-step guidance built specifically for first-time buyers.</p></div>}<p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[1])}>Unlock Pro — $49</button></div>}
+          {canUse(tab)?<Active firstTimeBuyer={firstTimeBuyer} />:<PremiumGate tab={TABS.find(t=>t.id===tab)} onUnlock={()=>buy(PLANS[2])} buy={buy} plans={PLANS} />}
         </div>
       )}
 
+      {view==="mission"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+          </div>
+          <MissionPage onBack={()=>{setView("home");window.scrollTo(0,0);}} />
+          <div className="footer">
+            <div className="footer-plate"><div className="fp">CNTROFR</div></div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC · <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+          </div>
+        </>
+      )}
       {view==="privacy"&&(
         <>
           <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
