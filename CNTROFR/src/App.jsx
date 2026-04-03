@@ -701,6 +701,8 @@ function ReviewPurity() {
   const run = async () => {
     setL(true); setCR(null); setER(null); setKR(null);
 
+    setLM("Preparing audit...");
+    await new Promise(r => setTimeout(r, 3000));
     setLM("Auditing customer reviews...");
     const customer = await ai(`You are a reputation integrity analyst specializing in dealer review manipulation.
 Dealer: ${f.dealer}, ${f.city} ${f.state}
@@ -713,8 +715,10 @@ ${f.reviews?"Customer reviews pasted by user:\n"+f.reviews:"No reviews pasted �
 ## MANAGEMENT RESPONSE PATTERNS — Do they respond defensively, dismissively, or genuinely?
 ## PLATFORM CROSS-CHECK — How does the rating compare across Google, DealerRater, and Cars.com? Big gaps are a red flag.
 ## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW with one-line reasoning.`, true);
-    const m = customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
-    setV(m?m[1].trim().toUpperCase():"ANALYZED"); setCR(customer);
+    const isRateLimited = customer.includes("rate limit") || customer.includes("token");
+    const m = !isRateLimited && customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
+    setV(m?m[1].trim().toUpperCase():"ANALYZED");
+    setCR(isRateLimited ? "## Customer Review Scan Unavailable\nHigh demand right now — try running the audit again in 60 seconds. Results are usually faster on a second attempt." : customer);
 
     await new Promise(r => setTimeout(r, 15000));
     setLM("Checking employee sentiment on Glassdoor & Indeed...");
