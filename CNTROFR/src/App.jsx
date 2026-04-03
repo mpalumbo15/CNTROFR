@@ -716,7 +716,7 @@ ${f.reviews?"Customer reviews pasted by user:\n"+f.reviews:"No reviews pasted �
     const m = customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
     setV(m?m[1].trim().toUpperCase():"ANALYZED"); setCR(customer);
 
-    await new Promise(r => setTimeout(r, 8000));
+    await new Promise(r => setTimeout(r, 15000));
     setLM("Checking employee sentiment on Glassdoor & Indeed...");
     const employee = await ai(`You are an automotive dealership culture analyst. Search Glassdoor and Indeed for employee reviews of "${f.dealer}" in ${f.city}, ${f.state}.
 
@@ -729,9 +729,9 @@ This matters because angry, burned-out, or pressured employees directly impact t
 ## PRESSURE CULTURE SIGNALS — Do employees describe being pushed to hit numbers at the customer's expense?
 ## TURNOVER RED FLAGS — High turnover in sales or F&I is a warning sign for buyers. What did you find?
 ## CULTURE VERDICT — Would you send a friend to buy here based on how employees describe this place?`, true);
-    setER(employee);
+    setER(employee.includes("rate limit") ? "## Employee Data Unavailable\nHigh demand right now — employee culture scan couldn't complete. Try running Review Purity again in 60 seconds." : employee);
 
-    await new Promise(r => setTimeout(r, 8000));
+    await new Promise(r => setTimeout(r, 15000));
     setLM("Pulling BBB & complaint records...");
     const complaints = await ai(`You are a consumer protection researcher. Search for complaints and records on "${f.dealer}" in ${f.city}, ${f.state} across:
 - BBB (Better Business Bureau) — rating, complaint count, complaint patterns, resolution history
@@ -746,7 +746,7 @@ This matters because angry, burned-out, or pressured employees directly impact t
 ## LEGAL / NEWS — Any lawsuits, AG actions, or local news stories about this dealer?
 ## WHAT TO ASK THEM — 2-3 direct questions to ask the dealer based on what you found.
 ## OVERALL RISK LEVEL — LOW / MODERATE / HIGH with reasoning.`, true);
-    setKR(complaints);
+    setKR(complaints.includes("rate limit") ? "## Complaint Records Unavailable\nHigh demand right now — complaint record scan couldn't complete. Try running Review Purity again in 60 seconds." : complaints);
 
     setL(false); setLM("");
   };
@@ -764,7 +764,7 @@ This matters because angry, burned-out, or pressured employees directly impact t
           </div>
           <div className="sp" />
           <div className="fld"><label>Paste Customer Reviews (optional — better with them)</label><textarea style={{minHeight:110}} placeholder={"5★ — Amazing experience, loved Carlos!\n1★ — Snuck $2k in fees at signing without telling me..."} value={f.reviews} onChange={s("reviews")} /></div>
-          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment, and complaint records. Takes about 60 seconds total.</div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment, and complaint records. Takes about 90 seconds total.</div>
           <button className="go-btn" onClick={run} disabled={loading||!f.dealer}>{loading ? loadMsg||"Running..." : "→ Run Full Purity Audit"}</button>
         </div>
       </div>
