@@ -556,7 +556,7 @@ function Loading({ msg, web }) {
 }
 
 function DealAnalyzer() {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
@@ -564,7 +564,7 @@ function DealAnalyzer() {
     setLM("Analyzing your deal...");
     const t = await ai(`Automotive deal analyst. Be direct — state facts, give scripts, move on. No hedging, no "you may want to consider", no "it appears that." Speak like an insider who's seen this a thousand times.
 Insider knowledge: dealers sell below invoice via dealer cash/quota incentives — "we're at invoice" is rarely true. Buyer makes a specific offer, never asks what dealer will take. Flag F&I products tied to rate changes (illegal unless on lender call sheet). Hard close = leave and reconnect in writing. Target the system, not the salesperson.
-${f.year} ${f.vehicle}${f.trim ? " — "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"} | MSRP $${f.msrp||"n/a"} | Asking $${f.offer||"n/a"}
+${f.year} ${f.vehicle}${f.trim ? " — "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""} | MSRP $${f.msrp||"n/a"} | Asking $${f.offer||"n/a"}
 Trade: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Quote line items: "+f.marketRange : ""}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 ${condition==="cpo"?"CPO: Verify manufacturer eligibility, mileage/age limits, coverage vs exclusions, inspection checklist signed by service manager.":""}
@@ -673,6 +673,19 @@ No financing rate or payment advice.`);
                 </div>
               </label>
               <input placeholder="e.g. 34,200" value={f.mileage} onChange={s("mileage")} />
+            </div>
+            )}
+            {condition==="used" && (
+            <div className="fld">
+              <label>Number of Previous Owners</label>
+              <select value={f.owners||""} onChange={s("owners")} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
+                <option value="">Unknown / not provided</option>
+                <option value="1">1 — single owner</option>
+                <option value="2">2 owners</option>
+                <option value="3">3 owners</option>
+                <option value="4">4 owners</option>
+                <option value="5+">5+ owners</option>
+              </select>
             </div>
             )}
             <div className="fld"><label>MSRP (Sticker)</label><input placeholder="32,000" value={f.msrp} onChange={s("msrp")} /></div>
@@ -1387,7 +1400,7 @@ export default function App() {
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}>✉️ Contact</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item highlight" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
+          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Pro Access — $49</button>
         </div>
       )}
 
@@ -1414,7 +1427,7 @@ export default function App() {
           <div className="hero-tagline">Don't Sign. Counter.</div>
           <p className="hero-sub">CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers.</p>
           <div className="hero-btns">
-            <button className="btn-lg" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
+            <button className="btn-lg" onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button>
             <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>Try Free Deal Analyzer</button>
           </div>
           <div className="stats">
@@ -1491,7 +1504,7 @@ export default function App() {
                 <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.hot?"fill":"out"}`} style={{opacity:.45,cursor:"not-allowed"}} disabled>{p.hot?"Coming Soon — Pro Bundle":p.id==="guide"?"Coming Soon":"Coming Soon"}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro — $49":p.id==="guide"?"Get Counter Guide — $14":p.id==="firsttime"?"First Time Buyer — $15":"Single Report — $19"}</button>
               </div>
             ))}
           </div>
