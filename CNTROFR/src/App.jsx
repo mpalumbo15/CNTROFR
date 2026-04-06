@@ -787,6 +787,7 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.
 function ReviewPurity() {
   const [f, setF] = useState({ dealer:"", city:"", state:"", reviews:"" });
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState("");
+  const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false);
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
     setL(true); setCR(null); setER(null); setKR(null);
@@ -804,7 +805,7 @@ Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.sta
     const m = customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
     setV(m?m[1].trim().toUpperCase():"ANALYZED"); setCR(customer);
 
-    await new Promise(r => setTimeout(r, 8000));
+    await new Promise(r => setTimeout(r, 22000));
     setLM("Checking employee sentiment on Glassdoor & Indeed...");
     const employee = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly.
 Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
@@ -817,7 +818,7 @@ Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
 ## CULTURE VERDICT — Would you send a friend here? Yes or no.`, true);
     setER(employee);
 
-    await new Promise(r => setTimeout(r, 8000));
+    await new Promise(r => setTimeout(r, 22000));
     setLM("Pulling BBB & complaint records...");
     const complaints = await ai(`Consumer protection researcher. Direct, no hedging. State what was found and what it means.
 Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.
@@ -846,7 +847,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
           </div>
           <div className="sp" />
           <div className="fld"><label>Your Experience (optional — makes results sharper)</label><textarea style={{minHeight:110}} placeholder={"Things you liked:\n— Salesperson was upfront on pricing\n\nThings that felt off:\n— Tried to add $800 in extras at signing\n— Felt rushed on the F&I paperwork"} value={f.reviews} onChange={s("reviews")} /></div>
-          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment, and complaint records. Takes about 40 seconds total.</div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment, and complaint records. Takes about 90 seconds total.</div>
           <button className="go-btn" onClick={run} disabled={loading||!f.dealer}>{loading ? loadMsg||"Running..." : "→ Run Full Purity Audit"}</button>
         </div>
       </div>
@@ -858,7 +859,21 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
               <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>CUSTOMER REVIEWS</span>
               <span className={`badge ${vc(v)}`}>{v||"ANALYZED"}</span>
               <div style={{flex:1}}/>
-              <button className="ghost-btn" style={{marginRight:6}} onClick={async()=>{setCR(null);setL(true);setLM("Re-scanning customer reviews...");const c=await ai(`Dealer review analyst. Direct, no hedging. Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.state}.${f.reviews?"\nUser notes:\n"+f.reviews:""}\n## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK\n## BOT FARMING SIGNALS\n## REAL COMPLAINTS\n## PRAISE CHECK\n## MANAGEMENT RESPONSES\n## PLATFORM CROSS-CHECK\n## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW`,true);const m=c.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);setV(m?m[1].trim().toUpperCase():"ANALYZED");setCR(c);setL(false);setLM("");}}>↻ Retry</button>
+              <button className="ghost-btn" style={{marginRight:6}} disabled={loadingCR} onClick={async()=>{
+                setCR(null); setLCR(true);
+                const c = await ai(`Dealer review analyst. Direct, no hedging. Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.state}.${f.reviews?"\nUser notes:\n"+f.reviews:""}
+## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
+## BOT FARMING SIGNALS
+## REAL COMPLAINTS
+## PRAISE CHECK
+## MANAGEMENT RESPONSES
+## PLATFORM CROSS-CHECK
+## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW`, true);
+                const m = c.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
+                setV(m?m[1].trim().toUpperCase():"ANALYZED");
+                setCR(c.includes("rate limit")||c.includes("token") ? "## Temporarily Unavailable\nHigh demand — wait 60 seconds and retry." : c);
+                setLCR(false);
+              }}>{loadingCR ? "Scanning..." : "↻ Retry"}</button>
               <button className="ghost-btn" onClick={()=>{setCR(null);setER(null);setKR(null);}}>Reset All</button>
             </div>
             <MD text={customerRes} />
@@ -869,7 +884,19 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
                 <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
                 <span className="badge ba">👔 GLASSDOOR + INDEED</span>
                 <div style={{flex:1}}/>
-                <button className="ghost-btn" onClick={async()=>{setER(null);setL(true);setLM("Re-scanning employee sentiment...");const e=await ai(`Dealer culture analyst. Direct, no hedging. Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.\n## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC\n## GLASSDOOR\n## INDEED\n## FLOOR vs. SUITS\n## PRESSURE SIGNALS\n## TURNOVER FLAGS\n## CULTURE VERDICT — Yes or no, would you send a friend?`,true);setER(e);setL(false);setLM("");}}>↻ Retry</button>
+                <button className="ghost-btn" disabled={loadingER} onClick={async()=>{
+                  setER(null); setLER(true);
+                  const e = await ai(`Dealer culture analyst. Direct, no hedging. Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
+## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC
+## GLASSDOOR
+## INDEED
+## FLOOR vs. SUITS
+## PRESSURE SIGNALS
+## TURNOVER FLAGS
+## CULTURE VERDICT — Yes or no, would you send a friend?`, true);
+                  setER(e.includes("rate limit")||e.includes("token") ? "## Temporarily Unavailable\nHigh demand — wait 60 seconds and retry." : e);
+                  setLER(false);
+                }}>{loadingER ? "Scanning..." : "↻ Retry"}</button>
               </div>
               <MD text={employeeRes} />
             </div>
@@ -880,7 +907,19 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
                 <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
                 <span className="badge br">📋 BBB + AG + CFPB</span>
                 <div style={{flex:1}}/>
-                <button className="ghost-btn" onClick={async()=>{setKR(null);setL(true);setLM("Re-scanning complaint records...");const k=await ai(`Consumer protection researcher. Direct, no hedging. Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.\n## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS\n## BBB\n## COMPLAINT PATTERNS\n## UNRESOLVED\n## LEGAL / NEWS\n## QUESTIONS TO ASK\n## OVERALL RISK — LOW / MODERATE / HIGH`,true);setKR(k);setL(false);setLM("");}}>↻ Retry</button>
+                <button className="ghost-btn" disabled={loadingKR} onClick={async()=>{
+                  setKR(null); setLKR(true);
+                  const k = await ai(`Consumer protection researcher. Direct, no hedging. Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.
+## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS
+## BBB
+## COMPLAINT PATTERNS
+## UNRESOLVED
+## LEGAL / NEWS
+## QUESTIONS TO ASK
+## OVERALL RISK — LOW / MODERATE / HIGH`, true);
+                  setKR(k.includes("rate limit")||k.includes("token") ? "## Temporarily Unavailable\nHigh demand — wait 60 seconds and retry." : k);
+                  setLKR(false);
+                }}>{loadingKR ? "Scanning..." : "↻ Retry"}</button>
               </div>
               <MD text={complaintRes} />
             </div>
