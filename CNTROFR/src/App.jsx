@@ -181,7 +181,7 @@ const S = `
   .ttab { background: var(--bg2); border: 2px solid var(--b1); color: var(--muted); padding: 10px 20px; font-family: Nunito; font-size: 13px; font-weight: 800; cursor: pointer; border-radius: 100px; transition: all .2s; white-space: nowrap; display: flex; align-items: center; gap: 6px; min-height: 44px; }
   .ttab:hover:not(.lk) { border-color: var(--b2); color: var(--text2); }
   .ttab.on { background: var(--y); border-color: var(--y); color: #111; }
-  .ttab.lk { opacity: .4; cursor: not-allowed; }
+  .ttab.lk { opacity: .6; cursor: pointer; }
   .access-ok { background: rgba(0,201,107,.08); border: 1px solid rgba(0,201,107,.2); border-radius: 10px; padding: 10px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--green); font-weight: 800; }
   .upbox { background: var(--bg2); border: 2px solid var(--b1); border-radius: 16px; padding: 56px 32px; text-align: center; }
   .upbox h3 { font-family: 'Bebas Neue'; font-size: 28px; letter-spacing: 2px; margin-bottom: 10px; }
@@ -1573,14 +1573,14 @@ export default function App() {
           {access.length>0&&<div className="access-ok">✓ &nbsp;Pro Access Active — All 5 tools unlocked</div>}
           <div className="tnav">
             {TABS.map(t=>(
-              <button key={t.id} className={`ttab ${tab===t.id?"on":""} ${!canUse(t.id)?"lk":""}`} onClick={()=>{if(!canUse(t.id))buy(PLANS[1]);else setTab(t.id);}}>
+              <button key={t.id} className={`ttab ${tab===t.id?"on":""} ${!canUse(t.id)?"lk":""}`} onClick={()=>{if(!canUse(t.id))buy(PLANS[2]);else setTab(t.id);}}>
                 {t.label}
                 {!t.free&&!canUse(t.id)&&<span>🔒</span>}
                 {!t.free&&canUse(t.id)&&<span style={{fontSize:6,color:tab===t.id?"#111":"var(--y)"}}>◆</span>}
               </button>
             ))}
           </div>
-          {canUse(tab)?<Active />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[1])}>Unlock Pro — $49</button></div>}
+          {canUse(tab)?<Active />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button></div>}
         </div>
       )}
 
