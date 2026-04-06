@@ -861,7 +861,13 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
         </div>
       </div>
 
-      {loadingCR && <Loading msg="Scanning customer reviews..." web={true} />}
+      {loadingCR && (
+        <div className="card" style={{padding:"28px",textAlign:"center"}}>
+          <div className="spin" style={{margin:"0 auto 12px"}} />
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>Scanning customer reviews...</div>
+          <div className="dont-close-warn" style={{marginTop:12}}>⚠ Do not close or refresh this window</div>
+        </div>
+      )}
 
       {customerRes && !loadingCR && (
         <div className="card ranim">
@@ -878,7 +884,12 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
               <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runEmployee}>Continue → Employee Culture</button>
             </div>
           )}
-          {loadingER && <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)"}}><Loading msg="Scanning employee sentiment..." web={true} /></div>}
+          {loadingER && (
+            <div style={{padding:"20px",borderTop:"1px solid var(--b1)",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
+              <div className="spin" style={{width:20,height:20,borderWidth:2}} />
+              <span style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Scanning employee sentiment...</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -897,7 +908,12 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
               <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runComplaints}>Continue → Complaint Records</button>
             </div>
           )}
-          {loadingKR && <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)"}}><Loading msg="Pulling BBB & complaint records..." web={true} /></div>}
+          {loadingKR && (
+            <div style={{padding:"20px",borderTop:"1px solid var(--b1)",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
+              <div className="spin" style={{width:20,height:20,borderWidth:2}} />
+              <span style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Pulling BBB & complaint records...</span>
+            </div>
+          )}
         </div>
       )}
 
