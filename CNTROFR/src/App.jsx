@@ -786,14 +786,13 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.
 
 function ReviewPurity() {
   const [f, setF] = useState({ dealer:"", city:"", state:"", reviews:"" });
-  const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState("");
+  const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState("");
   const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false);
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
-  const run = async () => {
-    setL(true); setCR(null); setER(null); setKR(null);
 
-    setLM("Auditing customer reviews...");
-    const customer = await ai(`Dealer review analyst. Direct, no hedging. Call it what it is.
+  const runCustomer = async () => {
+    setLCR(true); setCR(null); setER(null); setKR(null);
+    const c = await ai(`Dealer review analyst. Direct, no hedging. Call it what it is.
 Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.state}.${f.reviews?"\nUser experience notes:\n"+f.reviews:""}
 ## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
 ## BOT FARMING SIGNALS — Velocity, generic language, clustered 5-star bursts.
@@ -802,12 +801,15 @@ Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.sta
 ## MANAGEMENT RESPONSES — Defensive, dismissive, or genuine?
 ## PLATFORM CROSS-CHECK — Gaps across Google, DealerRater, Cars.com. Flag gaps over 0.5 stars.
 ## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW. One line.`, true);
-    const m = customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
-    setV(m?m[1].trim().toUpperCase():"ANALYZED"); setCR(customer);
+    const m = c.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
+    setV(m?m[1].trim().toUpperCase():"ANALYZED");
+    setCR(c.includes("rate limit")||c.includes("token") ? "## Temporarily Unavailable\nHigh demand right now. Wait 60 seconds and try again." : c);
+    setLCR(false);
+  };
 
-    await new Promise(r => setTimeout(r, 22000));
-    setLM("Checking employee sentiment on Glassdoor & Indeed...");
-    const employee = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly.
+  const runEmployee = async () => {
+    setLER(true); setER(null); setKR(null);
+    const e = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly.
 Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
 ## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC
 ## GLASSDOOR — Rating, top complaints, management scores.
@@ -816,11 +818,13 @@ Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
 ## PRESSURE SIGNALS — Pushed to hit numbers at buyer's expense?
 ## TURNOVER FLAGS — High sales/F&I turnover is a buyer red flag.
 ## CULTURE VERDICT — Would you send a friend here? Yes or no.`, true);
-    setER(employee);
+    setER(e.includes("rate limit")||e.includes("token") ? "## Temporarily Unavailable\nHigh demand right now. Wait 60 seconds and try again." : e);
+    setLER(false);
+  };
 
-    await new Promise(r => setTimeout(r, 22000));
-    setLM("Pulling BBB & complaint records...");
-    const complaints = await ai(`Consumer protection researcher. Direct, no hedging. State what was found and what it means.
+  const runComplaints = async () => {
+    setLKR(true); setKR(null);
+    const k = await ai(`Consumer protection researcher. Direct, no hedging. State what was found and what it means.
 Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.
 ## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS
 ## BBB — Rating, complaint count, types, resolution history.
@@ -829,14 +833,16 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
 ## LEGAL / NEWS — Lawsuits, AG actions, press coverage?
 ## QUESTIONS TO ASK — 2-3 direct questions for the dealer based on findings.
 ## OVERALL RISK — LOW / MODERATE / HIGH with one-line reasoning.`, true);
-    setKR(complaints);
-
-    setL(false); setLM("");
+    setKR(k.includes("rate limit")||k.includes("token") ? "## Temporarily Unavailable\nHigh demand right now. Wait 60 seconds and try again." : k);
+    setLKR(false);
   };
+
   const vc = v => /AUTHENTIC/.test(v)?"bg":/HIGH BOT/.test(v)?"br":/SUSPICIOUS/.test(v)?"ba":"bb";
+  const reset = () => { setCR(null); setER(null); setKR(null); setV(""); };
+
   return (
     <div>
-      <div className="phd"><h2>Review <span>Purity</span></h2><p>Customer reviews. Employee culture. Complaint records. The full picture.</p></div>
+      <div className="phd"><h2>Review <span>Purity</span></h2><p>Customer reviews. Employee culture. Complaint records. Read each result — then continue to the next scan.</p></div>
       <div className="card">
         <div className="ch"><span className="clbl">Dealer to Audit</span></div>
         <div className="cb">
@@ -846,85 +852,69 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <div className="fld"><label>State</label><input placeholder="NC" value={f.state} onChange={s("state")} /></div>
           </div>
           <div className="sp" />
-          <div className="fld"><label>Your Experience (optional — makes results sharper)</label><textarea style={{minHeight:110}} placeholder={"Things you liked:\n— Salesperson was upfront on pricing\n\nThings that felt off:\n— Tried to add $800 in extras at signing\n— Felt rushed on the F&I paperwork"} value={f.reviews} onChange={s("reviews")} /></div>
-          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment, and complaint records. Takes about 90 seconds total.</div>
-          <button className="go-btn" onClick={run} disabled={loading||!f.dealer}>{loading ? loadMsg||"Running..." : "→ Run Full Purity Audit"}</button>
+          <div className="fld"><label>Your Experience (optional — makes results sharper)</label><textarea style={{minHeight:90}} placeholder={"Things you liked:\n— Salesperson was upfront on pricing\n\nThings that felt off:\n— Tried to add $800 in extras at signing"} value={f.reviews} onChange={s("reviews")} /></div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Three separate scans — read each result before moving to the next for best results.</div>
+          <button className="go-btn" onClick={runCustomer} disabled={loadingCR||!f.dealer}>
+            {loadingCR ? "Scanning customer reviews..." : customerRes ? "↻ Re-run Customer Reviews" : "→ Start — Scan Customer Reviews"}
+          </button>
+          {customerRes && <button className="ghost-btn" style={{marginTop:8,width:"100%",textAlign:"center"}} onClick={reset}>Reset All</button>}
         </div>
       </div>
-      {loading && <Loading msg={loadMsg} web={true} />}
-      {!loading && customerRes && (
-        <>
-          <div className="card ranim">
-            <div className="vstrip">
-              <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>CUSTOMER REVIEWS</span>
-              <span className={`badge ${vc(v)}`}>{v||"ANALYZED"}</span>
-              <div style={{flex:1}}/>
-              <button className="ghost-btn" style={{marginRight:6}} disabled={loadingCR} onClick={async()=>{
-                setCR(null); setLCR(true);
-                const c = await ai(`Dealer review analyst. Direct, no hedging. Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.state}.${f.reviews?"\nUser notes:\n"+f.reviews:""}
-## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
-## BOT FARMING SIGNALS
-## REAL COMPLAINTS
-## PRAISE CHECK
-## MANAGEMENT RESPONSES
-## PLATFORM CROSS-CHECK
-## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW`, true);
-                const m = c.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
-                setV(m?m[1].trim().toUpperCase():"ANALYZED");
-                setCR(c.includes("rate limit")||c.includes("token") ? "## Temporarily Unavailable\nHigh demand — wait 60 seconds and retry." : c);
-                setLCR(false);
-              }}>{loadingCR ? "Scanning..." : "↻ Retry"}</button>
-              <button className="ghost-btn" onClick={()=>{setCR(null);setER(null);setKR(null);}}>Reset All</button>
-            </div>
-            <MD text={customerRes} />
+
+      {loadingCR && <Loading msg="Scanning customer reviews..." web={true} />}
+
+      {customerRes && !loadingCR && (
+        <div className="card ranim">
+          <div className="vstrip">
+            <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>CUSTOMER REVIEWS</span>
+            <span className={`badge ${vc(v)}`}>{v||"ANALYZED"}</span>
+            <div style={{flex:1}}/>
+            <button className="ghost-btn" onClick={runCustomer}>↻ Retry</button>
           </div>
-          {employeeRes && (
-            <div className="card ranim">
-              <div className="vstrip">
-                <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
-                <span className="badge ba">👔 GLASSDOOR + INDEED</span>
-                <div style={{flex:1}}/>
-                <button className="ghost-btn" disabled={loadingER} onClick={async()=>{
-                  setER(null); setLER(true);
-                  const e = await ai(`Dealer culture analyst. Direct, no hedging. Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
-## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC
-## GLASSDOOR
-## INDEED
-## FLOOR vs. SUITS
-## PRESSURE SIGNALS
-## TURNOVER FLAGS
-## CULTURE VERDICT — Yes or no, would you send a friend?`, true);
-                  setER(e.includes("rate limit")||e.includes("token") ? "## Temporarily Unavailable\nHigh demand — wait 60 seconds and retry." : e);
-                  setLER(false);
-                }}>{loadingER ? "Scanning..." : "↻ Retry"}</button>
-              </div>
-              <MD text={employeeRes} />
+          <MD text={customerRes} />
+          {!employeeRes && !loadingER && (
+            <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+              <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan employee culture when ready.</div>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runEmployee}>Continue → Employee Culture</button>
             </div>
           )}
-          {complaintRes && (
-            <div className="card ranim">
-              <div className="vstrip">
-                <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
-                <span className="badge br">📋 BBB + AG + CFPB</span>
-                <div style={{flex:1}}/>
-                <button className="ghost-btn" disabled={loadingKR} onClick={async()=>{
-                  setKR(null); setLKR(true);
-                  const k = await ai(`Consumer protection researcher. Direct, no hedging. Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.
-## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS
-## BBB
-## COMPLAINT PATTERNS
-## UNRESOLVED
-## LEGAL / NEWS
-## QUESTIONS TO ASK
-## OVERALL RISK — LOW / MODERATE / HIGH`, true);
-                  setKR(k.includes("rate limit")||k.includes("token") ? "## Temporarily Unavailable\nHigh demand — wait 60 seconds and retry." : k);
-                  setLKR(false);
-                }}>{loadingKR ? "Scanning..." : "↻ Retry"}</button>
-              </div>
-              <MD text={complaintRes} />
+          {loadingER && <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)"}}><Loading msg="Scanning employee sentiment..." web={true} /></div>}
+        </div>
+      )}
+
+      {employeeRes && !loadingER && (
+        <div className="card ranim">
+          <div className="vstrip">
+            <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
+            <span className="badge ba">👔 GLASSDOOR + INDEED</span>
+            <div style={{flex:1}}/>
+            <button className="ghost-btn" onClick={runEmployee}>↻ Retry</button>
+          </div>
+          <MD text={employeeRes} />
+          {!complaintRes && !loadingKR && (
+            <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+              <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan complaint records when ready.</div>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runComplaints}>Continue → Complaint Records</button>
             </div>
           )}
-        </>
+          {loadingKR && <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)"}}><Loading msg="Pulling BBB & complaint records..." web={true} /></div>}
+        </div>
+      )}
+
+      {complaintRes && !loadingKR && (
+        <div className="card ranim">
+          <div className="vstrip">
+            <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
+            <span className="badge br">📋 BBB + AG + CFPB</span>
+            <div style={{flex:1}}/>
+            <button className="ghost-btn" onClick={runComplaints}>↻ Retry</button>
+          </div>
+          <MD text={complaintRes} />
+          <div style={{padding:"14px 20px",borderTop:"1px solid var(--b1)",textAlign:"center"}}>
+            <div style={{fontSize:11,color:"var(--green)",fontWeight:800}}>✓ Full Purity Audit Complete</div>
+            <button className="ghost-btn" style={{marginTop:8}} onClick={reset}>← Start New Audit</button>
+          </div>
+        </div>
       )}
     </div>
   );
