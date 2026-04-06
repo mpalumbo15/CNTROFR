@@ -237,6 +237,20 @@ const S = `
   .br { background: rgba(255,68,68,.12); color: var(--red); border: 1px solid rgba(255,68,68,.25); }
   .bb { background: rgba(59,158,255,.12); color: var(--blue); border: 1px solid rgba(59,158,255,.25); }
   .bx { background: rgba(96,96,128,.15); color: var(--muted); border: 1px solid var(--b1); }
+
+  /* ── TRAFFIC LIGHT VERDICTS ── */
+  .verdict-hero { padding: 28px 24px; text-align: center; border-bottom: 1px solid var(--b1); }
+  .verdict-label { font-size: 10px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .verdict-badge-lg { font-family: 'Bebas Neue'; font-size: clamp(48px, 10vw, 72px); letter-spacing: 4px; line-height: 1; margin-bottom: 16px; }
+  .verdict-badge-lg.vg { color: var(--green); text-shadow: 0 0 40px rgba(0,201,107,.4); }
+  .verdict-badge-lg.vy { color: var(--y); text-shadow: 0 0 40px rgba(255,214,0,.4); }
+  .verdict-badge-lg.vr { color: var(--red); text-shadow: 0 0 40px rgba(255,68,68,.4); }
+  .verdict-badge-lg.vx { color: var(--muted); }
+  .verdict-new-btn { background: none; border: 2px solid var(--b2); color: var(--muted); padding: 8px 20px; font-family: Nunito; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 8px; transition: all .2s; }
+  .verdict-new-btn:hover { border-color: var(--y); color: var(--y); }
+
+  /* ── DO NOT CLOSE WARNING ── */
+  .dont-close-warn { background: rgba(255,214,0,.06); border: 1px solid rgba(255,214,0,.2); border-radius: 8px; padding: 8px 14px; margin-top: 12px; font-size: 10px; font-weight: 800; color: var(--y); letter-spacing: .5px; text-align: center; }
   .aout { padding: 22px 20px; font-size: 13.5px; line-height: 1.85; color: var(--text2); font-weight: 600; }
   .aout h2 { font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 2px; color: var(--y); margin: 20px 0 6px; }
   .aout h3 { font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin: 14px 0 5px; }
@@ -334,7 +348,7 @@ async function ai(prompt, web = false) {
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 90000);
+    const timeout = setTimeout(() => controller.abort(), 55000);
 
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -373,7 +387,7 @@ async function ai(prompt, web = false) {
         ]
       };
       const controller2 = new AbortController();
-      const timeout2 = setTimeout(() => controller2.abort(), 90000);
+      const timeout2 = setTimeout(() => controller2.abort(), 55000);
       const r2 = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
@@ -389,7 +403,7 @@ async function ai(prompt, web = false) {
 
     return textBlocks.join("\n") || "No analysis returned. Please try again.";
   } catch(e) {
-    if (e.name === "AbortError") return "Market scan unavailable right now — ZIP searches can take up to 90 seconds. Try again or leave the ZIP blank for instant results.";
+    if (e.name === "AbortError") return "Request timed out — the web search took too long. Try again without the zip code for a faster result.";
     return `Connection error: ${e.message}`;
   }
 }
@@ -412,11 +426,12 @@ function MD({ text }) {
 }
 
 function Res({ verdict, vc, text, onReset }) {
+  const displayVerdict = verdict === "GO" ? "🟢 GREEN LIGHT" : verdict === "WALK AWAY" ? "🔴 WALK AWAY" : verdict === "NEGOTIATE" ? "🟡 NEGOTIATE" : verdict;
   return (
     <div className="card ranim">
       <div className="verdict-hero">
         <div className="verdict-label">Your Verdict</div>
-        <div className={`verdict-badge-lg ${vc}`}>{verdict}</div>
+        <div className={`verdict-badge-lg ${vc}`}>{displayVerdict}</div>
         <button className="verdict-new-btn" onClick={onReset}>← Run Another Deal</button>
       </div>
       <MD text={text} />
@@ -466,8 +481,9 @@ function Loading({ msg, web }) {
           </div>
           <div className="progress-pct">{Math.floor(pct)}%</div>
           <div className="progress-disclaimer">
-            {web ? "Live web search active — scanning dealer listings & databases. ZIP searches can take up to 90 seconds." : "AI analysis typically takes 10–20 seconds. Hang tight — good intel takes a moment."}
+            {web ? "Live web search active — scanning dealer listings & databases. Usually 20–90 seconds." : "AI analysis typically takes 10–20 seconds. Hang tight — good intel takes a moment."}
           </div>
+          <div className="dont-close-warn">⚠ Do not close or refresh this window — your analysis is in progress</div>
         </div>
       </div>
     </div>
@@ -483,7 +499,7 @@ function DealAnalyzer() {
     setLM("Analyzing your deal...");
     const t = await ai(`You are a veteran automotive insider with deep knowledge of current dealer sales training programs — including techniques taught by Grant Cardone, Joe Verde, and Reynolds & Reynolds dealer training. You understand payment packing, four-square manipulation, trade-in lowballing, and modern F&I profit extraction strategies. Use only current market data and tactics — no outdated information. Analyze this deal from the buyer's perspective.
 ${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":""} | ${condition==="new" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} | MSRP $${f.msrp} | Asking $${f.offer}
-Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
+Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? "| Additional line items on quote: "+f.marketRange : ""}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 
 ${condition==="cpo" ? "## CPO PREMIUM CHECK — Is the CPO markup justified? What does the certification actually cover and what does it exclude? Is the factory warranty still active or expired?" : ""}
@@ -501,11 +517,8 @@ Do not provide financing rate or payment advice.`);
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
-      const mkt = await ai(`Search CarGurus first — find current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip} within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}. Get 3-5 results. If CarGurus results are thin, check AutoTrader. Keep this focused and fast — 3-5 listings is enough.
+      const mkt = await ai(`Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
 
-If a CarGurus deal rating is available (Great Deal / Good Deal / Fair / High / Overpriced), include it and note CarGurus is dealer-funded.
-
-## CARGURUS RATING — Deal rating if found, what it means in plain English.
 ## MARKET VERDICT — Is $${f.offer} above, at, or below market?
 ## COMPARABLE LISTINGS — Dealer name, city, price, mileage for each.
 ## LEVERAGE — Exact words to use these comps at the table.
@@ -514,7 +527,7 @@ If a CarGurus deal rating is available (Great Deal / Good Deal / Fair / High / O
     }
     setL(false); setLM("");
   };
-  const vc = v => /^GO/.test(v) ? "bg" : /WALK/.test(v) ? "br" : /NEG/.test(v) ? "ba" : "bx";
+  const vc = v => /^GO/.test(v) ? "vg" : /WALK/.test(v) ? "vr" : /NEG/.test(v) ? "vy" : "vx";
   return (
     <div>
       <div className="phd"><h2>Deal <span>Analyzer</span></h2><p>Enter your numbers. Get your counter before you sign.</p></div>
@@ -602,7 +615,14 @@ If a CarGurus deal rating is available (Great Deal / Good Deal / Fair / High / O
           <div className="sp" />
           <div className="g2">
             <div className="fld"><label>Their Asking Price</label><input placeholder="29,500" value={f.offer} onChange={s("offer")} /></div>
-            <div className="fld"><label style={{display:"flex",alignItems:"center"}}>Expected Price Range<div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Optional — if you've already checked KBB, Edmunds, or CarGurus, drop the range here. We'll factor it into the analysis and tell you if the dealer is inside or outside of fair market.</div></div></label><input placeholder="e.g. 27,000 – 29,500 (from KBB)" value={f.marketRange||""} onChange={s("marketRange")} /></div>
+          </div>
+          <div className="sp" />
+          <div className="fld">
+            <label style={{display:"flex",alignItems:"center"}}>
+              Additional Line Items on the Quote
+              <div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Enter any extra line items you see on the dealer's quote — market adjustments, dealer-installed accessories, admin fees, anything that doesn't feel right. One per line or comma separated. The more you give us, the sharper your counter.</div></div>
+            </label>
+            <textarea placeholder={"Market Adjustment $2,000\nDealer Accessories $899\nAdmin Fee $299\nNitrogen Tires $199"} value={f.marketRange||""} onChange={s("marketRange")} style={{minHeight:90}} />
           </div>
         </div>
       </div>
@@ -701,8 +721,6 @@ function ReviewPurity() {
   const run = async () => {
     setL(true); setCR(null); setER(null); setKR(null);
 
-    setLM("Preparing audit...");
-    await new Promise(r => setTimeout(r, 3000));
     setLM("Auditing customer reviews...");
     const customer = await ai(`You are a reputation integrity analyst specializing in dealer review manipulation.
 Dealer: ${f.dealer}, ${f.city} ${f.state}
@@ -715,12 +733,9 @@ ${f.reviews?"Customer reviews pasted by user:\n"+f.reviews:"No reviews pasted �
 ## MANAGEMENT RESPONSE PATTERNS — Do they respond defensively, dismissively, or genuinely?
 ## PLATFORM CROSS-CHECK — How does the rating compare across Google, DealerRater, and Cars.com? Big gaps are a red flag.
 ## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW with one-line reasoning.`, true);
-    const isRateLimited = customer.includes("rate limit") || customer.includes("token");
-    const m = !isRateLimited && customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
-    setV(m?m[1].trim().toUpperCase():"ANALYZED");
-    setCR(isRateLimited ? "## Customer Review Scan Unavailable\nHigh demand right now — try running the audit again in 60 seconds. Results are usually faster on a second attempt." : customer);
+    const m = customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
+    setV(m?m[1].trim().toUpperCase():"ANALYZED"); setCR(customer);
 
-    await new Promise(r => setTimeout(r, 15000));
     setLM("Checking employee sentiment on Glassdoor & Indeed...");
     const employee = await ai(`You are an automotive dealership culture analyst. Search Glassdoor and Indeed for employee reviews of "${f.dealer}" in ${f.city}, ${f.state}.
 
@@ -733,9 +748,8 @@ This matters because angry, burned-out, or pressured employees directly impact t
 ## PRESSURE CULTURE SIGNALS — Do employees describe being pushed to hit numbers at the customer's expense?
 ## TURNOVER RED FLAGS — High turnover in sales or F&I is a warning sign for buyers. What did you find?
 ## CULTURE VERDICT — Would you send a friend to buy here based on how employees describe this place?`, true);
-    setER(employee.includes("rate limit") ? "## Employee Data Unavailable\nHigh demand right now — employee culture scan couldn't complete. Try running Review Purity again in 60 seconds." : employee);
+    setER(employee);
 
-    await new Promise(r => setTimeout(r, 15000));
     setLM("Pulling BBB & complaint records...");
     const complaints = await ai(`You are a consumer protection researcher. Search for complaints and records on "${f.dealer}" in ${f.city}, ${f.state} across:
 - BBB (Better Business Bureau) — rating, complaint count, complaint patterns, resolution history
@@ -750,7 +764,7 @@ This matters because angry, burned-out, or pressured employees directly impact t
 ## LEGAL / NEWS — Any lawsuits, AG actions, or local news stories about this dealer?
 ## WHAT TO ASK THEM — 2-3 direct questions to ask the dealer based on what you found.
 ## OVERALL RISK LEVEL — LOW / MODERATE / HIGH with reasoning.`, true);
-    setKR(complaints.includes("rate limit") ? "## Complaint Records Unavailable\nHigh demand right now — complaint record scan couldn't complete. Try running Review Purity again in 60 seconds." : complaints);
+    setKR(complaints);
 
     setL(false); setLM("");
   };
@@ -767,8 +781,8 @@ This matters because angry, burned-out, or pressured employees directly impact t
             <div className="fld"><label>State</label><input placeholder="NC" value={f.state} onChange={s("state")} /></div>
           </div>
           <div className="sp" />
-          <div className="fld"><label>Paste Customer Reviews (optional — better with them)</label><textarea style={{minHeight:110}} placeholder={"5★ — Amazing experience, loved Carlos!\n1★ — Snuck $2k in fees at signing without telling me..."} value={f.reviews} onChange={s("reviews")} /></div>
-          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment, and complaint records. Takes about 90 seconds total.</div>
+          <div className="fld"><label>Your Experience (optional — makes results sharper)</label><textarea style={{minHeight:110}} placeholder={"Things you liked:\n— Salesperson was upfront about pricing\n\nThings that felt off:\n— Tried to add $800 in extras at signing\n— Felt rushed on the F&I paperwork"} value={f.reviews} onChange={s("reviews")} /></div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment (Glassdoor/Indeed), and complaint records (BBB/AG). Takes about 90 seconds total.</div>
           <button className="go-btn" onClick={run} disabled={loading||!f.dealer}>{loading ? loadMsg||"Running..." : "→ Run Full Purity Audit"}</button>
         </div>
       </div>
@@ -780,7 +794,8 @@ This matters because angry, burned-out, or pressured employees directly impact t
               <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>CUSTOMER REVIEWS</span>
               <span className={`badge ${vc(v)}`}>{v||"ANALYZED"}</span>
               <div style={{flex:1}}/>
-              <button className="ghost-btn" onClick={()=>{setCR(null);setER(null);setKR(null);}}>Reset</button>
+              <button className="ghost-btn" style={{marginRight:6}} onClick={async()=>{setCR(null);setL(true);setLM("Re-scanning customer reviews...");const customer=await ai(`You are a reputation integrity analyst specializing in dealer review manipulation. Dealer: ${f.dealer}, ${f.city} ${f.state}. ${f.reviews?"User experience notes:\n"+f.reviews:"Search Google Reviews, DealerRater, and Cars.com for this dealer."}\n## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK\n## BOT FARMING SIGNALS\n## WHAT THE REAL COMPLAINTS SAY\n## WHAT THE PRAISE SAYS\n## MANAGEMENT RESPONSE PATTERNS\n## PLATFORM CROSS-CHECK\n## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW`,true);const m=customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);setV(m?m[1].trim().toUpperCase():"ANALYZED");setCR(customer);setL(false);setLM("");}}>↻ Retry</button>
+              <button className="ghost-btn" onClick={()=>{setCR(null);setER(null);setKR(null);}}>Reset All</button>
             </div>
             <MD text={customerRes} />
           </div>
@@ -789,6 +804,8 @@ This matters because angry, burned-out, or pressured employees directly impact t
               <div className="vstrip">
                 <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
                 <span className="badge ba">👔 GLASSDOOR + INDEED</span>
+                <div style={{flex:1}}/>
+                <button className="ghost-btn" onClick={async()=>{setER(null);setL(true);setLM("Re-scanning employee sentiment...");const employee=await ai(`You are an automotive dealership culture analyst. Search Glassdoor and Indeed for employee reviews of "${f.dealer}" in ${f.city}, ${f.state}.\n## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC\n## GLASSDOOR FINDINGS\n## INDEED FINDINGS\n## THE FLOOR vs. THE SUITS\n## PRESSURE CULTURE SIGNALS\n## TURNOVER RED FLAGS\n## CULTURE VERDICT`,true);setER(employee);setL(false);setLM("");}}>↻ Retry</button>
               </div>
               <MD text={employeeRes} />
             </div>
@@ -798,6 +815,8 @@ This matters because angry, burned-out, or pressured employees directly impact t
               <div className="vstrip">
                 <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
                 <span className="badge br">📋 BBB + AG + CFPB</span>
+                <div style={{flex:1}}/>
+                <button className="ghost-btn" onClick={async()=>{setKR(null);setL(true);setLM("Re-scanning complaint records...");const complaints=await ai(`You are a consumer protection researcher. Search for complaints on "${f.dealer}" in ${f.city}, ${f.state} across BBB, State AG, CFPB, and news.\n## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS\n## BBB RECORD\n## COMPLAINT PATTERNS\n## UNRESOLVED COMPLAINTS\n## LEGAL / NEWS\n## WHAT TO ASK THEM\n## OVERALL RISK LEVEL`,true);setKR(complaints);setL(false);setLM("");}}>↻ Retry</button>
               </div>
               <MD text={complaintRes} />
             </div>
@@ -913,15 +932,32 @@ function AddOnFighter() {
   const run = async () => {
     setL(true); setR(null);
     const list = picked.map(a=>`- ${a.name}: $${prices[a.id]||"unknown"}`).join("\n");
-    const t = await ai(`You are a former car salesperson turned consumer advocate. Vehicle: ${veh||"not specified"}\nAdd-ons:\n${list}
-For EACH:
+    const t = await ai(`You are a former car salesperson turned consumer advocate with access to Consumer Reports data and aftermarket pricing knowledge. Vehicle: ${veh||"not specified"}\nAdd-ons:\n${list}
+
+PRICING INTELLIGENCE TO APPLY:
+- Window tint: local shops charge $150–400 for a full car. Dealers charge $299–799. Quality varies — ask for the brand and warranty.
+- Paint Protection Film (PPF): partial front end runs $500–900 at independent shops, full car $2,000–5,000. Dealer markup is typically 2–3x.
+- Ceramic coating: $500–1,500 at a detailing shop. Dealers charge $800–2,500 for the same product.
+- Paint sealant / "protection package": dealer cost is $50–100 in product and labor. Charged at $300–800. Consumer Reports rates these as low value.
+- VIN etching: $20 worth of product. Charged at $200–400. Insurance discount claims are largely outdated and minimal.
+- Nitrogen tire fill: air is already 78% nitrogen. Zero practical benefit. Charged at $100–200. Consumer Reports calls this a pure upsell.
+- Fabric/leather protection (Scotchgard-type): $10–20 product. Charged at $200–500. Buy a can of Scotchgard for $8.
+- Roadside assistance: likely already covered by insurance, manufacturer warranty, or AAA. Verify before paying $200–400 for a duplicate.
+- Key replacement: smart keys cost $200–500 at dealerships. Aftermarket options and locksmiths run $50–150.
+- Dent/ding protection: fine print typically excludes anything over 1 inch. Rarely worth the $200–400 charged.
+- Door edge guards / bumper masks: legitimate protection — $50–150 value. Dealers charge $200–400. Can be purchased and installed aftermarket for much less.
+- GPS/LoJack: aftermarket options (Apple AirTag, Bouncie, LandAirSea) cost $30–100 one-time vs dealer's $300–800.
+- All-weather mats: WeatherTech or Husky mats run $120–180. Dealers charge $200–400 for OEM versions that are often the same quality.
+
+For EACH add-on:
 ## [ADD-ON] — [KEEP / NEGOTIATE / REMOVE]
-- Dealer cost vs. charge
-- Script they use to keep it
-- Your counter-script to remove it
-- If installed, what to say
-## BATTLE PLAN — Remove steps. What if they say it can't be removed?
-## TOTAL SAVINGS — Estimated by removing flagged items.`);
+- Actual dealer cost vs. what they're charging
+- Consumer Reports / aftermarket baseline price
+- The script they use to keep it on the deal
+- Your exact words to remove or negotiate it
+- If already installed, what to say
+## BATTLE PLAN — Step by step removal strategy. What if they say it's already installed or can't be removed?
+## TOTAL SAVINGS — Estimated savings by removing flagged items.`);
     setR(t); setL(false);
   };
   const lc = l => l===true?"var(--green)":l===false?"var(--red)":"var(--y)";
@@ -1189,24 +1225,11 @@ const PLANS = [
   {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:[]},
 ];
 
-const BETA_CODE = "CNTROFR-BETA";
-const BETA_ACTIVE = true;
-
 function PayModal({plan,onClose,onSuccess}) {
   const [card,setCard]=useState("");const [exp,setExp]=useState("");const [cvc,setCvc]=useState("");const [busy,setBusy]=useState(false);
-  const [promoOpen,setPromoOpen]=useState(false);const [promoCode,setPromoCode]=useState("");const [promoMsg,setPromoMsg]=useState("");const [promoOk,setPromoOk]=useState(false);
   const fmt=v=>v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
   const fmtExp=v=>{const d=v.replace(/\D/g,"").slice(0,4);return d.length>2?d.slice(0,2)+"/"+d.slice(2):d;};
   const ready=card.replace(/\s/g,"").length===16&&exp.length===5&&cvc.length>=3;
-  const applyPromo = () => {
-    const code = promoCode.trim().toUpperCase();
-    if (BETA_ACTIVE && code === BETA_CODE) {
-      onSuccess(plan);
-    } else {
-      setPromoOk(false);
-      setPromoMsg("Code not recognized or not yet active.");
-    }
-  };
   const pay=async()=>{setBusy(true);await new Promise(r=>setTimeout(r,1800));setBusy(false);onSuccess(plan);};
   return (
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
@@ -1216,20 +1239,6 @@ function PayModal({plan,onClose,onSuccess}) {
           <div className="order-sum">
             <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Total Due</span><span className="oprice">${plan.price}</span></div>
             <div className="oname">CNTROFR — {plan.name}</div>
-          </div>
-          <div style={{marginBottom:14}}>
-            <button onClick={()=>setPromoOpen(o=>!o)} style={{background:"none",border:"none",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,cursor:"pointer",textDecoration:"underline",padding:0}}>
-              {promoOpen?"▾ Hide":"▸ Have a beta or promo code?"}
-            </button>
-            {promoOpen&&(
-              <div style={{marginTop:8}}>
-                <div style={{display:"flex",gap:8}}>
-                  <input value={promoCode} onChange={e=>setPromoCode(e.target.value)} placeholder="ENTER CODE" style={{flex:1,background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"JetBrains Mono",fontSize:13,padding:"9px 12px",borderRadius:8,outline:"none",textTransform:"uppercase",letterSpacing:1}} />
-                  <button onClick={applyPromo} style={{background:"var(--y)",color:"#111",border:"none",padding:"9px 18px",fontFamily:"Nunito",fontSize:12,fontWeight:900,cursor:"pointer",borderRadius:8,whiteSpace:"nowrap"}}>Apply</button>
-                </div>
-                {promoMsg&&<div style={{fontSize:11,fontWeight:800,marginTop:6,color:promoOk?"var(--green)":"var(--red)"}}>{promoMsg}</div>}
-              </div>
-            )}
           </div>
           <div className="sbox">
             <div className="slbl">Card Number</div>
@@ -1289,7 +1298,7 @@ export default function App() {
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}>✉️ Contact</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Pro Access — $49</button>
+          <button className="bmenu-item highlight" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
         </div>
       )}
 
@@ -1316,7 +1325,7 @@ export default function App() {
           <div className="hero-tagline">Don't Sign. Counter.</div>
           <p className="hero-sub">CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers.</p>
           <div className="hero-btns">
-            <button className="btn-lg" onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button>
+            <button className="btn-lg" style={{opacity:.45,cursor:"not-allowed"}} disabled>Pro Access — Coming Soon</button>
             <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>Try Free Deal Analyzer</button>
           </div>
           <div className="stats">
@@ -1394,7 +1403,7 @@ export default function App() {
                 <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro — $49":p.id==="guide"?"Get Counter Guide — $14":p.id==="firsttime"?"First Time Buyer — $15":"Single Report — $19"}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} style={{opacity:.45,cursor:"not-allowed"}} disabled>{p.hot?"Coming Soon — Pro Bundle":p.id==="guide"?"Coming Soon":"Coming Soon"}</button>
               </div>
             ))}
           </div>
@@ -1443,6 +1452,7 @@ export default function App() {
         </div>
 
         <div id="faq"><FAQ /></div>
+        <div id="contact"><Contact /></div>
         <div className="footer">
           <div className="footer-plate"><div className="fp">CNTROFR</div></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
