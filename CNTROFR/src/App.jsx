@@ -324,9 +324,63 @@ const S = `
   .footer a { color: var(--text2); text-decoration: none; }
   .footer a:hover { color: var(--y); }
   .footer-links { display: flex; justify-content: center; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+
+  /* ── TRAFFIC LIGHT VERDICTS ── */
+  .verdict-hero { padding: 28px 24px; text-align: center; border-bottom: 1px solid var(--b1); }
+  .verdict-label { font-size: 10px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .verdict-badge-lg { font-family: 'Bebas Neue'; font-size: clamp(48px, 10vw, 72px); letter-spacing: 4px; line-height: 1; margin-bottom: 16px; }
+  .verdict-badge-lg.vg { color: var(--green); text-shadow: 0 0 40px rgba(0,201,107,.4); }
+  .verdict-badge-lg.vy { color: var(--y); text-shadow: 0 0 40px rgba(255,214,0,.4); }
+  .verdict-badge-lg.vr { color: var(--red); text-shadow: 0 0 40px rgba(255,68,68,.4); }
+  .verdict-badge-lg.vx { color: var(--muted); }
+  .verdict-new-btn { background: none; border: 2px solid var(--b2); color: var(--muted); padding: 8px 20px; font-family: Nunito; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 8px; transition: all .2s; }
+  .verdict-new-btn:hover { border-color: var(--y); color: var(--y); }
+
+  /* ── DO NOT CLOSE WARNING ── */
+  .dont-close-warn { background: rgba(255,214,0,.06); border: 1px solid rgba(255,214,0,.2); border-radius: 8px; padding: 8px 14px; margin-top: 12px; font-size: 10px; font-weight: 800; color: var(--y); letter-spacing: .5px; text-align: center; }
+
+  /* ── COOKIE BANNER ── */
+  .cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 600; background: var(--bg2); border-top: 2px solid var(--b1); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: 0 -4px 24px rgba(0,0,0,.4); animation: slideUp .3s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .cookie-text { font-size: 12px; color: var(--text2); font-weight: 700; flex: 1; min-width: 200px; line-height: 1.65; }
+  .cookie-text strong { color: var(--y); }
+  .cookie-dismiss { background: var(--y); color: #111; border: none; padding: 9px 22px; font-family: Nunito; font-size: 12px; font-weight: 900; cursor: pointer; border-radius: 8px; transition: background .2s; white-space: nowrap; flex-shrink: 0; }
+  .cookie-dismiss:hover { background: var(--yd); }
+
+  /* ── MISSION PAGE ── */
+  .mission-page { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+  .mission-page h1 { font-family: 'Bebas Neue'; font-size: 40px; letter-spacing: 2px; margin-bottom: 6px; }
+  .mission-page .mp-date { font-size: 11px; color: var(--muted); font-weight: 700; margin-bottom: 36px; }
+  .mission-page h2 { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 1px; color: var(--y); margin: 28px 0 8px; }
+  .mission-page p { font-size: 13px; color: var(--text2); line-height: 1.85; font-weight: 600; margin-bottom: 10px; }
+  .mission-page strong { color: var(--text); font-weight: 900; }
 `;
 
 const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+async function saveDeal(data) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/deals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Prefer": "return=minimal" },
+      body: JSON.stringify({ ...data, timestamp: new Date().toISOString() })
+    });
+  } catch(e) {}
+}
+
+async function saveGapFlag(description) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/gap_flags`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Prefer": "return=minimal" },
+      body: JSON.stringify({ description, timestamp: new Date().toISOString() })
+    });
+  } catch(e) {}
+}
 
 async function ai(prompt, web = false) {
   try {
@@ -334,7 +388,7 @@ async function ai(prompt, web = false) {
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 55000);
+    const timeout = setTimeout(() => controller.abort(), 90000);
 
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -373,7 +427,7 @@ async function ai(prompt, web = false) {
         ]
       };
       const controller2 = new AbortController();
-      const timeout2 = setTimeout(() => controller2.abort(), 55000);
+      const timeout2 = setTimeout(() => controller2.abort(), 90000);
       const r2 = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
@@ -389,7 +443,7 @@ async function ai(prompt, web = false) {
 
     return textBlocks.join("\n") || "No analysis returned. Please try again.";
   } catch(e) {
-    if (e.name === "AbortError") return "Request timed out — the web search took too long. Try again without the zip code for a faster result.";
+    if (e.name === "AbortError") return "Market scan unavailable right now — ZIP searches can take up to 90 seconds. Try again or leave the ZIP blank for instant results.";
     return `Connection error: ${e.message}`;
   }
 }
@@ -412,14 +466,40 @@ function MD({ text }) {
 }
 
 function Res({ verdict, vc, text, onReset }) {
+  const [copied, setCopied] = useState(false);
+  const displayVerdict = verdict === "GO" ? "🟢 GREEN LIGHT" : verdict === "WALK AWAY" ? "🔴 WALK AWAY" : verdict === "NEGOTIATE" ? "🟡 NEGOTIATE" : verdict;
+  const copyResults = () => { navigator.clipboard.writeText(text||"").then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2000); }); };
+  const savePDF = () => {
+    const w = window.open("","_blank");
+    const rows = (text||"").split("\n").map(l=>l.startsWith("## ")?"<h2>"+l.slice(3)+"</h2>":l.startsWith("### ")?"<h3>"+l.slice(4)+"</h3>":"<p>"+l+"</p>").join("");
+    w.document.write("<html><head><title>CNTROFR Deal Analysis</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;color:#333;line-height:1.7;}h2{color:#333;border-bottom:2px solid #FFD600;padding-bottom:4px;}h3{color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;}</style></head><body><h1>CNTROFR — "+displayVerdict+"</h1><p style='color:#999;font-size:12px'>Generated "+new Date().toLocaleDateString()+" · cntrofr.com</p>"+rows+"</body></html>");
+    w.document.close(); w.print();
+  };
   return (
     <div className="card ranim">
       <div className="verdict-hero">
         <div className="verdict-label">Your Verdict</div>
-        <div className={`verdict-badge-lg ${vc}`}>{verdict}</div>
+        <div className={`verdict-badge-lg ${vc}`}>{displayVerdict}</div>
         <button className="verdict-new-btn" onClick={onReset}>← Run Another Deal</button>
       </div>
       <MD text={text} />
+      {text && (
+        <div style={{display:"flex",gap:10,padding:"12px 20px",borderTop:"1px solid var(--b1)",flexWrap:"wrap"}}>
+          <button className="ghost-btn" onClick={copyResults}>{copied?"✓ Copied!":"📋 Copy Results"}</button>
+          <button className="ghost-btn" onClick={savePDF}>📄 Save as PDF</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CookieBanner() {
+  const [show, setShow] = useState(() => !sessionStorage.getItem("cookie_dismissed"));
+  if (!show) return null;
+  return (
+    <div className="cookie-banner">
+      <div className="cookie-text"><strong>This website doesn't want your cookies.</strong> You're welcome. No tracking, no ad networks, no behavioral data. Just the tools you came for.</div>
+      <button className="cookie-dismiss" onClick={()=>{ sessionStorage.setItem("cookie_dismissed","1"); setShow(false); }}>Got It ✓</button>
     </div>
   );
 }
@@ -466,8 +546,9 @@ function Loading({ msg, web }) {
           </div>
           <div className="progress-pct">{Math.floor(pct)}%</div>
           <div className="progress-disclaimer">
-            {web ? "Live web search active — scanning dealer listings & databases. Usually 20–45 seconds." : "AI analysis typically takes 10–20 seconds. Hang tight — good intel takes a moment."}
+            {web ? "Live web search active — ZIP searches can take up to 90 seconds." : "AI analysis typically takes 10–20 seconds. Hang tight."}
           </div>
+          <div className="dont-close-warn">⚠ Do not close or refresh this window — your analysis is in progress</div>
         </div>
       </div>
     </div>
@@ -497,6 +578,7 @@ ${condition==="cpo"?"CPO: Verify manufacturer eligibility, mileage/age limits, c
 No financing rate or payment advice.`);
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
+    saveDeal({ make: f.vehicle?f.vehicle.split(" ")[0]:null, model: f.vehicle?f.vehicle.split(" ").slice(1).join(" "):null, year: f.year||null, condition, zip: f.zip||null, asking_price: f.offer?parseFloat(f.offer.replace(/,/g,"")):null, addons: f.addons||null });
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
@@ -510,7 +592,7 @@ No financing rate or payment advice.`);
     }
     setL(false); setLM("");
   };
-  const vc = v => /^GO/.test(v) ? "bg" : /WALK/.test(v) ? "br" : /NEG/.test(v) ? "ba" : "bx";
+  const vc = v => /^GO/.test(v) ? "vg" : /WALK/.test(v) ? "vr" : /NEG/.test(v) ? "vy" : "vx";
   return (
     <div>
       <div className="phd"><h2>Deal <span>Analyzer</span></h2><p>Enter your numbers. Get your counter before you sign.</p></div>
@@ -750,8 +832,8 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <div className="fld"><label>State</label><input placeholder="NC" value={f.state} onChange={s("state")} /></div>
           </div>
           <div className="sp" />
-          <div className="fld"><label>Paste Customer Reviews (optional — better with them)</label><textarea style={{minHeight:110}} placeholder={"5★ — Amazing experience, loved Carlos!\n1★ — Snuck $2k in fees at signing without telling me..."} value={f.reviews} onChange={s("reviews")} /></div>
-          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment (Glassdoor/Indeed), and complaint records (BBB/AG). This takes about 30 seconds.</div>
+          <div className="fld"><label>Your Experience (optional — makes results sharper)</label><textarea style={{minHeight:110}} placeholder={"Things you liked:\n— Salesperson was upfront on pricing\n\nThings that felt off:\n— Tried to add $800 in extras at signing\n— Felt rushed on the F&I paperwork"} value={f.reviews} onChange={s("reviews")} /></div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>We run 3 separate scans — customer reviews, employee sentiment, and complaint records. Takes about 40 seconds total.</div>
           <button className="go-btn" onClick={run} disabled={loading||!f.dealer}>{loading ? loadMsg||"Running..." : "→ Run Full Purity Audit"}</button>
         </div>
       </div>
@@ -763,7 +845,8 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
               <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>CUSTOMER REVIEWS</span>
               <span className={`badge ${vc(v)}`}>{v||"ANALYZED"}</span>
               <div style={{flex:1}}/>
-              <button className="ghost-btn" onClick={()=>{setCR(null);setER(null);setKR(null);}}>Reset</button>
+              <button className="ghost-btn" style={{marginRight:6}} onClick={async()=>{setCR(null);setL(true);setLM("Re-scanning customer reviews...");const c=await ai(`Dealer review analyst. Direct, no hedging. Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.state}.${f.reviews?"\nUser notes:\n"+f.reviews:""}\n## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK\n## BOT FARMING SIGNALS\n## REAL COMPLAINTS\n## PRAISE CHECK\n## MANAGEMENT RESPONSES\n## PLATFORM CROSS-CHECK\n## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW`,true);const m=c.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);setV(m?m[1].trim().toUpperCase():"ANALYZED");setCR(c);setL(false);setLM("");}}>↻ Retry</button>
+              <button className="ghost-btn" onClick={()=>{setCR(null);setER(null);setKR(null);}}>Reset All</button>
             </div>
             <MD text={customerRes} />
           </div>
@@ -772,6 +855,8 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
               <div className="vstrip">
                 <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
                 <span className="badge ba">👔 GLASSDOOR + INDEED</span>
+                <div style={{flex:1}}/>
+                <button className="ghost-btn" onClick={async()=>{setER(null);setL(true);setLM("Re-scanning employee sentiment...");const e=await ai(`Dealer culture analyst. Direct, no hedging. Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.\n## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC\n## GLASSDOOR\n## INDEED\n## FLOOR vs. SUITS\n## PRESSURE SIGNALS\n## TURNOVER FLAGS\n## CULTURE VERDICT — Yes or no, would you send a friend?`,true);setER(e);setL(false);setLM("");}}>↻ Retry</button>
               </div>
               <MD text={employeeRes} />
             </div>
@@ -781,6 +866,8 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
               <div className="vstrip">
                 <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
                 <span className="badge br">📋 BBB + AG + CFPB</span>
+                <div style={{flex:1}}/>
+                <button className="ghost-btn" onClick={async()=>{setKR(null);setL(true);setLM("Re-scanning complaint records...");const k=await ai(`Consumer protection researcher. Direct, no hedging. Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.\n## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS\n## BBB\n## COMPLAINT PATTERNS\n## UNRESOLVED\n## LEGAL / NEWS\n## QUESTIONS TO ASK\n## OVERALL RISK — LOW / MODERATE / HIGH`,true);setKR(k);setL(false);setLM("");}}>↻ Retry</button>
               </div>
               <MD text={complaintRes} />
             </div>
@@ -1168,6 +1255,39 @@ function Contact() {
   );
 }
 
+function MissionPage() {
+  return (
+    <div className="mission-page">
+      <h1>Our Mission</h1>
+      <div className="mp-date">CNTROFR LLC · Denver, Colorado · Built For Buyers</div>
+
+      <h2>The Manifesto</h2>
+      <p>We are the scared first-time buyer. The person who got taken last time and swore never again. The one sitting in a parking lot right now working up the nerve to go back inside.</p>
+      <p>We are the disruption in a toxic industry — built by no one, funded by no one, owned by everyone who's ever felt powerless at that desk. No name. No face. No agenda. Just the truth about your deal.</p>
+
+      <h2>Why We Built This</h2>
+      <p>The dealership has lawyers, trainers, and ten thousand deals worth of experience working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you. They have scripts for every objection. They know when you're nervous. They know when you're in love with the car.</p>
+      <p>We studied the same playbooks. We sat in the training sessions. <strong>Now you do too.</strong></p>
+      <p>CNTROFR was built because that information asymmetry is fixable — and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $400 and still take referral fees. Not the "free" tools that monetize your data the moment you click submit.</p>
+
+      <h2>Real-Time Market Intelligence</h2>
+      <p>CNTROFR gets smarter with every deal analyzed. Every submission logs anonymous data — make, model, year, condition, zip, asking price — to build a real-time market intelligence layer. No personal information. No tracking. No identity. Just market truth that gets sharper every day.</p>
+      <p><strong>That's the mission: make the deal fair, one anonymous data point at a time.</strong></p>
+
+      <h2>Zero Dealer Affiliations. Ever.</h2>
+      <p>CNTROFR has no financial relationships with any dealership, manufacturer, lender, or advertising network — and never will. Our only revenue comes from the buyers who use the platform. The moment we take dealer money, the platform is worthless. We built the business model around that fact.</p>
+
+      <h2>For Buyers. Not Shoppers.</h2>
+      <p>Come back when you're ready to ink up. That focus is what makes us different from every other car research site. We're not helping you find a car. We're making sure the one you already found doesn't cost you more than it should.</p>
+      <p style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,color:"var(--y)",marginTop:24}}>"I built the tool I wish my customers had."</p>
+      <p style={{color:"var(--muted)",fontSize:12}}>— The CNTROFR Team · Built in Denver, Colorado</p>
+    </div>
+  );
+}
+
+const BETA_CODE = "CNTROFR-BETA";
+const BETA_ACTIVE = true;
+
 const PLANS = [
   {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't — yet","No account. No login. Ever."],btn:"out",unlocks:[]},
   {id:"single",name:"Single Report",price:19,desc:"One full deal analysis.",features:["Deal Analyzer — full breakdown","GO / NEGOTIATE / WALK verdict","Your counter offer strategy","No account. No login. Ever."],btn:"out",unlocks:["deal"]},
@@ -1177,9 +1297,15 @@ const PLANS = [
 
 function PayModal({plan,onClose,onSuccess}) {
   const [card,setCard]=useState("");const [exp,setExp]=useState("");const [cvc,setCvc]=useState("");const [busy,setBusy]=useState(false);
+  const [promoOpen,setPromoOpen]=useState(false);const [promoCode,setPromoCode]=useState("");const [promoMsg,setPromoMsg]=useState("");
   const fmt=v=>v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
   const fmtExp=v=>{const d=v.replace(/\D/g,"").slice(0,4);return d.length>2?d.slice(0,2)+"/"+d.slice(2):d;};
   const ready=card.replace(/\s/g,"").length===16&&exp.length===5&&cvc.length>=3;
+  const applyPromo = () => {
+    const code = promoCode.trim().toUpperCase();
+    if (BETA_ACTIVE && code === BETA_CODE) { onSuccess(plan); }
+    else { setPromoMsg("Code not recognized or not yet active."); }
+  };
   const pay=async()=>{setBusy(true);await new Promise(r=>setTimeout(r,1800));setBusy(false);onSuccess(plan);};
   return (
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
@@ -1189,6 +1315,18 @@ function PayModal({plan,onClose,onSuccess}) {
           <div className="order-sum">
             <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Total Due</span><span className="oprice">${plan.price}</span></div>
             <div className="oname">CNTROFR — {plan.name}</div>
+          </div>
+          <div style={{marginBottom:14}}>
+            <button onClick={()=>setPromoOpen(o=>!o)} style={{background:"none",border:"none",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,cursor:"pointer",textDecoration:"underline",padding:0}}>{promoOpen?"▾ Hide":"▸ Have a beta or promo code?"}</button>
+            {promoOpen&&(
+              <div style={{marginTop:8}}>
+                <div style={{display:"flex",gap:8}}>
+                  <input value={promoCode} onChange={e=>setPromoCode(e.target.value)} placeholder="ENTER CODE" style={{flex:1,background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"JetBrains Mono",fontSize:13,padding:"9px 12px",borderRadius:8,outline:"none",textTransform:"uppercase",letterSpacing:1}} />
+                  <button onClick={applyPromo} style={{background:"var(--y)",color:"#111",border:"none",padding:"9px 18px",fontFamily:"Nunito",fontSize:12,fontWeight:900,cursor:"pointer",borderRadius:8,whiteSpace:"nowrap"}}>Apply</button>
+                </div>
+                {promoMsg&&<div style={{fontSize:11,fontWeight:800,marginTop:6,color:"var(--red)"}}>{promoMsg}</div>}
+              </div>
+            )}
           </div>
           <div className="sbox">
             <div className="slbl">Card Number</div>
@@ -1215,7 +1353,7 @@ const TABS = [
 ];
 
 export default function App() {
-  const [view,setView]=useState("home"); // home | tools | contact | tos
+  const [view,setView]=useState("home"); // home | tools | contact | tos | privacy | mission
   const [menuOpen,setMenuOpen]=useState(false);
   const [tab,setTab]=useState("deal");
   const [modal,setModal]=useState(null);
@@ -1227,6 +1365,7 @@ export default function App() {
   return (
     <>
       <style>{S}</style>
+      <CookieBanner />
       <div className="hdr">
         <button className={`burger ${menuOpen?"open":""}`} onClick={()=>setMenuOpen(m=>!m)} aria-label="Menu">
           <span/><span/><span/>
@@ -1242,7 +1381,7 @@ export default function App() {
           <button className="bmenu-item" onClick={()=>{setView("tools");setTab("deal");setMenuOpen(false);}}>⚡ Free Deal Analyzer</button>
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 All Tools</button>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#mission")?.scrollIntoView({behavior:"smooth"}),100);}}>🎯 Mission</button>
+          <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>🎯 Mission</button>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 Pricing</button>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#faq")?.scrollIntoView({behavior:"smooth"}),100);}}>❓ FAQ</button>
           <div className="bmenu-divider"/>
@@ -1336,7 +1475,6 @@ export default function App() {
               And here's something else worth saying: <strong>a fair deal is good for everyone.</strong> Your salesperson is working long hours and holidays to feed their family — they deserve your respect and your business if they treat you right. The greed lives at the top. CNTROFR targets that, not the people on the floor.<br/><br/>
               Don't sign. Counter.
             </p>
-            <div style={{fontFamily:"'Bebas Neue'",fontSize:"clamp(18px, 3vw, 26px)",letterSpacing:"1px",color:"var(--y)",margin:"0 0 16px",lineHeight:1.3}}>"I built the tool I wish my customers had."</div>
             <div className="mission-sig">— The CNTROFR Team · Built For Buyers · Funded By None</div>
           </div>
         </div>
@@ -1464,6 +1602,18 @@ export default function App() {
             <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
           </div>
           <TermsOfService />
+          <div className="footer">
+            <div className="footer-plate"><div className="fp">CNTROFR</div></div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC · <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+          </div>
+        </>
+      )}
+      {view==="mission"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+          </div>
+          <MissionPage />
           <div className="footer">
             <div className="footer-plate"><div className="fp">CNTROFR</div></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC · <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
