@@ -809,7 +809,8 @@ Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.sta
 
   const runEmployee = async () => {
     setLER(true); setER(null); setKR(null);
-    const e = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly.
+    try {
+      const e = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly.
 Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
 ## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC
 ## GLASSDOOR — Rating, top complaints, management scores.
@@ -818,13 +819,18 @@ Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
 ## PRESSURE SIGNALS — Pushed to hit numbers at buyer's expense?
 ## TURNOVER FLAGS — High sales/F&I turnover is a buyer red flag.
 ## CULTURE VERDICT — Would you send a friend here? Yes or no.`, true);
-    setER(e.includes("rate limit")||e.includes("token") ? "## Temporarily Unavailable\nHigh demand right now. Wait 60 seconds and try again." : e);
+      const isErr = !e || e.includes("rate limit") || e.includes("token") || e.includes("Error:");
+      setER(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : e);
+    } catch(err) {
+      setER("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
+    }
     setLER(false);
   };
 
   const runComplaints = async () => {
     setLKR(true); setKR(null);
-    const k = await ai(`Consumer protection researcher. Direct, no hedging. State what was found and what it means.
+    try {
+      const k = await ai(`Consumer protection researcher. Direct, no hedging. State what was found and what it means.
 Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.
 ## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS
 ## BBB — Rating, complaint count, types, resolution history.
@@ -833,7 +839,11 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
 ## LEGAL / NEWS — Lawsuits, AG actions, press coverage?
 ## QUESTIONS TO ASK — 2-3 direct questions for the dealer based on findings.
 ## OVERALL RISK — LOW / MODERATE / HIGH with one-line reasoning.`, true);
-    setKR(k.includes("rate limit")||k.includes("token") ? "## Temporarily Unavailable\nHigh demand right now. Wait 60 seconds and try again." : k);
+      const isErr = !k || k.includes("rate limit") || k.includes("token") || k.includes("Error:");
+      setKR(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : k);
+    } catch(err) {
+      setKR("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
+    }
     setLKR(false);
   };
 
@@ -893,43 +903,61 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
         </div>
       )}
 
-      {employeeRes && !loadingER && (
+      {(employeeRes || loadingER) && (
         <div className="card ranim">
           <div className="vstrip">
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
             <span className="badge ba">👔 GLASSDOOR + INDEED</span>
             <div style={{flex:1}}/>
-            <button className="ghost-btn" onClick={runEmployee}>↻ Retry</button>
+            {!loadingER && <button className="ghost-btn" onClick={runEmployee}>↻ Retry</button>}
           </div>
-          <MD text={employeeRes} />
-          {!complaintRes && !loadingKR && (
-            <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
-              <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan complaint records when ready.</div>
-              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runComplaints}>Continue → Complaint Records</button>
+          {loadingER ? (
+            <div style={{padding:"32px",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
+              <div className="spin" />
+              <span style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Scanning employee sentiment...</span>
             </div>
-          )}
-          {loadingKR && (
-            <div style={{padding:"20px",borderTop:"1px solid var(--b1)",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
-              <div className="spin" style={{width:20,height:20,borderWidth:2}} />
-              <span style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Pulling BBB & complaint records...</span>
-            </div>
+          ) : (
+            <>
+              <MD text={employeeRes} />
+              {!complaintRes && !loadingKR && (
+                <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+                  <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan complaint records when ready.</div>
+                  <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runComplaints}>Continue → Complaint Records</button>
+                </div>
+              )}
+              {loadingKR && (
+                <div style={{padding:"20px",borderTop:"1px solid var(--b1)",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
+                  <div className="spin" style={{width:20,height:20,borderWidth:2}} />
+                  <span style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Pulling BBB & complaint records...</span>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
 
-      {complaintRes && !loadingKR && (
+      {(complaintRes || loadingKR) && (
         <div className="card ranim">
           <div className="vstrip">
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
             <span className="badge br">📋 BBB + AG + CFPB</span>
             <div style={{flex:1}}/>
-            <button className="ghost-btn" onClick={runComplaints}>↻ Retry</button>
+            {!loadingKR && <button className="ghost-btn" onClick={runComplaints}>↻ Retry</button>}
           </div>
-          <MD text={complaintRes} />
-          <div style={{padding:"14px 20px",borderTop:"1px solid var(--b1)",textAlign:"center"}}>
-            <div style={{fontSize:11,color:"var(--green)",fontWeight:800}}>✓ Full Purity Audit Complete</div>
-            <button className="ghost-btn" style={{marginTop:8}} onClick={reset}>← Start New Audit</button>
-          </div>
+          {loadingKR ? (
+            <div style={{padding:"32px",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
+              <div className="spin" />
+              <span style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Pulling BBB & complaint records...</span>
+            </div>
+          ) : (
+            <>
+              <MD text={complaintRes} />
+              <div style={{padding:"14px 20px",borderTop:"1px solid var(--b1)",textAlign:"center"}}>
+                <div style={{fontSize:11,color:"var(--green)",fontWeight:800}}>✓ Full Purity Audit Complete</div>
+                <button className="ghost-btn" style={{marginTop:8}} onClick={reset}>← Start New Audit</button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
