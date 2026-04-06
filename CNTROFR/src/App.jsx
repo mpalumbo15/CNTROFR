@@ -481,20 +481,21 @@ function DealAnalyzer() {
   const run = async () => {
     setL(true); setR(null); setM(null);
     setLM("Analyzing your deal...");
-    const t = await ai(`Automotive deal analyst. Be direct — state facts, give scripts, move on. No hedging, no "you may want to consider", no "it appears that." Speak like an insider who's seen this a thousand times.
-Insider knowledge: dealers sell below invoice via dealer cash/quota incentives — "we're at invoice" is rarely true. Buyer makes a specific offer, never asks what dealer will take. Flag F&I products tied to rate changes (illegal unless on lender call sheet). Hard close = leave and reconnect in writing. Target the system, not the salesperson.
-${f.year} ${f.vehicle}${f.trim ? " — "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"} | MSRP $${f.msrp||"n/a"} | Asking $${f.offer||"n/a"}
-Trade: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Quote line items: "+f.marketRange : ""}
+    const t = await ai(`You are a veteran automotive insider with deep knowledge of current dealer sales training programs — including techniques taught by Grant Cardone, Joe Verde, and Reynolds & Reynolds dealer training. You understand payment packing, four-square manipulation, trade-in lowballing, and modern F&I profit extraction strategies. Use only current market data and tactics — no outdated information. Analyze this deal from the buyer's perspective.
+${f.year} ${f.vehicle}${f.trim ? " — Trim: "+f.trim : ""} | Condition: ${condition.toUpperCase()}${condition==="cpo"?" (Certified Pre-Owned)":""} | ${condition==="new" ? "New vehicle" : f.mileage ? f.mileage+" miles" : "Mileage not provided"} | MSRP $${f.msrp} | Asking $${f.offer}
+Trade offered: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Buyer's market range research: "+f.marketRange : ""}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
-${condition==="cpo"?"CPO: Verify manufacturer eligibility, mileage/age limits, coverage vs exclusions, inspection checklist signed by service manager.":""}
-## EXTREME WARNING — Only if predatory red flags exist. Omit if clean.
-## OVERALL VERDICT — GO, NEGOTIATE, or WALK AWAY. One sentence.
-## VEHICLE PRICE — Fair? Room left? Depreciation on high mileage?
-## TRADE-IN — Fair or lowball? Flag negative equity.
-## ADD-ONS — Worth It / Overpriced / Skip It per item.
-## YOUR COUNTER — 3-4 word-for-word scripts. Specific offer, not a question.
-## RED FLAGS — Dealer tactics, illegal rate-tying, invoice claims, verbal-only promises.
-No financing rate or payment advice.`);
+
+${condition==="cpo" ? "## CPO PREMIUM CHECK — Is the CPO markup justified? What does the certification actually cover and what does it exclude? Is the factory warranty still active or expired?" : ""}
+## EXTREME WARNING — Only include this section if truly extraordinary red flags exist that go beyond normal negotiation concerns (examples: severe accident + above market price + high mileage combo, signs of title washing, VIN anomalies mentioned, dealer withholding required disclosures, deal structure that looks predatory). If no extreme flags exist, omit this section entirely. If it does trigger, make it unmistakable.
+## OVERALL VERDICT — GO, NEGOTIATE, or WALK AWAY. One sentence why.
+## VEHICLE PRICE — Is this fair given the mileage and trim? How much room is left? If mileage is above average (15,000/yr), factor depreciation impact explicitly.
+## TRADE-IN — Fair offer or lowball? Account for negative equity if owed exceeds offered.
+## ADD-ONS — Worth It / Overpriced / Skip It for each.
+## YOUR COUNTER — 3-4 specific things to say before signing.
+## RED FLAGS — Any dealer tactics at play?
+
+Do not provide financing rate or payment advice.`);
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
     if (f.zip && f.year && f.vehicle) {
@@ -654,12 +655,13 @@ function FeeComparison() {
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
     setL(true); setR(null);
-    const t = await ai(`Doc fee analyst. Direct, no hedging. State what the fee is, what's padded, and exactly what to say.
+    const t = await ai(`You are an automotive consumer advocate and former dealer finance manager.
 Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.fee}
 ## FEE VERDICT — FAIR, HIGH, or EXCESSIVE?
-## STATE CONTEXT — Legal cap and typical range for ${f.brand} in ${f.state}.
+## STATE CONTEXT — Laws/caps and typical range for ${f.brand} in ${f.state}.
 ## WHAT IT COVERS — Legitimate components only.
 ## WHAT IT DOESN'T JUSTIFY — Padding.
+## PERKS CHECK — What should come with a fee this size?
 ## YOUR COUNTER — Exact words to push back.
 ## LEVERAGE — How to use competing dealer quotes.`, true);
     setR(t); setL(false);
@@ -697,42 +699,48 @@ function ReviewPurity() {
     setL(true); setCR(null); setER(null); setKR(null);
 
     setLM("Auditing customer reviews...");
-    const customer = await ai(`Dealer review analyst. Direct, no hedging. Call it what it is.
-Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.state}.${f.reviews?"\nUser experience notes:\n"+f.reviews:""}
+    const customer = await ai(`You are a reputation integrity analyst specializing in dealer review manipulation.
+Dealer: ${f.dealer}, ${f.city} ${f.state}
+${f.reviews?"Customer reviews pasted by user:\n"+f.reviews:"No reviews pasted — search Google Reviews, DealerRater, and Cars.com for this dealer and analyze what you find."}
+
 ## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
-## BOT FARMING SIGNALS — Velocity, generic language, clustered 5-star bursts.
-## REAL COMPLAINTS — Themes from 1-3 star reviews. Skip bad-faith reviews.
-## PRAISE CHECK — Specific and believable, or vague and scripted?
-## MANAGEMENT RESPONSES — Defensive, dismissive, or genuine?
-## PLATFORM CROSS-CHECK — Gaps across Google, DealerRater, Cars.com. Flag gaps over 0.5 stars.
-## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW. One line.`, true);
+## BOT FARMING SIGNALS — Specific patterns: review velocity, generic language, duplicate phrasing, suspiciously clustered 5-star bursts.
+## WHAT THE REAL COMPLAINTS SAY — Themes from legitimate 1-3 star reviews. Ignore obvious bad-faith reviews.
+## WHAT THE PRAISE SAYS — Are the 5-star reviews specific and believable or vague and scripted?
+## MANAGEMENT RESPONSE PATTERNS — Do they respond defensively, dismissively, or genuinely?
+## PLATFORM CROSS-CHECK — How does the rating compare across Google, DealerRater, and Cars.com? Big gaps are a red flag.
+## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW with one-line reasoning.`, true);
     const m = customer.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
     setV(m?m[1].trim().toUpperCase():"ANALYZED"); setCR(customer);
 
-    await new Promise(r => setTimeout(r, 15000));
     setLM("Checking employee sentiment on Glassdoor & Indeed...");
-    const employee = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly.
-Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
+    const employee = await ai(`You are an automotive dealership culture analyst. Search Glassdoor and Indeed for employee reviews of "${f.dealer}" in ${f.city}, ${f.state}.
+
+This matters because angry, burned-out, or pressured employees directly impact the customer experience on the lot.
+
 ## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC
-## GLASSDOOR — Rating, top complaints, management scores.
-## INDEED — Turnover patterns, pressure culture signs.
-## FLOOR vs. SUITS — Frontline vs. management complaints.
-## PRESSURE SIGNALS — Pushed to hit numbers at buyer's expense?
-## TURNOVER FLAGS — High sales/F&I turnover is a buyer red flag.
-## CULTURE VERDICT — Would you send a friend here? Yes or no.`, true);
+## GLASSDOOR FINDINGS — Overall rating, most common complaints, management scores. What do former employees say?
+## INDEED FINDINGS — Any patterns around turnover, pressure, or toxic management?
+## THE FLOOR vs. THE SUITS — Are complaints about frontline staff (sales, service) or management and ownership?
+## PRESSURE CULTURE SIGNALS — Do employees describe being pushed to hit numbers at the customer's expense?
+## TURNOVER RED FLAGS — High turnover in sales or F&I is a warning sign for buyers. What did you find?
+## CULTURE VERDICT — Would you send a friend to buy here based on how employees describe this place?`, true);
     setER(employee);
 
-    await new Promise(r => setTimeout(r, 15000));
     setLM("Pulling BBB & complaint records...");
-    const complaints = await ai(`Consumer protection researcher. Direct, no hedging. State what was found and what it means.
-Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.
+    const complaints = await ai(`You are a consumer protection researcher. Search for complaints and records on "${f.dealer}" in ${f.city}, ${f.state} across:
+- BBB (Better Business Bureau) — rating, complaint count, complaint patterns, resolution history
+- State Attorney General consumer complaint database for ${f.state}
+- CFPB (Consumer Financial Protection Bureau) complaints if applicable
+- Any news articles, local press, or legal actions involving this dealership
+
 ## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS
-## BBB — Rating, complaint count, types, resolution history.
-## COMPLAINT PATTERNS — Pricing, fees, F&I, service, title issues?
-## UNRESOLVED — Pattern of ignoring complaints?
-## LEGAL / NEWS — Lawsuits, AG actions, press coverage?
-## QUESTIONS TO ASK — 2-3 direct questions for the dealer based on findings.
-## OVERALL RISK — LOW / MODERATE / HIGH with one-line reasoning.`, true);
+## BBB RECORD — Rating, number of complaints, types of complaints, how they were resolved (or not).
+## COMPLAINT PATTERNS — Are complaints about pricing, fees, F&I products, service, or title/registration issues?
+## UNRESOLVED COMPLAINTS — Any pattern of dealers not fixing problems? That tells you everything.
+## LEGAL / NEWS — Any lawsuits, AG actions, or local news stories about this dealer?
+## WHAT TO ASK THEM — 2-3 direct questions to ask the dealer based on what you found.
+## OVERALL RISK LEVEL — LOW / MODERATE / HIGH with reasoning.`, true);
     setKR(complaints);
 
     setL(false); setLM("");
@@ -803,21 +811,20 @@ function FIDecoder() {
   const run = async () => {
     setL(true); setR(null);
     const list = picked.map(p=>`- ${p.name}: $${prices[p.id]||"unknown"}`).join("\n");
-    const t = await ai(`F&I insider analyst. Direct, no hedging. Tell the buyer what it costs, what to say, and what to skip.
-F&I managers are measured on penetration — they'll discount everything for a yes. Rate-tying to F&I products is illegal unless on lender call sheet. Hard closes are tactics, not reality.
-Vehicle: ${veh||"not specified"}${warrantyBrand?"\nWarranty: "+warrantyBrand:""}${drivingHabits?"\nDriving: "+drivingHabits:""}${ownershipLength?"\nOwnership: "+ownershipLength:""}
-Products:\n${list}
-For EACH:
+    const t = await ai(`You are a former F&I manager with knowledge of current dealer training programs and modern warranty product structures. Reference current claims data where available. Use only up-to-date information. Vehicle: ${veh||"not specified"}${warrantyBrand ? "\nWarranty provider: "+warrantyBrand : ""}${drivingHabits ? "\nDriving habits: "+drivingHabits : ""}${ownershipLength ? "\nPlanned ownership: "+ownershipLength : ""}\nProducts:\n${list}
+Search for current claims approval vs denial rates for these products${warrantyBrand ? " specifically from "+warrantyBrand : ""}. Look for CFPB complaints, BBB data, and consumer reports on each.
+
+For EACH product:
 ## [NAME] — [WORTH IT / OVERPRICED / SKIP IT / DEPENDS]
-- Dealer cost vs. charge
-- Claims approval vs. denial rate (current data)
-- Fine print traps and denial triggers
-- Cheaper alternative if exists
-- Exact script to decline or negotiate
-## OVERALL F&I STRATEGY — Keep, cut, estimated savings.
-## PENETRATION INSIGHT — They'll discount everything for a yes. "I want to think about it" always works.
-## MAINTENANCE NOTE — Flag if upkeep cost suggests wrong vehicle.
-## OPENING LINE — First words walking into F&I office.`);
+- Dealer cost vs. what they charge
+- Claims approval rate vs denial rate (current data)
+- Known denial triggers and fine print traps
+- Where to buy it cheaper if applicable
+- Exact script to decline or negotiate down
+## OVERALL F&I STRATEGY — What to keep, cut, and estimated total savings.
+## PRODUCT PENETRATION INSIGHT — F&I managers are assessed on product penetration (how many products per deal), not just gross profit. This means they have flexibility to discount everything on their menu if they think a yes is on the table. The buyer who says "I want to think about it" and asks for time gets that time — always. Use that time. Come back with a counter, not a no.
+## MAINTENANCE REMINDER — Briefly note that staying current on manufacturer-recommended maintenance is required to keep most warranties valid and maximizes resale value. If the vehicle or ownership profile suggests high maintenance costs, flag it honestly. If the cost of upkeep is too high for the buyer's situation, they may be looking at the wrong vehicle.
+## OPENING LINE — Your first words walking into the F&I office.`);
     setR(t); setL(false);
   };
   return (
@@ -897,16 +904,14 @@ function AddOnFighter() {
   const run = async () => {
     setL(true); setR(null);
     const list = picked.map(a=>`- ${a.name}: $${prices[a.id]||"unknown"}`).join("\n");
-    const t = await ai(`Add-on pricing analyst. Direct, no hedging. Name the markup, give the script.
-Aftermarket baselines: Tint $150-400 (dealers $299-799). PPF front $500-900 independent (dealers 2-3x). Ceramic $500-1500 independent. Paint sealant $50-100 cost (charged $300-800). VIN etching $20 product (charged $200-400). Nitrogen: air is 78% nitrogen, zero benefit. Fabric protection $10-20 (charged $200-500). Roadside likely duplicated by insurance/AAA. GPS: AirTag/Bouncie $30-100 vs dealer $300-800. All-weather mats: WeatherTech $120-180 vs dealer $200-400.
-Vehicle: ${veh||"not specified"}\nAdd-ons:\n${list}
+    const t = await ai(`You are a former car salesperson turned consumer advocate. Vehicle: ${veh||"not specified"}\nAdd-ons:\n${list}
 For EACH:
 ## [ADD-ON] — [KEEP / NEGOTIATE / REMOVE]
-- Dealer cost vs. charge vs. aftermarket price
-- Their script to keep it
-- Your exact words to remove it
-- If already installed, what to say
-## BATTLE PLAN — Step by step removal. What if they say it can't come off?
+- Dealer cost vs. charge
+- Script they use to keep it
+- Your counter-script to remove it
+- If installed, what to say
+## BATTLE PLAN — Remove steps. What if they say it can't be removed?
 ## TOTAL SAVINGS — Estimated by removing flagged items.`);
     setR(t); setL(false);
   };
@@ -1402,7 +1407,7 @@ export default function App() {
         </div>
 
         <div id="faq"><FAQ /></div>
-        <div id="contact"><Contact /></div>
+        <div id="faq"><FAQ /></div>
         <div className="footer">
           <div className="footer-plate"><div className="fp">CNTROFR</div></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
