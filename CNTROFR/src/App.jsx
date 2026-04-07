@@ -14,7 +14,7 @@ const S = `
   .hdr { position: sticky; top: 0; z-index: 200; background: rgba(14,14,20,.96); backdrop-filter: blur(12px); border-bottom: 2px solid var(--b1); padding: 0 16px; display: flex; align-items: center; height: 56px; gap: 12px; }
   .hdr-logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
   .hdr-plate { background: var(--y); border: 2px solid #B8A000; border-radius: 5px; padding: 3px 10px; box-shadow: 0 2px 0 #8A7800, 0 3px 10px rgba(255,214,0,.25); font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 4px; color: #111; position: relative; }
-  .hdr-plate::before, .hdr-plate::after { content: '●'; position: absolute; top: 50%; transform: translateY(-50%); font-size: 6px; color: #B8A000; }
+  .hdr-plate::before, .hdr-plate::after { content: '\25CF'; position: absolute; top: 50%; transform: translateY(-50%); font-size: 6px; color: #B8A000; }
   .hdr-plate::before { left: 3px; } .hdr-plate::after { right: 3px; }
   .hdr-tagline { font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
   .hdr-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
@@ -39,7 +39,7 @@ const S = `
   .hero-road { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: repeating-linear-gradient(90deg, var(--y) 0px, var(--y) 40px, transparent 40px, transparent 80px); opacity: .3; }
   .hero-center-plate { display: flex; justify-content: center; margin-bottom: 32px; }
   .hero-plate { background: var(--y); border: 6px solid #B8A000; border-radius: 12px; padding: 10px 32px 12px; box-shadow: 0 6px 0 #8A7800, 0 10px 40px rgba(255,214,0,.35); position: relative; display: inline-flex; flex-direction: column; align-items: center; }
-  .hero-plate::before, .hero-plate::after { content: '◉'; position: absolute; top: 50%; transform: translateY(-50%); font-size: 10px; color: rgba(0,0,0,.3); }
+  .hero-plate::before, .hero-plate::after { content: '\25C9'; position: absolute; top: 50%; transform: translateY(-50%); font-size: 10px; color: rgba(0,0,0,.3); }
   .hero-plate::before { left: 10px; } .hero-plate::after { right: 10px; }
   .hp-state { font-size: 9px; font-weight: 900; letter-spacing: 3px; color: #8A7800; margin-bottom: 2px; }
   .hp-text { font-family: 'Bebas Neue'; font-size: clamp(42px, 10vw, 72px); letter-spacing: 10px; color: #111; line-height: 1; }
@@ -126,7 +126,7 @@ const S = `
   .pdesc { font-size: 12px; color: var(--text2); margin: 10px 0 18px; line-height: 1.65; font-weight: 600; }
   .pfeats { list-style: none; padding: 0; margin-bottom: 22px; }
   .pfeats li { font-size: 12px; color: var(--text2); padding: 4px 0; display: flex; gap: 8px; font-weight: 700; }
-  .pfeats li::before { content: '◆'; color: var(--y); font-size: 8px; flex-shrink: 0; margin-top: 4px; }
+  .pfeats li::before { content: '\25C6'; color: var(--y); font-size: 8px; flex-shrink: 0; margin-top: 4px; }
   .pbtn { width: 100%; padding: 12px; font-family: Nunito; font-size: 13px; font-weight: 900; cursor: pointer; border-radius: 10px; transition: all .2s; }
   .pbtn.out { background: transparent; border: 2px solid var(--b2); color: var(--text2); }
   .pbtn.out:hover { border-color: var(--y); color: var(--y); }
@@ -224,7 +224,7 @@ const S = `
   .tos-wrap p { font-size: 13px; color: var(--text2); line-height: 1.85; font-weight: 600; margin-bottom: 10px; }
   .tos-wrap ul { list-style: none; padding: 0; margin-bottom: 12px; }
   .tos-wrap ul li { font-size: 13px; color: var(--text2); padding: 3px 0 3px 18px; position: relative; font-weight: 600; line-height: 1.7; }
-  .tos-wrap ul li::before { content: '◆'; position: absolute; left: 0; color: var(--y); font-size: 8px; top: 7px; }
+  .tos-wrap ul li::before { content: '\25C6'; position: absolute; left: 0; color: var(--y); font-size: 8px; top: 7px; }
   @keyframes sp { to { transform: rotate(360deg); } }
   .loadbox { padding: 48px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
   .loadbox p { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
@@ -243,7 +243,7 @@ const S = `
   .aout p { margin-bottom: 7px; }
   .aout ul { list-style: none; padding: 0; margin-bottom: 8px; }
   .aout ul li { padding: 3px 0 3px 18px; position: relative; color: #C0BCDC; }
-  .aout ul li::before { content: '◆'; position: absolute; left: 0; color: var(--y); font-size: 8px; top: 7px; }
+  .aout ul li::before { content: '\25C6'; position: absolute; left: 0; color: var(--y); font-size: 8px; top: 7px; }
   .pg { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 10px; margin-bottom: 16px; }
   .pc { background: var(--bg3); border: 2px solid var(--b1); border-radius: 12px; padding: 14px; cursor: pointer; transition: all .2s; position: relative; }
   .pc:hover { border-color: var(--b2); }
@@ -443,7 +443,7 @@ async function ai(prompt, web = false) {
 
     return textBlocks.join("\n") || "No analysis returned. Please try again.";
   } catch(e) {
-    if (e.name === "AbortError") return "Market scan unavailable right now — ZIP searches can take up to 90 seconds. Try again or leave the ZIP blank for instant results.";
+    if (e.name === "AbortError") return "Market scan unavailable right now  --  ZIP searches can take up to 90 seconds. Try again or leave the ZIP blank for instant results.";
     return `Connection error: ${e.message}`;
   }
 }
@@ -467,12 +467,12 @@ function MD({ text }) {
 
 function Res({ verdict, vc, text, onReset }) {
   const [copied, setCopied] = useState(false);
-  const displayVerdict = verdict === "GO" ? "🟢 GREEN LIGHT" : verdict === "WALK AWAY" ? "🔴 WALK AWAY" : verdict === "NEGOTIATE" ? "🟡 NEGOTIATE" : verdict;
+  const displayVerdict = verdict === "GO" ? "GREEN LIGHT" : verdict === "WALK AWAY" ? "WALK AWAY" : verdict === "NEGOTIATE" ? "NEGOTIATE" : verdict;
   const copyResults = () => { navigator.clipboard.writeText(text||"").then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2000); }); };
   const savePDF = () => {
     const w = window.open("","_blank");
     const rows = (text||"").split("\n").map(l=>l.startsWith("## ")?"<h2>"+l.slice(3)+"</h2>":l.startsWith("### ")?"<h3>"+l.slice(4)+"</h3>":"<p>"+l+"</p>").join("");
-    w.document.write("<html><head><title>CNTROFR Deal Analysis</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;color:#333;line-height:1.7;}h2{color:#333;border-bottom:2px solid #FFD600;padding-bottom:4px;}h3{color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;}</style></head><body><h1>CNTROFR — "+displayVerdict+"</h1><p style='color:#999;font-size:12px'>Generated "+new Date().toLocaleDateString()+" · cntrofr.com</p>"+rows+"</body></html>");
+    w.document.write("<html><head><title>CNTROFR Deal Analysis</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;color:#333;line-height:1.7;}h2{color:#333;border-bottom:2px solid #FFD600;padding-bottom:4px;}h3{color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;}</style></head><body><h1>CNTROFR  --  "+displayVerdict+"</h1><p style='color:#999;font-size:12px'>Generated "+new Date().toLocaleDateString()+"  -  cntrofr.com</p>"+rows+"</body></html>");
     w.document.close(); w.print();
   };
   return (
@@ -546,9 +546,9 @@ function Loading({ msg, web }) {
           </div>
           <div className="progress-pct">{Math.floor(pct)}%</div>
           <div className="progress-disclaimer">
-            {web ? "Live web search active — ZIP searches can take up to 90 seconds." : "AI analysis typically takes 10–20 seconds. Hang tight."}
+            {web ? "Live web search active  --  ZIP searches can take up to 90 seconds." : "AI analysis typically takes 10-20 seconds. Hang tight."}
           </div>
-          <div className="dont-close-warn">⚠ Do not close or refresh this window — your analysis is in progress</div>
+          <div className="dont-close-warn">⚠ Do not close or refresh this window  --  your analysis is in progress</div>
         </div>
       </div>
     </div>
@@ -562,19 +562,19 @@ function DealAnalyzer() {
   const run = async () => {
     setL(true); setR(null); setM(null);
     setLM("Analyzing your deal...");
-    const t = await ai(`Automotive deal analyst. Be direct — state facts, give scripts, move on. No hedging, no "you may want to consider", no "it appears that." Speak like an insider who's seen this a thousand times.
-Insider knowledge: dealers sell below invoice via dealer cash/quota incentives — "we're at invoice" is rarely true. Buyer makes a specific offer, never asks what dealer will take. Flag F&I products tied to rate changes (illegal unless on lender call sheet). Hard close = leave and reconnect in writing. Target the system, not the salesperson.
-${f.year} ${f.vehicle}${f.trim ? " — "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""} | MSRP $${f.msrp||"n/a"} | Asking $${f.offer||"n/a"}
+    const t = await ai(`Automotive deal analyst. Be direct  --  state facts, give scripts, move on. No hedging, no "you may want to consider", no "it appears that." Speak like an insider who's seen this a thousand times.
+Insider knowledge: dealers sell below invoice via dealer cash/quota incentives  --  "we're at invoice" is rarely true. Buyer makes a specific offer, never asks what dealer will take. Flag F&I products tied to rate changes (illegal unless on lender call sheet). Hard close = leave and reconnect in writing. Target the system, not the salesperson.
+${f.year} ${f.vehicle}${f.trim ? "  --  "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""} | MSRP $${f.msrp||"n/a"} | Asking $${f.offer||"n/a"}
 Trade: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Quote line items: "+f.marketRange : ""}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 ${condition==="cpo"?"CPO: Verify manufacturer eligibility, mileage/age limits, coverage vs exclusions, inspection checklist signed by service manager.":""}
-## EXTREME WARNING — Only if predatory red flags exist. Omit if clean.
-## OVERALL VERDICT — GO, NEGOTIATE, or WALK AWAY. One sentence.
-## VEHICLE PRICE — Fair? Room left? Depreciation on high mileage?
-## TRADE-IN — Fair or lowball? Flag negative equity.
-## ADD-ONS — Worth It / Overpriced / Skip It per item.
-## YOUR COUNTER — 3-4 word-for-word scripts. Specific offer, not a question.
-## RED FLAGS — Dealer tactics, illegal rate-tying, invoice claims, verbal-only promises.
+## EXTREME WARNING  --  Only if predatory red flags exist. Omit if clean.
+## OVERALL VERDICT  --  GO, NEGOTIATE, or WALK AWAY. One sentence.
+## VEHICLE PRICE  --  Fair? Room left? Depreciation on high mileage?
+## TRADE-IN  --  Fair or lowball? Flag negative equity.
+## ADD-ONS  --  Worth It / Overpriced / Skip It per item.
+## YOUR COUNTER  --  3-4 word-for-word scripts. Specific offer, not a question.
+## RED FLAGS  --  Dealer tactics, illegal rate-tying, invoice claims, verbal-only promises.
 No financing rate or payment advice.`);
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
@@ -584,10 +584,10 @@ No financing rate or payment advice.`);
       await new Promise(r => setTimeout(r, 3000));
       const mkt = await ai(`Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
 
-## MARKET VERDICT — Is $${f.offer} above, at, or below market?
-## COMPARABLE LISTINGS — Dealer name, city, price, mileage for each.
-## LEVERAGE — Exact words to use these comps at the table.
-## BOTTOM LINE — What should this buyer actually pay?`, true);
+## MARKET VERDICT  --  Is $${f.offer} above, at, or below market?
+## COMPARABLE LISTINGS  --  Dealer name, city, price, mileage for each.
+## LEVERAGE  --  Exact words to use these comps at the table.
+## BOTTOM LINE  --  What should this buyer actually pay?`, true);
       setM(mkt);
     }
     setL(false); setLM("");
@@ -632,10 +632,10 @@ No financing rate or payment advice.`);
               Trim Level
               <div className="tooltip-wrap">
                 <span className="tooltip-icon">?</span>
-                <div className="tooltip-bubble">Trim level dramatically affects price. A Civic EX and a Civic Type R can be $15,000+ apart. Including the trim gives us a much more accurate picture of what your car is actually worth — and what the dealer has room to move on.</div>
+                <div className="tooltip-bubble">Trim level dramatically affects price. A Civic EX and a Civic Type R can be $15,000+ apart. Including the trim gives us a much more accurate picture of what your car is actually worth  --  and what the dealer has room to move on.</div>
               </div>
             </label>
-            <input placeholder="e.g. EX-L, Sport, Type R, Platinum — optional but helps a lot" value={f.trim} onChange={s("trim")} />
+            <input placeholder="e.g. EX-L, Sport, Type R, Platinum  --  optional but helps a lot" value={f.trim} onChange={s("trim")} />
           </div>
           <div className="sp" />
           <div className="g2">
@@ -651,13 +651,13 @@ No financing rate or payment advice.`);
                     <label>Accident Severity</label>
                     <select value={accidentSeverity} onChange={e=>setAccidentSeverity(e.target.value)} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
                       <option value="">Select severity</option>
-                      <option value="minor">Minor — cosmetic damage, airbags not deployed</option>
-                      <option value="moderate">Moderate — structural repair, possible frame work</option>
-                      <option value="severe">Severe — major structural, airbag deployment, total loss candidate</option>
+                      <option value="minor">Minor  --  cosmetic damage, airbags not deployed</option>
+                      <option value="moderate">Moderate  --  structural repair, possible frame work</option>
+                      <option value="severe">Severe  --  major structural, airbag deployment, total loss candidate</option>
                     </select>
                   </div>
                   <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,marginTop:6,lineHeight:1.6}}>
-                    If the dealer is not providing a CarFax or AutoCheck report — that is a red flag. Walk away.
+                    If the dealer is not providing a CarFax or AutoCheck report  --  that is a red flag. Walk away.
                   </div>
                 </div>
               )}
@@ -669,7 +669,7 @@ No financing rate or payment advice.`);
                 Mileage
                 <div className="tooltip-wrap">
                   <span className="tooltip-icon">?</span>
-                  <div className="tooltip-bubble">Average mileage is roughly 12,000–15,000 miles per year. High mileage accelerates depreciation and affects what the car is truly worth. We use this to flag whether the asking price reflects reality — or ignores the odometer entirely.</div>
+                  <div className="tooltip-bubble">Average mileage is roughly 12,000-15,000 miles per year. High mileage accelerates depreciation and affects what the car is truly worth. We use this to flag whether the asking price reflects reality  --  or ignores the odometer entirely.</div>
                 </div>
               </label>
               <input placeholder="e.g. 34,200" value={f.mileage} onChange={s("mileage")} />
@@ -680,7 +680,7 @@ No financing rate or payment advice.`);
               <label>Number of Previous Owners</label>
               <select value={f.owners||""} onChange={s("owners")} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
                 <option value="">Unknown / not provided</option>
-                <option value="1">1 — single owner</option>
+                <option value="1">1  --  single owner</option>
                 <option value="2">2 owners</option>
                 <option value="3">3 owners</option>
                 <option value="4">4 owners</option>
@@ -693,7 +693,7 @@ No financing rate or payment advice.`);
           <div className="sp" />
           <div className="g2">
             <div className="fld"><label>Their Asking Price</label><input placeholder="29,500" value={f.offer} onChange={s("offer")} /></div>
-            <div className="fld"><label style={{display:"flex",alignItems:"center"}}>Expected Price Range<div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Optional — if you've already checked KBB, Edmunds, or CarGurus, drop the range here. We'll factor it into the analysis and tell you if the dealer is inside or outside of fair market.</div></div></label><input placeholder="e.g. 27,000 – 29,500 (from KBB)" value={f.marketRange||""} onChange={s("marketRange")} /></div>
+            <div className="fld"><label style={{display:"flex",alignItems:"center"}}>Expected Price Range<div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Optional  --  if you've already checked KBB, Edmunds, or CarGurus, drop the range here. We'll factor it into the analysis and tell you if the dealer is inside or outside of fair market.</div></div></label><input placeholder="e.g. 27,000 - 29,500 (from KBB)" value={f.marketRange||""} onChange={s("marketRange")} /></div>
           </div>
         </div>
       </div>
@@ -709,7 +709,7 @@ No financing rate or payment advice.`);
       <div className="card">
         <div className="ch"><span className="clbl">Add-Ons & Notes</span></div>
         <div className="cb">
-          <div className="fld" style={{marginBottom:12}}><label>Add-Ons</label><input placeholder="Extended warranty $2,100 · GAP $895 · Paint protection $499" value={f.addons} onChange={s("addons")} /></div>
+          <div className="fld" style={{marginBottom:12}}><label>Add-Ons</label><input placeholder="Extended warranty $2,100  -  GAP $895  -  Paint protection $499" value={f.addons} onChange={s("addons")} /></div>
           <div className="fld"><label>Anything Else We Should Know</label><textarea placeholder="Been on lot 60 days, competing offer, etc..." value={f.notes} onChange={s("notes")} /></div>
         </div>
       </div>
@@ -717,10 +717,10 @@ No financing rate or payment advice.`);
         <div className="ch"><span className="clbl">📍 Local Market Scan <span style={{color:"var(--green)",fontSize:9,letterSpacing:1,marginLeft:8}}>NEW</span></span></div>
         <div className="cb">
           <div className="fld">
-            <label>Your Zip Code — We scan nearby dealers for this exact vehicle</label>
-            <input placeholder="e.g. 80021 — leave blank to skip market scan" value={f.zip} onChange={s("zip")} maxLength={5} />
+            <label>Your Zip Code  --  We scan nearby dealers for this exact vehicle</label>
+            <input placeholder="e.g. 80021  --  leave blank to skip market scan" value={f.zip} onChange={s("zip")} maxLength={5} />
           </div>
-          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Optional but powerful — we find what other dealers nearby are charging for the same car and hand you that leverage.</div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Optional but powerful  --  we find what other dealers nearby are charging for the same car and hand you that leverage.</div>
           <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
       </div>
@@ -751,17 +751,17 @@ function FeeComparison() {
     setL(true); setR(null);
     const t = await ai(`Doc fee analyst. Direct, no hedging. State what the fee is, what's padded, and exactly what to say.
 Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.fee}
-## FEE VERDICT — FAIR, HIGH, or EXCESSIVE?
-## STATE CONTEXT — Legal cap and typical range for ${f.brand} in ${f.state}.
-## WHAT IT COVERS — Legitimate components only.
-## WHAT IT DOESN'T JUSTIFY — Padding.
-## YOUR COUNTER — Exact words to push back.
-## LEVERAGE — How to use competing dealer quotes.`, true);
+## FEE VERDICT  --  FAIR, HIGH, or EXCESSIVE?
+## STATE CONTEXT  --  Legal cap and typical range for ${f.brand} in ${f.state}.
+## WHAT IT COVERS  --  Legitimate components only.
+## WHAT IT DOESN'T JUSTIFY  --  Padding.
+## YOUR COUNTER  --  Exact words to push back.
+## LEVERAGE  --  How to use competing dealer quotes.`, true);
     setR(t); setL(false);
   };
   return (
     <div>
-      <div className="phd"><h2>Fee <span>Comparison</span></h2><p>Is that doc fee legit — or greed with paperwork on top?</p></div>
+      <div className="phd"><h2>Fee <span>Comparison</span></h2><p>Is that doc fee legit  --  or greed with paperwork on top?</p></div>
       <div className="card">
         <div className="ch"><span className="clbl">Dealer & Fee Details</span></div>
         <div className="cb">
@@ -789,7 +789,6 @@ function ReviewPurity() {
   const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState(""); const [eV, setEV] = useState(""); const [kV, setKV] = useState("");
   const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false);
   const [cooldownER, setCoolER] = useState(0); const [cooldownKR, setCoolKR] = useState(0);
-
   const startCooldown = (setter, seconds=60) => {
     setter(seconds);
     const tick = setInterval(() => {
@@ -799,27 +798,26 @@ function ReviewPurity() {
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
 
   const runCustomer = async () => {
-    setLCR(true); setCR(null);
+    setLCR(true); setCR(null); setEV(""); setKV(""); setCoolER(0); setCoolKR(0);
     try {
       const c = await ai(`Dealer review analyst. Direct, no hedging. Call it what it is.
 Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.state}.${f.reviews?"\nUser experience notes:\n"+f.reviews:""}
-## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
-## BOT FARMING SIGNALS — Velocity, generic language, clustered 5-star bursts.
-## REAL COMPLAINTS — Themes from 1-3 star reviews. Skip bad-faith reviews.
-## PRAISE CHECK — Specific and believable, or vague and scripted?
-## MANAGEMENT RESPONSES — Defensive, dismissive, or genuine?
-## PLATFORM CROSS-CHECK — Gaps across Google, DealerRater, Cars.com. Flag gaps over 0.5 stars.
-## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW. One line.`, true);
+## CUSTOMER REVIEW VERDICT  --  LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
+## BOT FARMING SIGNALS  --  Velocity, generic language, clustered 5-star bursts.
+## REAL COMPLAINTS  --  Themes from 1-3 star reviews. Skip bad-faith reviews.
+## PRAISE CHECK  --  Specific and believable, or vague and scripted?
+## MANAGEMENT RESPONSES  --  Defensive, dismissive, or genuine?
+## PLATFORM CROSS-CHECK  --  Gaps across Google, DealerRater, Cars.com. Flag gaps over 0.5 stars.
+## CUSTOMER TRUST SCORE  --  HIGH / MODERATE / LOW. One line.`, true);
       const isErr = !c || c === "RATE_LIMIT" || c.toLowerCase().includes("rate limit") || c.includes("token") || c.startsWith("Error:");
       const m = !isErr && c.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
       setV(m?m[1].trim().toUpperCase():"ANALYZED");
-      setCR(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : c);
+      setCR(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit Retry to try again." : c);
       if (!isErr) startCooldown(setCoolER);
     } catch(err) {
-      setCR("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
+      setCR("## Scan Failed\nConnection issue. Hit Retry to try again.");
     }
     setLCR(false);
-  };
   };
 
   const runEmployee = async () => {
@@ -827,20 +825,20 @@ Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.sta
     try {
       const e = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly.
 Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
-## EMPLOYEE SENTIMENT VERDICT — HEALTHY CULTURE, CONCERNING, or TOXIC
-## GLASSDOOR — Rating, top complaints, management scores.
-## INDEED — Turnover patterns, pressure culture signs.
-## FLOOR vs. SUITS — Frontline vs. management complaints.
-## PRESSURE SIGNALS — Pushed to hit numbers at buyer's expense?
-## TURNOVER FLAGS — High sales/F&I turnover is a buyer red flag.
-## CULTURE VERDICT — Would you send a friend here? Yes or no.`, true);
+## EMPLOYEE SENTIMENT VERDICT  --  HEALTHY CULTURE, CONCERNING, or TOXIC
+## GLASSDOOR  --  Rating, top complaints, management scores.
+## INDEED  --  Turnover patterns, pressure culture signs.
+## FLOOR vs. SUITS  --  Frontline vs. management complaints.
+## PRESSURE SIGNALS  --  Pushed to hit numbers at buyer's expense?
+## TURNOVER FLAGS  --  High sales/F&I turnover is a buyer red flag.
+## CULTURE VERDICT  --  Would you send a friend here? Yes or no.`, true);
       const isErr = !e || e === "RATE_LIMIT" || e.toLowerCase().includes("rate limit") || e.includes("token") || e.startsWith("Error:");
-      setER(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : e);
+      setER(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit Retry to try again." : e);
       const em = !isErr && e.match(/(HEALTHY CULTURE|CONCERNING|TOXIC)/i);
       setEV(em ? em[1].toUpperCase() : "ANALYZED");
       if (!isErr) startCooldown(setCoolKR);
     } catch(err) {
-      setER("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
+      setER("## Scan Failed\nConnection issue. Hit Retry to try again.");
     }
     setLER(false);
   };
@@ -850,19 +848,19 @@ Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
     try {
       const k = await ai(`Consumer protection researcher. Direct, no hedging. State what was found and what it means.
 Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.
-## COMPLAINT RECORD VERDICT — CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS
-## BBB — Rating, complaint count, types, resolution history.
-## COMPLAINT PATTERNS — Pricing, fees, F&I, service, title issues?
-## UNRESOLVED — Pattern of ignoring complaints?
-## LEGAL / NEWS — Lawsuits, AG actions, press coverage?
-## QUESTIONS TO ASK — 2-3 direct questions for the dealer based on findings.
-## OVERALL RISK — LOW / MODERATE / HIGH with one-line reasoning.`, true);
+## COMPLAINT RECORD VERDICT  --  CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS
+## BBB  --  Rating, complaint count, types, resolution history.
+## COMPLAINT PATTERNS  --  Pricing, fees, F&I, service, title issues?
+## UNRESOLVED  --  Pattern of ignoring complaints?
+## LEGAL / NEWS  --  Lawsuits, AG actions, press coverage?
+## QUESTIONS TO ASK  --  2-3 direct questions for the dealer based on findings.
+## OVERALL RISK  --  LOW / MODERATE / HIGH with one-line reasoning.`, true);
       const isErr = !k || k === "RATE_LIMIT" || k.toLowerCase().includes("rate limit") || k.includes("token") || k.startsWith("Error:");
-      setKR(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : k);
+      setKR(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit Retry to try again." : k);
       const km = !isErr && k.match(/(CLEAN|MINOR ISSUES|SIGNIFICANT CONCERNS)/i);
       setKV(km ? km[1].toUpperCase() : "ANALYZED");
     } catch(err) {
-      setKR("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
+      setKR("## Scan Failed\nConnection issue. Hit Retry to try again.");
       setKV("ANALYZED");
     }
     setLKR(false);
@@ -875,7 +873,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
 
   return (
     <div>
-      <div className="phd"><h2>Review <span>Purity</span></h2><p>Customer reviews. Employee culture. Complaint records. Read each result — then continue to the next scan.</p></div>
+      <div className="phd"><h2>Review <span>Purity</span></h2><p>Customer reviews. Employee culture. Complaint records. Read each result  --  then continue to the next scan.</p></div>
       <div className="card">
         <div className="ch"><span className="clbl">Dealer to Audit</span></div>
         <div className="cb">
@@ -885,10 +883,10 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <div className="fld"><label>State</label><input placeholder="NC" value={f.state} onChange={s("state")} /></div>
           </div>
           <div className="sp" />
-          <div className="fld"><label>Your Experience (optional — makes results sharper)</label><textarea style={{minHeight:90}} placeholder={"Things you liked:\n— Salesperson was upfront on pricing\n\nThings that felt off:\n— Tried to add $800 in extras at signing"} value={f.reviews} onChange={s("reviews")} /></div>
-          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Three separate scans — read each result before moving to the next for best results.</div>
+          <div className="fld"><label>Your Experience (optional  --  makes results sharper)</label><textarea style={{minHeight:90}} placeholder={"Things you liked:\n --  Salesperson was upfront on pricing\n\nThings that felt off:\n --  Tried to add $800 in extras at signing"} value={f.reviews} onChange={s("reviews")} /></div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Three separate scans  --  read each result before moving to the next for best results.</div>
           <button className="go-btn" onClick={runCustomer} disabled={loadingCR||!f.dealer}>
-            {loadingCR ? "Scanning customer reviews..." : customerRes ? "↻ Re-run Customer Reviews" : "→ Start — Scan Customer Reviews"}
+            {loadingCR ? "Scanning customer reviews..." : customerRes ? "↻ Re-run Customer Reviews" : "→ Start  --  Scan Customer Reviews"}
           </button>
           {customerRes && <button className="ghost-btn" style={{marginTop:8,width:"100%",textAlign:"center"}} onClick={reset}>Reset All</button>}
         </div>
@@ -916,7 +914,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
               <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan employee culture when ready.</div>
               {cooldownER > 0
                 ? <button className="hbtn-y" disabled style={{padding:"10px 24px",fontSize:12,opacity:.5,cursor:"not-allowed"}}>Refueling... {cooldownER}s</button>
-                : <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runEmployee}>Continue → Employee Culture</button>
+                : <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runEmployee}>Continue to Employee Culture</button>
               }
             </div>
           )}
@@ -950,7 +948,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
                   <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan complaint records when ready.</div>
                   {cooldownKR > 0
                     ? <button className="hbtn-y" disabled style={{padding:"10px 24px",fontSize:12,opacity:.5,cursor:"not-allowed"}}>Refueling... {cooldownKR}s</button>
-                    : <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runComplaints}>Continue → Complaint Records</button>
+                    : <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runComplaints}>Continue to Complaint Records</button>
                   }
                 </div>
               )}
@@ -1006,25 +1004,25 @@ function FIDecoder() {
     setL(true); setR(null);
     const list = picked.map(p=>`- ${p.name}: $${prices[p.id]||"unknown"}`).join("\n");
     const t = await ai(`F&I insider analyst. Direct, no hedging. Tell the buyer what it costs, what to say, and what to skip.
-F&I managers are measured on penetration — they'll discount everything for a yes. Rate-tying to F&I products is illegal unless on lender call sheet. Hard closes are tactics, not reality.
+F&I managers are measured on penetration  --  they'll discount everything for a yes. Rate-tying to F&I products is illegal unless on lender call sheet. Hard closes are tactics, not reality.
 Vehicle: ${veh||"not specified"}${warrantyBrand?"\nWarranty: "+warrantyBrand:""}${drivingHabits?"\nDriving: "+drivingHabits:""}${ownershipLength?"\nOwnership: "+ownershipLength:""}
 Products:\n${list}
 For EACH:
-## [NAME] — [WORTH IT / OVERPRICED / SKIP IT / DEPENDS]
+## [NAME]  --  [WORTH IT / OVERPRICED / SKIP IT / DEPENDS]
 - Dealer cost vs. charge
 - Claims approval vs. denial rate (current data)
 - Fine print traps and denial triggers
 - Cheaper alternative if exists
 - Exact script to decline or negotiate
-## OVERALL F&I STRATEGY — Keep, cut, estimated savings.
-## PENETRATION INSIGHT — They'll discount everything for a yes. "I want to think about it" always works.
-## MAINTENANCE NOTE — Flag if upkeep cost suggests wrong vehicle.
-## OPENING LINE — First words walking into F&I office.`);
+## OVERALL F&I STRATEGY  --  Keep, cut, estimated savings.
+## PENETRATION INSIGHT  --  They'll discount everything for a yes. "I want to think about it" always works.
+## MAINTENANCE NOTE  --  Flag if upkeep cost suggests wrong vehicle.
+## OPENING LINE  --  First words walking into F&I office.`);
     setR(t); setL(false);
   };
   return (
     <div>
-      <div className="phd"><h2>F&I <span>Decoder</span></h2><p>Every product exposed — dealer cost, real value, exit script.</p></div>
+      <div className="phd"><h2>F&I <span>Decoder</span></h2><p>Every product exposed  --  dealer cost, real value, exit script.</p></div>
       <div className="card"><div className="ch"><span className="clbl">Vehicle</span></div><div className="cb">
         <div className="g2">
           <div className="fld"><label>Year / Make / Model</label><input placeholder="2024 Toyota Camry XSE" value={veh} onChange={e=>setV(e.target.value)} /></div>
@@ -1048,10 +1046,10 @@ For EACH:
             <label>Driving Habits</label>
             <select value={drivingHabits||""} onChange={e=>setDrivingHabits(e.target.value)} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
               <option value="">Select your driving style</option>
-              <option value="low">Low mileage — under 8,000 miles/year</option>
-              <option value="average">Average — 10,000 to 15,000 miles/year</option>
-              <option value="high">High mileage — 15,000 to 25,000 miles/year</option>
-              <option value="extreme">Extreme — 25,000+ miles/year (traveling sales, rideshare, etc.)</option>
+              <option value="low">Low mileage  --  under 8,000 miles/year</option>
+              <option value="average">Average  --  10,000 to 15,000 miles/year</option>
+              <option value="high">High mileage  --  15,000 to 25,000 miles/year</option>
+              <option value="extreme">Extreme  --  25,000+ miles/year (traveling sales, rideshare, etc.)</option>
             </select>
           </div>
           <div className="fld">
@@ -1090,7 +1088,7 @@ For EACH:
 }
 
 const AO = [
-  {id:"tint",name:"Window Tint",legit:true,desc:"Legit — check quality & price"},{id:"ppf",name:"Paint Film (PPF)",legit:true,desc:"Legit if properly installed"},{id:"masks",name:"Door/Bumper Masks",legit:true,desc:"Reasonable protection"},{id:"nitro",name:"Nitrogen Tires",legit:false,desc:"Air is 78% nitrogen. Scam."},{id:"vin",name:"VIN Etching",legit:false,desc:"Antiquated, overpriced"},{id:"seal",name:"Paint Sealant",legit:false,desc:"$8 product for $400"},{id:"fabric",name:"Fabric/Leather Guard",legit:false,desc:"DIY for nothing"},{id:"loj",name:"LoJack / GPS",legit:false,desc:"Buy aftermarket for less"},{id:"dent",name:"Dent Protection",legit:false,desc:"Fine print kills it"},{id:"theft",name:"Theft Stickers",legit:false,desc:"Literally stickers."},{id:"mats",name:"All-Weather Mats",legit:null,desc:"Depends on brand/price"},{id:"kit",name:"Emergency Kit",legit:false,desc:"$400 for a $25 Amazon kit"},
+  {id:"tint",name:"Window Tint",legit:true,desc:"Legit  --  check quality & price"},{id:"ppf",name:"Paint Film (PPF)",legit:true,desc:"Legit if properly installed"},{id:"masks",name:"Door/Bumper Masks",legit:true,desc:"Reasonable protection"},{id:"nitro",name:"Nitrogen Tires",legit:false,desc:"Air is 78% nitrogen. Scam."},{id:"vin",name:"VIN Etching",legit:false,desc:"Antiquated, overpriced"},{id:"seal",name:"Paint Sealant",legit:false,desc:"$8 product for $400"},{id:"fabric",name:"Fabric/Leather Guard",legit:false,desc:"DIY for nothing"},{id:"loj",name:"LoJack / GPS",legit:false,desc:"Buy aftermarket for less"},{id:"dent",name:"Dent Protection",legit:false,desc:"Fine print kills it"},{id:"theft",name:"Theft Stickers",legit:false,desc:"Literally stickers."},{id:"mats",name:"All-Weather Mats",legit:null,desc:"Depends on brand/price"},{id:"kit",name:"Emergency Kit",legit:false,desc:"$400 for a $25 Amazon kit"},
 ];
 function AddOnFighter() {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
@@ -1103,13 +1101,13 @@ function AddOnFighter() {
 Aftermarket baselines: Tint $150-400 (dealers $299-799). PPF front $500-900 independent (dealers 2-3x). Ceramic $500-1500 independent. Paint sealant $50-100 cost (charged $300-800). VIN etching $20 product (charged $200-400). Nitrogen: air is 78% nitrogen, zero benefit. Fabric protection $10-20 (charged $200-500). Roadside likely duplicated by insurance/AAA. GPS: AirTag/Bouncie $30-100 vs dealer $300-800. All-weather mats: WeatherTech $120-180 vs dealer $200-400.
 Vehicle: ${veh||"not specified"}\nAdd-ons:\n${list}
 For EACH:
-## [ADD-ON] — [KEEP / NEGOTIATE / REMOVE]
+## [ADD-ON]  --  [KEEP / NEGOTIATE / REMOVE]
 - Dealer cost vs. charge vs. aftermarket price
 - Their script to keep it
 - Your exact words to remove it
 - If already installed, what to say
-## BATTLE PLAN — Step by step removal. What if they say it can't come off?
-## TOTAL SAVINGS — Estimated by removing flagged items.`);
+## BATTLE PLAN  --  Step by step removal. What if they say it can't come off?
+## TOTAL SAVINGS  --  Estimated by removing flagged items.`);
     setR(t); setL(false);
   };
   const lc = l => l===true?"var(--green)":l===false?"var(--red)":"var(--y)";
@@ -1145,16 +1143,16 @@ function PrivacyPolicy() {
   return (
     <div className="tos-wrap">
       <h1>Privacy Policy</h1>
-      <div className="tos-date">Effective Date: March 2025 · Last Updated: March 2025</div>
+      <div className="tos-date">Effective Date: March 2025  -  Last Updated: March 2025</div>
 
       <h2>Our Philosophy</h2>
-      <p>CNTROFR was built to keep your money in your pocket — and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
+      <p>CNTROFR was built to keep your money in your pocket  --  and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
 
       <h2>What We Collect</h2>
       <p>We only collect information in two situations:</p>
       <ul>
-        <li><strong>Payment processing</strong> — handled entirely by Stripe. We never see or store your full card number, CVV, or billing details. Stripe handles all of that under their own PCI-compliant infrastructure.</li>
-        <li><strong>Contact form submissions</strong> — if you reach out to us, we receive your name, email, and message. We use this only to respond to you.</li>
+        <li><strong>Payment processing</strong>  --  handled entirely by Stripe. We never see or store your full card number, CVV, or billing details. Stripe handles all of that under their own PCI-compliant infrastructure.</li>
+        <li><strong>Contact form submissions</strong>  --  if you reach out to us, we receive your name, email, and message. We use this only to respond to you.</li>
       </ul>
       <p>The deal information you enter into our tools (vehicle details, trade-in numbers, zip codes, add-ons) is sent directly to the Anthropic Claude API to generate your analysis. <strong>We do not store, log, or retain any of this data on our servers.</strong> It is not linked to your identity in any way.</p>
 
@@ -1165,30 +1163,30 @@ function PrivacyPolicy() {
         <li>Your home address or physical location beyond zip code</li>
         <li>Cookies for advertising or tracking purposes</li>
         <li>Behavioral data sold to third parties</li>
-        <li>Any data from minors — our platform is intended for adults 18 and over</li>
+        <li>Any data from minors  --  our platform is intended for adults 18 and over</li>
       </ul>
 
       <h2>Third-Party Services</h2>
       <p>We use a small number of trusted third-party services to operate:</p>
       <ul>
-        <li><strong>Anthropic Claude API</strong> — processes your deal analysis. Subject to Anthropic's privacy policy at anthropic.com.</li>
-        <li><strong>Stripe</strong> — handles payment processing. Subject to Stripe's privacy policy at stripe.com.</li>
-        <li><strong>Formspree</strong> — routes contact form submissions to our inbox. Subject to Formspree's privacy policy at formspree.io.</li>
-        <li><strong>Vercel</strong> — hosts the platform. Standard server logs (IP address, request time) may be retained per Vercel's policy.</li>
+        <li><strong>Anthropic Claude API</strong>  --  processes your deal analysis. Subject to Anthropic's privacy policy at anthropic.com.</li>
+        <li><strong>Stripe</strong>  --  handles payment processing. Subject to Stripe's privacy policy at stripe.com.</li>
+        <li><strong>Formspree</strong>  --  routes contact form submissions to our inbox. Subject to Formspree's privacy policy at formspree.io.</li>
+        <li><strong>Vercel</strong>  --  hosts the platform. Standard server logs (IP address, request time) may be retained per Vercel's policy.</li>
       </ul>
       <p>None of these providers are authorized to use your data for their own marketing or to sell it to anyone else.</p>
 
       <h2>No Advertising. Ever.</h2>
-      <p>CNTROFR runs zero advertising — on the platform or behind the scenes. We take no money from dealers, lenders, manufacturers, or ad networks. We are funded exclusively by direct consumer purchases. There is no financial incentive for us to share your data with anyone.</p>
+      <p>CNTROFR runs zero advertising  --  on the platform or behind the scenes. We take no money from dealers, lenders, manufacturers, or ad networks. We are funded exclusively by direct consumer purchases. There is no financial incentive for us to share your data with anyone.</p>
 
       <h2>Data Retention</h2>
       <p>Contact form data is retained only as long as needed to resolve your inquiry. Payment records are retained by Stripe per their standard compliance requirements. We do not maintain any internal database of user profiles, deal histories, or analysis records.</p>
 
       <h2>Your Rights</h2>
-      <p>If you have contacted us and want your information removed from our records, email <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a> and we will delete it promptly. Colorado residents have additional rights under the Colorado Privacy Act (CPA) — contact us to exercise them.</p>
+      <p>If you have contacted us and want your information removed from our records, email <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a> and we will delete it promptly. Colorado residents have additional rights under the Colorado Privacy Act (CPA)  --  contact us to exercise them.</p>
 
       <h2>Changes to This Policy</h2>
-      <p>If we ever change how we handle data, we will update this page and the effective date at the top. We will never quietly change our data practices — if something meaningful changes, we'll say so clearly.</p>
+      <p>If we ever change how we handle data, we will update this page and the effective date at the top. We will never quietly change our data practices  --  if something meaningful changes, we'll say so clearly.</p>
 
       <h2>Contact</h2>
       <p>Privacy questions? Email us at <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a>. We respond to every message personally.</p>
@@ -1200,7 +1198,7 @@ function TermsOfService() {
   return (
     <div className="tos-wrap">
       <h1>Terms of Service</h1>
-      <div className="tos-date">Effective Date: March 2025 · Last Updated: March 2025</div>
+      <div className="tos-date">Effective Date: March 2025  -  Last Updated: March 2025</div>
 
       <h2>1. About CNTROFR</h2>
       <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, and prepare negotiation strategies.</p>
@@ -1224,7 +1222,7 @@ function TermsOfService() {
       <p>All purchases are processed securely through Stripe. Access is granted immediately upon payment confirmation. Due to the instant digital nature of our services, all sales are final. If you experience a technical failure that prevented access, contact us at info@cntrofr.com within 48 hours and we will make it right.</p>
 
       <h2>6. Accuracy of Information</h2>
-      <p>Our AI tools use current market data and are designed to reflect up-to-date dealer tactics, fee benchmarks, and pricing data. However, market conditions change rapidly. CNTROFR makes no warranty that any specific piece of analysis is accurate, complete, or applicable to your specific situation. Use our output as one informed input — not the only one.</p>
+      <p>Our AI tools use current market data and are designed to reflect up-to-date dealer tactics, fee benchmarks, and pricing data. However, market conditions change rapidly. CNTROFR makes no warranty that any specific piece of analysis is accurate, complete, or applicable to your specific situation. Use our output as one informed input  --  not the only one.</p>
 
       <h2>7. Privacy & Data</h2>
       <p>We collect only what is necessary to process payments and deliver services. We do not sell, rent, or share your personal information with third parties, including automobile dealers, lenders, or advertisers. For full details, see our Privacy Policy.</p>
@@ -1248,18 +1246,18 @@ function TermsOfService() {
 }
 
 const FAQS = [
-  {q:"Do you hate car salespeople?",a:"Definitely not. Your salesperson is just that — a person. If you like their vibe and they listen to your needs, stick with them and let them earn your business. In most cases, the overcharges and the greed don't go to the salesperson. That money goes to the folks in the suits, not the ones working long hours and holidays to move metal."},
-  {q:"Why no subscription or app?",a:"Simple — use us when you need us. CNTROFR is built for the moment you're ready to make a large auto purchase, not something that needs to live on your phone year-round. You're not always car shopping, and you shouldn't be. Pay once, get what you need, go enjoy your new ride."},
-  {q:"How do you protect my personal information?",a:"We keep it minimal by design. While some information is necessary for payment processing, we'd rather not hold onto your personal data at all. CNTROFR exists to keep your money with you — not to collect, sell, or monetize your information in any way."},
-  {q:"Does CNTROFR work for used cars too?",a:"Absolutely. Whether you're buying new off the lot or used from a dealer, the same tactics apply. Inflated prices, lowball trade-ins, junk add-ons, and mystery fees don't discriminate — and neither do our tools. One firm piece of advice though: we do not recommend 'Buy Here, Pay Here' lots under any circumstances. If a dealership doesn't have established relationships with outside banks and lenders, something is off. Reputable dealers work with real financial institutions. If they're financing everything in-house, that's a red flag worth walking away from before you ever get to the numbers."},
+  {q:"Do you hate car salespeople?",a:"Definitely not. Your salesperson is just that  --  a person. If you like their vibe and they listen to your needs, stick with them and let them earn your business. In most cases, the overcharges and the greed don't go to the salesperson. That money goes to the folks in the suits, not the ones working long hours and holidays to move metal."},
+  {q:"Why no subscription or app?",a:"Simple  --  use us when you need us. CNTROFR is built for the moment you're ready to make a large auto purchase, not something that needs to live on your phone year-round. You're not always car shopping, and you shouldn't be. Pay once, get what you need, go enjoy your new ride."},
+  {q:"How do you protect my personal information?",a:"We keep it minimal by design. While some information is necessary for payment processing, we'd rather not hold onto your personal data at all. CNTROFR exists to keep your money with you  --  not to collect, sell, or monetize your information in any way."},
+  {q:"Does CNTROFR work for used cars too?",a:"Absolutely. Whether you're buying new off the lot or used from a dealer, the same tactics apply. Inflated prices, lowball trade-ins, junk add-ons, and mystery fees don't discriminate  --  and neither do our tools. One firm piece of advice though: we do not recommend 'Buy Here, Pay Here' lots under any circumstances. If a dealership doesn't have established relationships with outside banks and lenders, something is off. Reputable dealers work with real financial institutions. If they're financing everything in-house, that's a red flag worth walking away from before you ever get to the numbers."},
   {q:"Can you help me find a vehicle?",a:"That's not our lane. There are plenty of great marketplace tools out there for that part of the process. We're here once you've found the one you want and it's time to talk numbers."},
   {q:"What if the dealer won't budge?",a:"Having the right information is powerful, but the dealership still has to agree to terms. If they won't move, be confident and walk. They are not the only game in town, and a dealer that won't negotiate fairly on one line item is likely doing it everywhere else too."},
-  {q:"Is this legit for both new and used car dealerships?",a:"Yes. Franchise dealers, independent lots, certified pre-owned programs — the F&I playbook and the fee games are industry-wide. CNTROFR is built on insider knowledge from both sides of that desk."},
-  {q:"Why is your Pro subscription only 7 days?",a:"Simple — if you're not ready to pull the trigger in 7 days, you're not prepared to make a purchase. Do your homework first, then come back when you're ready to move. We'll be here. No pressure, no recurring charges, no gotchas."},
-  {q:"What should I spend all the money I saved on?",a:"Honestly? You could save it for registration, insurance, or your first service appointment. But we'd probably spend it on sandwiches and video games. And that's exactly the point — it's your money. Your choice. We just made sure it stayed yours."},
-  {q:"This is my first time buying a car. Is CNTROFR for me?",a:"Absolutely — and we built something specifically for you. First time buyers are the most vulnerable in the dealership. You don't know what you don't know, and the dealer knows everything. Use our First Time Buyer tool before you go anywhere near a showroom. Things change fast in this industry and most people only do this every 5-10 years. You deserve to walk in prepared."},
+  {q:"Is this legit for both new and used car dealerships?",a:"Yes. Franchise dealers, independent lots, certified pre-owned programs  --  the F&I playbook and the fee games are industry-wide. CNTROFR is built on insider knowledge from both sides of that desk."},
+  {q:"Why is your Pro subscription only 7 days?",a:"Simple  --  if you're not ready to pull the trigger in 7 days, you're not prepared to make a purchase. Do your homework first, then come back when you're ready to move. We'll be here. No pressure, no recurring charges, no gotchas."},
+  {q:"What should I spend all the money I saved on?",a:"Honestly? You could save it for registration, insurance, or your first service appointment. But we'd probably spend it on sandwiches and video games. And that's exactly the point  --  it's your money. Your choice. We just made sure it stayed yours."},
+  {q:"This is my first time buying a car. Is CNTROFR for me?",a:"Absolutely  --  and we built something specifically for you. First time buyers are the most vulnerable in the dealership. You don't know what you don't know, and the dealer knows everything. Use our First Time Buyer tool before you go anywhere near a showroom. Things change fast in this industry and most people only do this every 5-10 years. You deserve to walk in prepared."},
   {q:"Is CNTROFR for shoppers or buyers?",a:"Buyers. If you're still deciding what you want, come back when you're ready to ink up. We're built for the person who knows what they want and is ready to go get it on fair terms. That focus is exactly what makes us different from every other car research site out there."},
-  {q:"I have a question that isn't answered here. How do I reach you?",a:"Email us directly at info@cntrofr.com — we respond to every message personally. You can also use the contact form on this page and we'll get back to you within 24 hours."},
+  {q:"I have a question that isn't answered here. How do I reach you?",a:"Email us directly at info@cntrofr.com  --  we respond to every message personally. You can also use the contact form on this page and we'll get back to you within 24 hours."},
 ];
 
 const TOP_FAQS = 4;
@@ -1356,7 +1354,7 @@ function Contact() {
                 </select>
                 {f.subject==="System Issue" && (
                   <div style={{marginTop:8,background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.15)",borderRadius:8,padding:"10px 12px",fontSize:11,color:"var(--muted)",fontWeight:700,lineHeight:1.7}}>
-                    <strong style={{color:"var(--y)"}}>System Requirements:</strong> CNTROFR runs best on Chrome or Safari (latest version). Requires a stable internet connection — analyses involve live AI processing and web search. If a tool is spinning for more than 60 seconds, try refreshing and resubmitting. Mobile is supported but desktop is recommended for best experience.
+                    <strong style={{color:"var(--y)"}}>System Requirements:</strong> CNTROFR runs best on Chrome or Safari (latest version). Requires a stable internet connection  --  analyses involve live AI processing and web search. If a tool is spinning for more than 60 seconds, try refreshing and resubmitting. Mobile is supported but desktop is recommended for best experience.
                   </div>
                 )}
               </div>
@@ -1374,28 +1372,28 @@ function MissionPage() {
   return (
     <div className="mission-page">
       <h1>Our Mission</h1>
-      <div className="mp-date">CNTROFR LLC · Denver, Colorado · Built For Buyers</div>
+      <div className="mp-date">CNTROFR LLC  -  Denver, Colorado  -  Built For Buyers</div>
 
       <h2>The Manifesto</h2>
       <p>We are the scared first-time buyer. The person who got taken last time and swore never again. The one sitting in a parking lot right now working up the nerve to go back inside.</p>
-      <p>We are the disruption in a toxic industry — built by no one, funded by no one, owned by everyone who's ever felt powerless at that desk. No name. No face. No agenda. Just the truth about your deal.</p>
+      <p>We are the disruption in a toxic industry  --  built by no one, funded by no one, owned by everyone who's ever felt powerless at that desk. No name. No face. No agenda. Just the truth about your deal.</p>
 
       <h2>Why We Built This</h2>
-      <p>The dealership has lawyers, trainers, and ten thousand deals worth of experience working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you. They have scripts for every objection. They know when you're nervous. They know when you're in love with the car.</p>
+      <p>The dealership has lawyers, trainers, and ten thousand deals worth of experience working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk  --  including you. They have scripts for every objection. They know when you're nervous. They know when you're in love with the car.</p>
       <p>We studied the same playbooks. We sat in the training sessions. <strong>Now you do too.</strong></p>
-      <p>CNTROFR was built because that information asymmetry is fixable — and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $400 and still take referral fees. Not the "free" tools that monetize your data the moment you click submit.</p>
+      <p>CNTROFR was built because that information asymmetry is fixable  --  and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $400 and still take referral fees. Not the "free" tools that monetize your data the moment you click submit.</p>
 
       <h2>Real-Time Market Intelligence</h2>
-      <p>CNTROFR gets smarter with every deal analyzed. Every submission logs anonymous data — make, model, year, condition, zip, asking price — to build a real-time market intelligence layer. No personal information. No tracking. No identity. Just market truth that gets sharper every day.</p>
+      <p>CNTROFR gets smarter with every deal analyzed. Every submission logs anonymous data  --  make, model, year, condition, zip, asking price  --  to build a real-time market intelligence layer. No personal information. No tracking. No identity. Just market truth that gets sharper every day.</p>
       <p><strong>That's the mission: make the deal fair, one anonymous data point at a time.</strong></p>
 
       <h2>Zero Dealer Affiliations. Ever.</h2>
-      <p>CNTROFR has no financial relationships with any dealership, manufacturer, lender, or advertising network — and never will. Our only revenue comes from the buyers who use the platform. The moment we take dealer money, the platform is worthless. We built the business model around that fact.</p>
+      <p>CNTROFR has no financial relationships with any dealership, manufacturer, lender, or advertising network  --  and never will. Our only revenue comes from the buyers who use the platform. The moment we take dealer money, the platform is worthless. We built the business model around that fact.</p>
 
       <h2>For Buyers. Not Shoppers.</h2>
       <p>Come back when you're ready to ink up. That focus is what makes us different from every other car research site. We're not helping you find a car. We're making sure the one you already found doesn't cost you more than it should.</p>
       <p style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,color:"var(--y)",marginTop:24}}>"I built the tool I wish my customers had."</p>
-      <p style={{color:"var(--muted)",fontSize:12}}>— The CNTROFR Team · Built in Denver, Colorado</p>
+      <p style={{color:"var(--muted)",fontSize:12}}> --  The CNTROFR Team  -  Built in Denver, Colorado</p>
     </div>
   );
 }
@@ -1404,8 +1402,8 @@ const BETA_CODE = "CNTROFR-BETA";
 const BETA_ACTIVE = true;
 
 const PLANS = [
-  {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't — yet","No account. No login. Ever."],btn:"out",unlocks:[]},
-  {id:"single",name:"Single Report",price:19,desc:"One full deal analysis.",features:["Deal Analyzer — full breakdown","GO / NEGOTIATE / WALK verdict","Your counter offer strategy","No account. No login. Ever."],btn:"out",unlocks:["deal"]},
+  {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't  --  yet","No account. No login. Ever."],btn:"out",unlocks:[]},
+  {id:"single",name:"Single Report",price:19,desc:"One full deal analysis.",features:["Deal Analyzer  --  full breakdown","GO / NEGOTIATE / WALK verdict","Your counter offer strategy","No account. No login. Ever."],btn:"out",unlocks:["deal"]},
   {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses"],btn:"fill",unlocks:["deal","fee","review","fi","addons"]},
   {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:[]},
 ];
@@ -1429,7 +1427,7 @@ function PayModal({plan,onClose,onSuccess}) {
         <div className="mbody">
           <div className="order-sum">
             <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Total Due</span><span className="oprice">${plan.price}</span></div>
-            <div className="oname">CNTROFR — {plan.name}</div>
+            <div className="oname">CNTROFR  --  {plan.name}</div>
           </div>
           <div style={{marginBottom:14}}>
             <button onClick={()=>setPromoOpen(o=>!o)} style={{background:"none",border:"none",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,cursor:"pointer",textDecoration:"underline",padding:0}}>{promoOpen?"▾ Hide":"▸ Have a beta or promo code?"}</button>
@@ -1451,8 +1449,8 @@ function PayModal({plan,onClose,onSuccess}) {
               <div><div className="slbl">CVC</div><input className="sinput" placeholder="•••" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} /></div>
             </div>
           </div>
-          <button className="paybtn" onClick={pay} disabled={!ready||busy}>{busy?"Processing...":"Pay $"+plan.price+" — Get Instant Access"}</button>
-          <div className="secnote"><span>🔒</span> Secured by Stripe · No account required · Instant access</div>
+          <button className="paybtn" onClick={pay} disabled={!ready||busy}>{busy?"Processing...":"Pay $"+plan.price+"  --  Get Instant Access"}</button>
+          <div className="secnote"><span>🔒</span> Secured by Stripe  -  No account required  -  Instant access</div>
         </div>
       </div>
     </div>
@@ -1502,7 +1500,7 @@ export default function App() {
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}>✉️ Contact</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Pro Access — $49</button>
+          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Pro Access  --  $49</button>
         </div>
       )}
 
@@ -1511,7 +1509,7 @@ export default function App() {
         <div className="beta-banner">
           <div className="beta-plate">PIT STOP</div>
           <div className="beta-text">
-            <strong>We're fine-tuning under the hood.</strong> The free Deal Analyzer is live and fully loaded — premium tools drop soon.<br/>
+            <strong>We're fine-tuning under the hood.</strong> The free Deal Analyzer is live and fully loaded  --  premium tools drop soon.<br/>
             <em>Not taking payments yet. We'll let you know when we're ready to rip.</em>
           </div>
           <div className="beta-plate">BETA</div>
@@ -1529,7 +1527,7 @@ export default function App() {
           <div className="hero-tagline">Don't Sign. Counter.</div>
           <p className="hero-sub">CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers.</p>
           <div className="hero-btns">
-            <button className="btn-lg" onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button>
+            <button className="btn-lg" onClick={()=>buy(PLANS[2])}>Unlock Pro  --  $49</button>
             <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>Try Free Deal Analyzer</button>
           </div>
           <div className="stats">
@@ -1545,7 +1543,7 @@ export default function App() {
           <p className="sec-sub">No account. No waiting. Enter your deal and get your counteroffer.</p>
           <div className="steps">
             <div className="step"><div className="step-num">01</div><div className="step-title">Enter Your Deal Numbers</div><div className="step-desc">Price, trade-in, fees, and add-ons. Takes 2 minutes.</div></div>
-            <div className="step"><div className="step-num">02</div><div className="step-title">AI Analyzes From the Inside</div><div className="step-desc">Built on real dealer knowledge — the stuff they count on you not knowing.</div></div>
+            <div className="step"><div className="step-num">02</div><div className="step-title">AI Analyzes From the Inside</div><div className="step-desc">Built on real dealer knowledge  --  the stuff they count on you not knowing.</div></div>
             <div className="step"><div className="step-num">03</div><div className="step-title">Get Your Counter</div><div className="step-desc">Walk back in with a verdict, specific numbers, and word-for-word scripts.</div></div>
           </div>
         </div>
@@ -1554,7 +1552,7 @@ export default function App() {
           <h2 className="sec-h2">Five Tools. One Price.</h2>
           <p className="sec-sub">Everything you need from the moment you see a car to the second before you sign.</p>
           <div className="tgrid">
-            {[{icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"⭐",name:"Review Purity",desc:"Real complaints vs. sour grapes — bot farms exposed.",free:false},{icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded — dealer cost, real value, exit script.",free:false},{icon:"⚔️",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
+            {[{icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"⭐",name:"Review Purity",desc:"Real complaints vs. sour grapes  --  bot farms exposed.",free:false},{icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded  --  dealer cost, real value, exit script.",free:false},{icon:"⚔️",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
               <div key={i} className="tc">
                 <div className="tc-icon">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
@@ -1572,8 +1570,8 @@ export default function App() {
             <table className="vs-table">
               <thead><tr><th>Feature</th><th className="us">CNTROFR ●</th><th>Human Concierge</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
               <tbody>
-                {[["No login required","✓","✗","✗","✗"],["Pay once, no subscription","✓","✗","✗","✓ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","Partial","✗"],["Bot review detection","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Price","$19–$49","$299–$499","$99–199/yr","Free"]].map(([feat,...vals],i)=>(
-                  <tr key={i} className={i===0?"hi":""}><td className="feat">{feat}</td>{vals.map((v,j)=><td key={j}>{v==="✓"?<span className="ck">✓</span>:v==="✗"?<span className="cx">—</span>:v}</td>)}</tr>
+                {[["No login required","✓","✗","✗","✗"],["Pay once, no subscription","✓","✗","✗","✓ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","Partial","✗"],["Bot review detection","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Price","$19-$49","$299-$499","$99-199/yr","Free"]].map(([feat,...vals],i)=>(
+                  <tr key={i} className={i===0?"hi":""}><td className="feat">{feat}</td>{vals.map((v,j)=><td key={j}>{v==="✓"?<span className="ck">✓</span>:v==="✗"?<span className="cx"> -- </span>:v}</td>)}</tr>
                 ))}
               </tbody>
             </table>
@@ -1584,13 +1582,13 @@ export default function App() {
             <div className="mission-eye">Our Mission</div>
             <h2 className="mission-h">The Dealer Has A Playbook.<br/><span className="y">Now You Do Too.</span></h2>
             <p className="mission-body">
-              We built CNTROFR because <strong>the house always wins — until now.</strong> No dealer kickbacks. No advertiser relationships. No suits pulling strings behind the curtain. Just raw, unfiltered intelligence about your deal, handed to you before you sign your name to anything.<br/><br/>
-              The dealership has lawyers, trainers, and <strong>ten thousand deals worth of experience</strong> working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you.<br/><br/>
+              We built CNTROFR because <strong>the house always wins  --  until now.</strong> No dealer kickbacks. No advertiser relationships. No suits pulling strings behind the curtain. Just raw, unfiltered intelligence about your deal, handed to you before you sign your name to anything.<br/><br/>
+              The dealership has lawyers, trainers, and <strong>ten thousand deals worth of experience</strong> working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk  --  including you.<br/><br/>
               We studied the same playbooks. We know the scripts. <strong>Now you do too.</strong><br/><br/>
-              And here's something else worth saying: <strong>a fair deal is good for everyone.</strong> Your salesperson is working long hours and holidays to feed their family — they deserve your respect and your business if they treat you right. The greed lives at the top. CNTROFR targets that, not the people on the floor.<br/><br/>
+              And here's something else worth saying: <strong>a fair deal is good for everyone.</strong> Your salesperson is working long hours and holidays to feed their family  --  they deserve your respect and your business if they treat you right. The greed lives at the top. CNTROFR targets that, not the people on the floor.<br/><br/>
               Don't sign. Counter.
             </p>
-            <div className="mission-sig">— The CNTROFR Team · Built For Buyers · Funded By None</div>
+            <div className="mission-sig"> --  The CNTROFR Team  -  Built For Buyers  -  Funded By None</div>
           </div>
         </div>
 
@@ -1606,7 +1604,7 @@ export default function App() {
                 <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro — $49":p.id==="guide"?"Get Counter Guide — $14":p.id==="firsttime"?"First Time Buyer — $15":"Single Report — $19"}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro  --  $49":p.id==="guide"?"Get Counter Guide  --  $14":p.id==="firsttime"?"First Time Buyer  --  $15":"Single Report  --  $19"}</button>
               </div>
             ))}
           </div>
@@ -1614,7 +1612,7 @@ export default function App() {
         <div className="sec" style={{paddingTop:0}}>
           <div className="sec-eye">Why CNTROFR Saves You More Than Money</div>
           <h2 className="sec-h2">The Average Car Deal Takes <span style={{color:"var(--red)"}}>14+ Hours.</span></h2>
-          <p className="sec-sub">Research, visits, negotiation, F&I office, paperwork — most buyers go in blind and pay for it.</p>
+          <p className="sec-sub">Research, visits, negotiation, F&I office, paperwork  --  most buyers go in blind and pay for it.</p>
           <div className="timesave">
             <div className="tsgrid">
               <div className="ts-card bad">
@@ -1625,7 +1623,7 @@ export default function App() {
               <div className="ts-card bad">
                 <div className="ts-num">$3,200</div>
                 <div className="ts-label">Average Overpayment Per Deal</div>
-                <div className="ts-desc">Between inflated vehicle price, lowball trade-in, mystery fees, and F&I markups — most buyers leave thousands on the table.</div>
+                <div className="ts-desc">Between inflated vehicle price, lowball trade-in, mystery fees, and F&I markups  --  most buyers leave thousands on the table.</div>
               </div>
               <div className="ts-card good">
                 <div className="ts-num">~10m</div>
@@ -1635,7 +1633,7 @@ export default function App() {
               <div className="ts-card good">
                 <div className="ts-num">$49</div>
                 <div className="ts-label">Cost of Pro Access vs. Thousands Saved</div>
-                <div className="ts-desc">Instead of spending hours Googling things you couldn't possibly know to prepare for — let us hand it to you in minutes.</div>
+                <div className="ts-desc">Instead of spending hours Googling things you couldn't possibly know to prepare for  --  let us hand it to you in minutes.</div>
               </div>
             </div>
           </div>
@@ -1645,10 +1643,10 @@ export default function App() {
           <div className="equitable">
             <div className="eq-quote">"A Great Deal Is Good For Both People At The Table."</div>
             <p className="eq-body">
-              CNTROFR exists to expose greed — not to burn down the industry. <strong>Lots of people love cars. Lots of salespeople love selling them.</strong> That relationship can and should be a good one.<br/><br/>
+              CNTROFR exists to expose greed  --  not to burn down the industry. <strong>Lots of people love cars. Lots of salespeople love selling them.</strong> That relationship can and should be a good one.<br/><br/>
               The profit pressure that makes car buying miserable doesn't come from the floor. It comes from ownership and management structures built to extract maximum margin from every deal. Your salesperson often sees none of it.<br/><br/>
-              <strong>If you had a great experience — say so.</strong> Leave your salesperson a five-star review. Mention them by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them.<br/><br/>
-              CNTROFR's job is to make sure you're not overpaying. Your job — if the experience was good — is to make sure the right people get the credit.
+              <strong>If you had a great experience  --  say so.</strong> Leave your salesperson a five-star review. Mention them by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them.<br/><br/>
+              CNTROFR's job is to make sure you're not overpaying. Your job  --  if the experience was good  --  is to make sure the right people get the credit.
             </p>
             <div className="eq-cta">⭐ Had a great experience? Leave your salesperson a review on Google, DealerRater, and Cars.com. It costs you nothing and means everything to them.</div>
           </div>
@@ -1664,7 +1662,7 @@ export default function App() {
               <span className="powered-by-logo">Claude AI by Anthropic</span>
             </div>
           </div>
-          <p>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers — ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+          <p>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers  --  ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
           <div className="footer-links">
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
@@ -1679,13 +1677,13 @@ export default function App() {
         <div className="footer">
           <div className="footer-plate"><div className="fp">CNTROFR</div></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
-          <p>© 2025 CNTROFR · <a href="mailto:info@cntrofr.com">info@cntrofr.com</a></p>
+          <p>© 2025 CNTROFR  -  <a href="mailto:info@cntrofr.com">info@cntrofr.com</a></p>
         </div>
       </>}
 
       {view==="tools"&&(
         <div className="tarea">
-          {access.length>0&&<div className="access-ok">✓ &nbsp;Pro Access Active — All 5 tools unlocked</div>}
+          {access.length>0&&<div className="access-ok">✓ &nbsp;Pro Access Active  --  All 5 tools unlocked</div>}
           <div className="tnav">
             {TABS.map(t=>(
               <button key={t.id} className={`ttab ${tab===t.id?"on":""} ${!canUse(t.id)?"lk":""}`} onClick={()=>{if(!canUse(t.id))buy(PLANS[2]);else setTab(t.id);}}>
@@ -1695,7 +1693,7 @@ export default function App() {
               </button>
             ))}
           </div>
-          {canUse(tab)?<Active />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button></div>}
+          {canUse(tab)?<Active />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro  --  $49</button></div>}
         </div>
       )}
 
@@ -1707,7 +1705,7 @@ export default function App() {
           <PrivacyPolicy />
           <div className="footer">
             <div className="footer-plate"><div className="fp">CNTROFR</div></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC · <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC  -  <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
       )}
@@ -1719,7 +1717,7 @@ export default function App() {
           <TermsOfService />
           <div className="footer">
             <div className="footer-plate"><div className="fp">CNTROFR</div></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC · <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC  -  <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
       )}
@@ -1731,7 +1729,7 @@ export default function App() {
           <MissionPage />
           <div className="footer">
             <div className="footer-plate"><div className="fp">CNTROFR</div></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC · <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC  -  <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
       )}
