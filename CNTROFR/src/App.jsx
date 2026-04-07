@@ -56,7 +56,7 @@ const S = `
   .stats { display: flex; justify-content: center; gap: 48px; margin-top: 56px; padding-top: 36px; border-top: 1px solid var(--b1); flex-wrap: wrap; }
   .stat-n { font-family: 'Bebas Neue'; font-size: 40px; color: var(--y); letter-spacing: 1px; }
   .stat-l { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; letter-spacing: .5px; }
-  /* ── SEVERITY / WARNING STYLES ── */
+  /* == SEVERITY / WARNING STYLES == */
   .severity-wrap { margin-top: 10px; animation: fadeIn .3s ease; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
   .extreme-warn { background: rgba(255,40,40,.1); border: 2px solid rgba(255,40,40,.4); border-radius: 12px; padding: 16px 18px; margin-top: 16px; }
@@ -66,7 +66,7 @@ const S = `
   .ftb-body { font-size: 13px; color: var(--text2); line-height: 1.85; font-weight: 600; }
   .buyers-badge { display: inline-block; background: var(--y); color: #111; font-family: 'Bebas Neue'; font-size: 11px; letter-spacing: 3px; padding: 3px 12px; border-radius: 4px; margin-bottom: 8px; }
 
-  /* ── BETA BANNER ── */
+  /* == BETA BANNER == */
   .beta-banner { background: repeating-linear-gradient(45deg, #111118 0px, #111118 12px, #16161E 12px, #16161E 24px); border-top: 3px solid var(--y); border-bottom: 3px solid var(--y); padding: 14px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
   .beta-plate { background: var(--y); border: 2px solid #B8A000; border-radius: 5px; padding: 2px 10px; font-family: 'Bebas Neue'; font-size: 14px; letter-spacing: 3px; color: #111; box-shadow: 0 2px 0 #8A7800; white-space: nowrap; }
   .beta-text { font-size: 12px; font-weight: 800; color: var(--text2); letter-spacing: .3px; text-align: center; }
@@ -208,7 +208,7 @@ const S = `
   .ghost-btn:hover { border-color: var(--y); color: var(--y); }
   .spin { width: 34px; height: 34px; border: 3px solid var(--b2); border-top-color: var(--y); border-radius: 50%; animation: sp .7s linear infinite; }
 
-  /* ── PROGRESS LOADER ── */
+  /* == PROGRESS LOADER == */
   .progress-wrap { width: 100%; max-width: 420px; margin: 0 auto; }
   .progress-bar-bg { background: var(--b1); border-radius: 100px; height: 6px; overflow: hidden; margin: 12px 0 8px; }
   .progress-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--y), #FFB300); transition: width .4s ease; }
@@ -216,7 +216,7 @@ const S = `
   .progress-stage { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 4px; min-height: 16px; }
   .progress-disclaimer { font-size: 10px; color: var(--b2); font-weight: 700; text-align: center; margin-top: 10px; line-height: 1.6; }
 
-  /* ── TOS PAGE ── */
+  /* == TOS PAGE == */
   .tos-wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
   .tos-wrap h1 { font-family: 'Bebas Neue'; font-size: 40px; letter-spacing: 2px; margin-bottom: 6px; }
   .tos-wrap .tos-date { font-size: 11px; color: var(--muted); font-weight: 700; margin-bottom: 36px; }
@@ -265,7 +265,7 @@ const S = `
   .tooltip-bubble { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--y); border-radius: 10px; padding: 10px 14px; width: 240px; font-size: 11px; color: var(--text2); line-height: 1.65; font-weight: 600; z-index: 100; pointer-events: none; opacity: 0; transition: opacity .2s; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
   .tooltip-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--y); }
   .tooltip-wrap:hover .tooltip-bubble { opacity: 1; }
-  /* ── CONDITION TOGGLE ── */
+  /* == CONDITION TOGGLE == */
   .cond-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
   .cond-btn { flex: 1; padding: 12px 8px; font-family: Nunito; font-size: 13px; font-weight: 900; border-radius: 10px; cursor: pointer; transition: all .2s; border: 2px solid var(--b1); background: var(--bg); color: var(--muted); text-align: center; min-height: 44px; }
   .cond-btn:hover { border-color: var(--b2); color: var(--text2); }
@@ -280,7 +280,7 @@ const S = `
   .disclaimer strong { color: var(--y); }
 
 
-  /* ── MISSION ── */
+  /* == MISSION == */
   .mission { background: linear-gradient(135deg, #0E0E14 0%, #16161E 50%, #0E0E14 100%); border-top: 3px solid var(--y); border-bottom: 3px solid var(--y); padding: 64px 24px; text-align: center; position: relative; overflow: hidden; }
   .mission::before { content: 'CNTROFR'; position: absolute; font-family: 'Bebas Neue'; font-size: 180px; color: rgba(255,214,0,.03); top: 50%; left: 50%; transform: translate(-50%,-50%); letter-spacing: 20px; pointer-events: none; white-space: nowrap; }
   .mission-inner { max-width: 760px; margin: 0 auto; position: relative; z-index: 1; }
@@ -291,7 +291,7 @@ const S = `
   .mission-body strong { color: var(--text); font-weight: 900; }
   .mission-sig { font-family: 'Bebas Neue'; font-size: 14px; letter-spacing: 4px; color: var(--muted); }
 
-  /* ── TIME SAVING ── */
+  /* == TIME SAVING == */
   .timesave { background: var(--bg2); border-radius: 16px; padding: 32px; margin-bottom: 0; }
   .tsgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
   @media(max-width:580px){ .tsgrid { grid-template-columns: 1fr; } }
@@ -304,14 +304,14 @@ const S = `
   .ts-label { font-size: 12px; font-weight: 800; color: var(--text2); margin-bottom: 6px; }
   .ts-desc { font-size: 11px; color: var(--muted); line-height: 1.6; font-weight: 600; }
 
-  /* ── EQUITABLE ── */
+  /* == EQUITABLE == */
   .equitable { background: var(--bg2); border: 2px solid var(--b1); border-radius: 16px; padding: 32px; }
   .eq-quote { font-family: 'Bebas Neue'; font-size: clamp(20px, 4vw, 32px); letter-spacing: 1px; color: var(--y); line-height: 1.2; margin-bottom: 16px; }
   .eq-body { font-size: 14px; color: var(--text2); line-height: 1.85; font-weight: 600; }
   .eq-body strong { color: var(--text); font-weight: 900; }
   .eq-cta { margin-top: 20px; background: rgba(0,201,107,.08); border: 1px solid rgba(0,201,107,.2); border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--green); font-weight: 800; line-height: 1.65; }
 
-  /* ── POWERED BY ── */
+  /* == POWERED BY == */
   .powered-by { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,.04); border: 1px solid var(--b1); border-radius: 100px; padding: 5px 12px; margin-top: 16px; }
   .powered-by span { font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
   .powered-by-logo { font-size: 10px; font-weight: 900; color: var(--text2); letter-spacing: .5px; }
@@ -325,7 +325,7 @@ const S = `
   .footer a:hover { color: var(--y); }
   .footer-links { display: flex; justify-content: center; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
 
-  /* ── TRAFFIC LIGHT VERDICTS ── */
+  /* == TRAFFIC LIGHT VERDICTS == */
   .verdict-hero { padding: 28px 24px; text-align: center; border-bottom: 1px solid var(--b1); }
   .verdict-label { font-size: 10px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
   .verdict-badge-lg { font-family: 'Bebas Neue'; font-size: clamp(48px, 10vw, 72px); letter-spacing: 4px; line-height: 1; margin-bottom: 16px; }
@@ -336,10 +336,10 @@ const S = `
   .verdict-new-btn { background: none; border: 2px solid var(--b2); color: var(--muted); padding: 8px 20px; font-family: Nunito; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 8px; transition: all .2s; }
   .verdict-new-btn:hover { border-color: var(--y); color: var(--y); }
 
-  /* ── DO NOT CLOSE WARNING ── */
+  /* == DO NOT CLOSE WARNING == */
   .dont-close-warn { background: rgba(255,214,0,.06); border: 1px solid rgba(255,214,0,.2); border-radius: 8px; padding: 8px 14px; margin-top: 12px; font-size: 10px; font-weight: 800; color: var(--y); letter-spacing: .5px; text-align: center; }
 
-  /* ── COOKIE BANNER ── */
+  /* == COOKIE BANNER == */
   .cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 600; background: var(--bg2); border-top: 2px solid var(--b1); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: 0 -4px 24px rgba(0,0,0,.4); animation: slideUp .3s ease; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .cookie-text { font-size: 12px; color: var(--text2); font-weight: 700; flex: 1; min-width: 200px; line-height: 1.65; }
@@ -347,7 +347,7 @@ const S = `
   .cookie-dismiss { background: var(--y); color: #111; border: none; padding: 9px 22px; font-family: Nunito; font-size: 12px; font-weight: 900; cursor: pointer; border-radius: 8px; transition: background .2s; white-space: nowrap; flex-shrink: 0; }
   .cookie-dismiss:hover { background: var(--yd); }
 
-  /* ── MISSION PAGE ── */
+  /* == MISSION PAGE == */
   .mission-page { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
   .mission-page h1 { font-family: 'Bebas Neue'; font-size: 40px; letter-spacing: 2px; margin-bottom: 6px; }
   .mission-page .mp-date { font-size: 11px; color: var(--muted); font-weight: 700; margin-bottom: 36px; }
@@ -455,9 +455,9 @@ function MD({ text }) {
     const l = lines[i];
     if (l.startsWith("## ")) els.push(<h2 key={k++}>{l.slice(3)}</h2>);
     else if (l.startsWith("### ")) els.push(<h3 key={k++}>{l.slice(4)}</h3>);
-    else if (l.match(/^[-•*◆] /)) {
+    else if (l.match(/^[--*◆] /)) {
       const items = [];
-      while (i < lines.length && lines[i].match(/^[-•*◆] /)) items.push(<li key={k++}>{lines[i].replace(/^[-•*◆] /, "")}</li>), i++;
+      while (i < lines.length && lines[i].match(/^[--*◆] /)) items.push(<li key={k++}>{lines[i].replace(/^[--*◆] /, "")}</li>), i++;
       i--; els.push(<ul key={k++}>{items}</ul>);
     } else if (!l.trim()) els.push(<div key={k++} style={{ height: 5 }} />);
     else els.push(<p key={k++}>{l}</p>);
@@ -480,12 +480,12 @@ function Res({ verdict, vc, text, onReset }) {
       <div className="verdict-hero">
         <div className="verdict-label">Your Verdict</div>
         <div className={`verdict-badge-lg ${vc}`}>{displayVerdict}</div>
-        <button className="verdict-new-btn" onClick={onReset}>← Run Another Deal</button>
+        <button className="verdict-new-btn" onClick={onReset}><- Run Another Deal</button>
       </div>
       <MD text={text} />
       {text && (
         <div style={{display:"flex",gap:10,padding:"12px 20px",borderTop:"1px solid var(--b1)",flexWrap:"wrap"}}>
-          <button className="ghost-btn" onClick={copyResults}>{copied?"✓ Copied!":"📋 Copy Results"}</button>
+          <button className="ghost-btn" onClick={copyResults}>{copied?"v Copied!":"📋 Copy Results"}</button>
           <button className="ghost-btn" onClick={savePDF}>📄 Save as PDF</button>
         </div>
       )}
@@ -499,7 +499,7 @@ function CookieBanner() {
   return (
     <div className="cookie-banner">
       <div className="cookie-text"><strong>This website doesn't want your cookies.</strong> You're welcome. No tracking, no ad networks, no behavioral data. Just the tools you came for.</div>
-      <button className="cookie-dismiss" onClick={()=>{ sessionStorage.setItem("cookie_dismissed","1"); setShow(false); }}>Got It ✓</button>
+      <button className="cookie-dismiss" onClick={()=>{ sessionStorage.setItem("cookie_dismissed","1"); setShow(false); }}>Got It v</button>
     </div>
   );
 }
@@ -548,7 +548,7 @@ function Loading({ msg, web }) {
           <div className="progress-disclaimer">
             {web ? "Live web search active  --  ZIP searches can take up to 90 seconds." : "AI analysis typically takes 10-20 seconds. Hang tight."}
           </div>
-          <div className="dont-close-warn">⚠ Do not close or refresh this window  --  your analysis is in progress</div>
+          <div className="dont-close-warn">! Do not close or refresh this window  --  your analysis is in progress</div>
         </div>
       </div>
     </div>
@@ -605,7 +605,7 @@ No financing rate or payment advice.`);
           🔑 Used
         </button>
         <button className={`cond-btn ${condition==="cpo"?"active active-cpo":""}`} onClick={()=>setCondition("cpo")}>
-          ✅ CPO
+           CPO
         </button>
       </div>
       {condition==="cpo" && (
@@ -721,7 +721,7 @@ No financing rate or payment advice.`);
             <input placeholder="e.g. 80021  --  leave blank to skip market scan" value={f.zip} onChange={s("zip")} maxLength={5} />
           </div>
           <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Optional but powerful  --  we find what other dealers nearby are charging for the same car and hand you that leverage.</div>
-          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
+          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)}>{loading ? loadMsg||"Working..." : f.zip ? "-> Get My Counter + Market Scan" : "-> Get My Counter"}</button>
         </div>
       </div>
       {loading && <Loading msg={loadMsg} web={!!f.zip} />}
@@ -775,7 +775,7 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.
             <div className="fld"><label>State</label><input placeholder="TX" value={f.state} onChange={s("state")} /></div>
             <div className="fld"><label>Doc Fee $</label><input placeholder="799" value={f.fee} onChange={s("fee")} /></div>
           </div>
-          <button className="go-btn" onClick={run} disabled={loading||!f.state||!f.fee}>{loading?"Researching...":"→ Analyze This Fee"}</button>
+          <button className="go-btn" onClick={run} disabled={loading||!f.state||!f.fee}>{loading?"Researching...":"-> Analyze This Fee"}</button>
         </div>
       </div>
       {loading && <Loading msg="Researching fee standards" web={true} />}
@@ -886,7 +886,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
           <div className="fld"><label>Your Experience (optional  --  makes results sharper)</label><textarea style={{minHeight:90}} placeholder={"Things you liked:\n --  Salesperson was upfront on pricing\n\nThings that felt off:\n --  Tried to add $800 in extras at signing"} value={f.reviews} onChange={s("reviews")} /></div>
           <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Three separate scans  --  read each result before moving to the next for best results.</div>
           <button className="go-btn" onClick={runCustomer} disabled={loadingCR||!f.dealer}>
-            {loadingCR ? "Scanning customer reviews..." : customerRes ? "↻ Re-run Customer Reviews" : "→ Start  --  Scan Customer Reviews"}
+            {loadingCR ? "Scanning customer reviews..." : customerRes ? "(r) Re-run Customer Reviews" : "-> Start  --  Scan Customer Reviews"}
           </button>
           {customerRes && <button className="ghost-btn" style={{marginTop:8,width:"100%",textAlign:"center"}} onClick={reset}>Reset All</button>}
         </div>
@@ -896,7 +896,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
         <div className="card" style={{padding:"28px",textAlign:"center"}}>
           <div className="spin" style={{margin:"0 auto 12px"}} />
           <div style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>Scanning customer reviews...</div>
-          <div className="dont-close-warn" style={{marginTop:12}}>⚠ Do not close or refresh this window</div>
+          <div className="dont-close-warn" style={{marginTop:12}}>! Do not close or refresh this window</div>
         </div>
       )}
 
@@ -906,7 +906,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>CUSTOMER REVIEWS</span>
             <span className={`badge ${vc(v)}`}>{v||"ANALYZED"}</span>
             <div style={{flex:1}}/>
-            <button className="ghost-btn" onClick={runCustomer}>↻ Retry</button>
+            <button className="ghost-btn" onClick={runCustomer}>(r) Retry</button>
           </div>
           <MD text={customerRes} />
           {!employeeRes && !loadingER && (
@@ -933,7 +933,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
             <span className={`badge ${evc(eV)}`}>{eV||"👔 GLASSDOOR + INDEED"}</span>
             <div style={{flex:1}}/>
-            {!loadingER && <button className="ghost-btn" onClick={runEmployee}>↻ Retry</button>}
+            {!loadingER && <button className="ghost-btn" onClick={runEmployee}>(r) Retry</button>}
           </div>
           {loadingER ? (
             <div style={{padding:"32px",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
@@ -969,7 +969,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
             <span className={`badge ${kvc(kV)}`}>{kV||"📋 BBB + AG + CFPB"}</span>
             <div style={{flex:1}}/>
-            {!loadingKR && <button className="ghost-btn" onClick={runComplaints}>↻ Retry</button>}
+            {!loadingKR && <button className="ghost-btn" onClick={runComplaints}>(r) Retry</button>}
           </div>
           {loadingKR ? (
             <div style={{padding:"32px",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
@@ -980,8 +980,8 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <>
               <MD text={complaintRes} />
               <div style={{padding:"14px 20px",borderTop:"1px solid var(--b1)",textAlign:"center"}}>
-                <div style={{fontSize:11,color:"var(--green)",fontWeight:800}}>✓ Full Purity Audit Complete</div>
-                <button className="ghost-btn" style={{marginTop:8}} onClick={reset}>← Start New Audit</button>
+                <div style={{fontSize:11,color:"var(--green)",fontWeight:800}}>v Full Purity Audit Complete</div>
+                <button className="ghost-btn" style={{marginTop:8}} onClick={reset}><- Start New Audit</button>
               </div>
             </>
           )}
@@ -1072,13 +1072,13 @@ For EACH:
         <div className="cb">
           <div className="pg">{FI.map(p=>(
             <div key={p.id} className={`pc ${sel[p.id]?"sel":""}`} onClick={()=>toggle(p.id)}>
-              <div className="pc-chk">{sel[p.id]?"✓":""}</div>
+              <div className="pc-chk">{sel[p.id]?"v":""}</div>
               <div className="pc-name">{p.name}</div>
               <div className="pc-desc">{p.desc}</div>
               {sel[p.id]&&<input className="pi" placeholder="$ quoted" value={prices[p.id]||""} onChange={e=>{e.stopPropagation();setP(pr=>({...pr,[p.id]:e.target.value}))}} onClick={e=>e.stopPropagation()} />}
             </div>
           ))}</div>
-          <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Decoding...":`→ Decode ${picked.length} Product${picked.length!==1?"s":""}`}</button>
+          <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Decoding...":`-> Decode ${picked.length} Product${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
       {loading && <Loading msg="Decoding F&I products" web={true} />}
@@ -1121,7 +1121,7 @@ For EACH:
         <div className="cb">
           <div className="pg">{AO.map(a=>(
             <div key={a.id} className={`pc ${sel[a.id]?"sel":""}`} onClick={()=>toggle(a.id)}>
-              <div className="pc-chk">{sel[a.id]?"✓":""}</div>
+              <div className="pc-chk">{sel[a.id]?"v":""}</div>
               <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:6,marginBottom:3}}>
                 <div className="pc-name" style={{flex:1}}>{a.name}</div>
                 <span style={{fontFamily:"Nunito",fontSize:8,fontWeight:900,letterSpacing:1.5,textTransform:"uppercase",color:lc(a.legit),flexShrink:0,marginTop:2}}>{ll(a.legit)}</span>
@@ -1130,7 +1130,7 @@ For EACH:
               {sel[a.id]&&<input className="pi" placeholder="$ dealer price" value={prices[a.id]||""} onChange={e=>{e.stopPropagation();setP(pr=>({...pr,[a.id]:e.target.value}))}} onClick={e=>e.stopPropagation()} />}
             </div>
           ))}</div>
-          <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Arming you up...":`→ Fight ${picked.length} Add-On${picked.length!==1?"s":""}`}</button>
+          <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Arming you up...":`-> Fight ${picked.length} Add-On${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
       {loading && <Loading msg="Loading counter scripts" web={false} />}
@@ -1290,7 +1290,7 @@ function FAQ() {
             onMouseOver={e=>{e.target.style.borderColor="var(--y)";e.target.style.color="var(--y)";}}
             onMouseOut={e=>{e.target.style.borderColor="var(--b1)";e.target.style.color="var(--muted)";}}
           >
-            See All Questions ({FAQS.length - TOP_FAQS} more) ↓
+            See All Questions ({FAQS.length - TOP_FAQS} more) v
           </button>
         </div>
       )}
@@ -1302,7 +1302,7 @@ function FAQ() {
             onMouseOver={e=>{e.target.style.borderColor="var(--y)";e.target.style.color="var(--y)";}}
             onMouseOut={e=>{e.target.style.borderColor="var(--b1)";e.target.style.color="var(--muted)";}}
           >
-            Show Less ↑
+            Show Less ^
           </button>
         </div>
       )}
@@ -1334,14 +1334,14 @@ function Contact() {
       <div className="contact-wrap">
         <div className="contact-info">
           <div className="ci-item"><div className="ci-icon">📬</div><div><div className="ci-label">Email</div><div className="ci-val"><a href="mailto:info@cntrofr.com">info@cntrofr.com</a></div></div></div>
-          <div className="ci-item"><div className="ci-icon">⏱️</div><div><div className="ci-label">Response Time</div><div className="ci-val">Within 24 hours</div></div></div>
+          <div className="ci-item"><div className="ci-icon"></div><div><div className="ci-label">Response Time</div><div className="ci-val">Within 24 hours</div></div></div>
           <div className="ci-item"><div className="ci-icon">🔒</div><div><div className="ci-label">Privacy</div><div className="ci-val">We never share your info. Ever.</div></div></div>
           <div className="ci-item"><div className="ci-icon">🚗</div><div><div className="ci-label">What We Help With</div><div className="ci-val">Deal questions, tool support, refunds, and anything else on your mind.</div></div></div>
         </div>
         <div className="contact-form">
           <div className="cf-title">Send a Message</div>
           {sent ? (
-            <div className="cf-success">✓ Message sent! We'll get back to you within 24 hours.</div>
+            <div className="cf-success">v Message sent! We'll get back to you within 24 hours.</div>
           ) : (
             <>
               <div className="cf-field"><label>Name</label><input placeholder="First name is fine" value={f.name} onChange={s("name")} /></div>
@@ -1359,7 +1359,7 @@ function Contact() {
                 )}
               </div>
               <div className="cf-field"><label>Message</label><textarea placeholder="What's on your mind?" value={f.message} onChange={s("message")} /></div>
-              <button className="cf-btn" onClick={send} disabled={!ready||sending}>{sending?"Sending...":"Send Message →"}</button>
+              <button className="cf-btn" onClick={send} disabled={!ready||sending}>{sending?"Sending...":"Send Message ->"}</button>
             </>
           )}
         </div>
@@ -1430,7 +1430,7 @@ function PayModal({plan,onClose,onSuccess}) {
             <div className="oname">CNTROFR  --  {plan.name}</div>
           </div>
           <div style={{marginBottom:14}}>
-            <button onClick={()=>setPromoOpen(o=>!o)} style={{background:"none",border:"none",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,cursor:"pointer",textDecoration:"underline",padding:0}}>{promoOpen?"▾ Hide":"▸ Have a beta or promo code?"}</button>
+            <button onClick={()=>setPromoOpen(o=>!o)} style={{background:"none",border:"none",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,cursor:"pointer",textDecoration:"underline",padding:0}}>{promoOpen?"v Hide":"> Have a beta or promo code?"}</button>
             {promoOpen&&(
               <div style={{marginTop:8}}>
                 <div style={{display:"flex",gap:8}}>
@@ -1446,7 +1446,7 @@ function PayModal({plan,onClose,onSuccess}) {
             <input className="sinput" placeholder="1234 5678 9012 3456" value={card} onChange={e=>setCard(fmt(e.target.value))} />
             <div className="srow">
               <div><div className="slbl">Expiry</div><input className="sinput" placeholder="MM/YY" value={exp} onChange={e=>setExp(fmtExp(e.target.value))} /></div>
-              <div><div className="slbl">CVC</div><input className="sinput" placeholder="•••" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} /></div>
+              <div><div className="slbl">CVC</div><input className="sinput" placeholder="---" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} /></div>
             </div>
           </div>
           <button className="paybtn" onClick={pay} disabled={!ready||busy}>{busy?"Processing...":"Pay $"+plan.price+"  --  Get Instant Access"}</button>
@@ -1491,14 +1491,14 @@ export default function App() {
       {menuOpen && (
         <div className="burger-menu">
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);window.scrollTo(0,0);}}>🏠 Home</button>
-          <button className="bmenu-item" onClick={()=>{setView("tools");setTab("deal");setMenuOpen(false);}}>⚡ Free Deal Analyzer</button>
+          <button className="bmenu-item" onClick={()=>{setView("tools");setTab("deal");setMenuOpen(false);}}> Free Deal Analyzer</button>
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 All Tools</button>
           <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>🎯 Mission</button>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 Pricing</button>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#faq")?.scrollIntoView({behavior:"smooth"}),100);}}>❓ FAQ</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#faq")?.scrollIntoView({behavior:"smooth"}),100);}}>? FAQ</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}>✉️ Contact</button>
+          <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}> Contact</button>
           <div className="bmenu-divider"/>
           <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Pro Access  --  $49</button>
         </div>
@@ -1536,7 +1536,7 @@ export default function App() {
             <div className="stat"><div className="stat-n">$0</div><div className="stat-l">Dealer kickbacks. Ever.</div></div>
           </div>
         </div>
-        <div id="tools" className="alert"><p>⚠️ The FTC rule protecting buyers from hidden dealer fees was <strong>sued and killed by the dealer lobby in 2025.</strong> Dealers can now legally hide fees. You need CNTROFR more than ever.</p></div>
+        <div id="tools" className="alert"><p>! The FTC rule protecting buyers from hidden dealer fees was <strong>sued and killed by the dealer lobby in 2025.</strong> Dealers can now legally hide fees. You need CNTROFR more than ever.</p></div>
         <div id="how" className="sec">
           <div className="sec-eye">How It Works</div>
           <h2 className="sec-h2">Three Steps to Your Counter</h2>
@@ -1552,7 +1552,7 @@ export default function App() {
           <h2 className="sec-h2">Five Tools. One Price.</h2>
           <p className="sec-sub">Everything you need from the moment you see a car to the second before you sign.</p>
           <div className="tgrid">
-            {[{icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"⭐",name:"Review Purity",desc:"Real complaints vs. sour grapes  --  bot farms exposed.",free:false},{icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded  --  dealer cost, real value, exit script.",free:false},{icon:"⚔️",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
+            {[{icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"*",name:"Review Purity",desc:"Real complaints vs. sour grapes  --  bot farms exposed.",free:false},{icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded  --  dealer cost, real value, exit script.",free:false},{icon:"x",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
               <div key={i} className="tc">
                 <div className="tc-icon">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
@@ -1570,8 +1570,8 @@ export default function App() {
             <table className="vs-table">
               <thead><tr><th>Feature</th><th className="us">CNTROFR ●</th><th>Human Concierge</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
               <tbody>
-                {[["No login required","✓","✗","✗","✗"],["Pay once, no subscription","✓","✗","✗","✓ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","Partial","✗"],["Bot review detection","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Price","$19-$49","$299-$499","$99-199/yr","Free"]].map(([feat,...vals],i)=>(
-                  <tr key={i} className={i===0?"hi":""}><td className="feat">{feat}</td>{vals.map((v,j)=><td key={j}>{v==="✓"?<span className="ck">✓</span>:v==="✗"?<span className="cx"> -- </span>:v}</td>)}</tr>
+                {[["No login required","v","x","x","x"],["Pay once, no subscription","v","x","x","v (dealer-funded)"],["Instant results","v","x hours/days","Partial","x"],["Zero dealer kickbacks","v","v","Partial","x"],["Bot review detection","v","x","x","x"],["Add-on removal scripts","v","x","x","x"],["F&I product decoder","v","x","x","x"],["State fee comparison","v","x","x","x"],["Price","$19-$49","$299-$499","$99-199/yr","Free"]].map(([feat,...vals],i)=>(
+                  <tr key={i} className={i===0?"hi":""}><td className="feat">{feat}</td>{vals.map((v,j)=><td key={j}>{v==="v"?<span className="ck">v</span>:v==="x"?<span className="cx"> -- </span>:v}</td>)}</tr>
                 ))}
               </tbody>
             </table>
@@ -1648,7 +1648,7 @@ export default function App() {
               <strong>If you had a great experience  --  say so.</strong> Leave your salesperson a five-star review. Mention them by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them.<br/><br/>
               CNTROFR's job is to make sure you're not overpaying. Your job  --  if the experience was good  --  is to make sure the right people get the credit.
             </p>
-            <div className="eq-cta">⭐ Had a great experience? Leave your salesperson a review on Google, DealerRater, and Cars.com. It costs you nothing and means everything to them.</div>
+            <div className="eq-cta">* Had a great experience? Leave your salesperson a review on Google, DealerRater, and Cars.com. It costs you nothing and means everything to them.</div>
           </div>
         </div>
 
@@ -1683,7 +1683,7 @@ export default function App() {
 
       {view==="tools"&&(
         <div className="tarea">
-          {access.length>0&&<div className="access-ok">✓ &nbsp;Pro Access Active  --  All 5 tools unlocked</div>}
+          {access.length>0&&<div className="access-ok">v &nbsp;Pro Access Active  --  All 5 tools unlocked</div>}
           <div className="tnav">
             {TABS.map(t=>(
               <button key={t.id} className={`ttab ${tab===t.id?"on":""} ${!canUse(t.id)?"lk":""}`} onClick={()=>{if(!canUse(t.id))buy(PLANS[2]);else setTab(t.id);}}>
@@ -1700,7 +1700,7 @@ export default function App() {
       {view==="privacy"&&(
         <>
           <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
-            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}><- Back to Home</button>
           </div>
           <PrivacyPolicy />
           <div className="footer">
@@ -1712,7 +1712,7 @@ export default function App() {
       {view==="tos"&&(
         <>
           <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
-            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}><- Back to Home</button>
           </div>
           <TermsOfService />
           <div className="footer">
@@ -1724,7 +1724,7 @@ export default function App() {
       {view==="mission"&&(
         <>
           <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
-            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}><- Back to Home</button>
           </div>
           <MissionPage />
           <div className="footer">
