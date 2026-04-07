@@ -565,7 +565,7 @@ function DealAnalyzer() {
     const t = await ai(`Automotive deal analyst. Be direct -- state facts, give scripts, move on. No hedging, no "you may want to consider", no "it appears that." Speak like an insider who's seen this a thousand times.
 Insider knowledge: dealers sell below invoice via dealer cash/quota incentives -- "we're at invoice" is rarely true. Buyer makes a specific offer, never asks what dealer will take. Flag F&I products tied to rate changes (illegal unless on lender call sheet). Hard close = leave and reconnect in writing. Target the system, not the salesperson.
 ${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""} | MSRP $${f.msrp||"n/a"} | Asking $${f.offer||"n/a"}
-Trade: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}${f.marketRange ? " | Quote line items: "+f.marketRange : ""}
+Trade: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 ${condition==="cpo"?"CPO: Verify manufacturer eligibility, mileage/age limits, coverage vs exclusions, inspection checklist signed by service manager.":""}
 ## EXTREME WARNING -- Only if predatory red flags exist. Omit if clean.
@@ -693,7 +693,6 @@ No financing rate or payment advice.`);
           <div className="sp" />
           <div className="g2">
             <div className="fld"><label>Their Asking Price</label><input placeholder="29,500" value={f.offer} onChange={s("offer")} /></div>
-            <div className="fld"><label style={{display:"flex",alignItems:"center"}}>Expected Price Range<div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Optional -- if you've already checked KBB, Edmunds, or CarGurus, drop the range here. We'll factor it into the analysis and tell you if the dealer is inside or outside of fair market.</div></div></label><input placeholder="e.g. 27,000 - 29,500 (from KBB)" value={f.marketRange||""} onChange={s("marketRange")} /></div>
           </div>
         </div>
       </div>
@@ -1561,7 +1560,8 @@ export default function App() {
           <div className="sec-eye">The Comparison</div>
           <h2 className="sec-h2" style={{marginBottom:6}}>Why CNTROFR?</h2>
           <p className="sec-sub" style={{marginBottom:24}}>No one else does all of this for $49 with no account required.</p>
-          <div className="vs-wrap">
+          <div style={{overflowX:"auto",WebkitOverflowScrolling:"touch",borderRadius:16,border:"2px solid var(--b1)"}}>
+          <div className="vs-wrap" style={{border:"none",borderRadius:0,minWidth:520}}>
             <table className="vs-table">
               <thead><tr><th>Feature</th><th className="us">CNTROFR ●</th><th>Human Concierge</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
               <tbody>
@@ -1570,6 +1570,7 @@ export default function App() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
         </div>
         <div id="mission" className="mission">
