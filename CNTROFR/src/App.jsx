@@ -455,9 +455,9 @@ function MD({ text }) {
     const l = lines[i];
     if (l.startsWith("## ")) els.push(<h2 key={k++}>{l.slice(3)}</h2>);
     else if (l.startsWith("### ")) els.push(<h3 key={k++}>{l.slice(4)}</h3>);
-    else if (l.match(/^[--*◆] /)) {
+    else if (l.match(/^[-\-*\u25c6] /)) {
       const items = [];
-      while (i < lines.length && lines[i].match(/^[--*◆] /)) items.push(<li key={k++}>{lines[i].replace(/^[--*◆] /, "")}</li>), i++;
+      while (i < lines.length && lines[i].match(/^[-\-*\u25c6] /)) items.push(<li key={k++}>{lines[i].replace(/^[-\-*\u25c6] /, "")}</li>), i++;
       i--; els.push(<ul key={k++}>{items}</ul>);
     } else if (!l.trim()) els.push(<div key={k++} style={{ height: 5 }} />);
     else els.push(<p key={k++}>{l}</p>);
@@ -485,8 +485,8 @@ function Res({ verdict, vc, text, onReset }) {
       <MD text={text} />
       {text && (
         <div style={{display:"flex",gap:10,padding:"12px 20px",borderTop:"1px solid var(--b1)",flexWrap:"wrap"}}>
-          <button className="ghost-btn" onClick={copyResults}>{copied?"v Copied!":"📋 Copy Results"}</button>
-          <button className="ghost-btn" onClick={savePDF}>📄 Save as PDF</button>
+          <button className="ghost-btn" onClick={copyResults}>{copied?"v Copied!":"[doc] Copy Results"}</button>
+          <button className="ghost-btn" onClick={savePDF}>[pdf] Save as PDF</button>
         </div>
       )}
     </div>
@@ -599,10 +599,10 @@ No financing rate or payment advice.`);
       <div className="disclaimer"><strong>Note:</strong> CNTROFR analyzes deal pricing, trade-in value, and add-on products only. We do not provide financing or credit advice. Consult a financial professional for loan decisions.</div>
       <div className="cond-toggle">
         <button className={`cond-btn ${condition==="new"?"active":""}`} onClick={()=>setCondition("new")}>
-          🆕 New
+          NEW New
         </button>
         <button className={`cond-btn ${condition==="used"?"active":""}`} onClick={()=>setCondition("used")}>
-          🔑 Used
+          USED Used
         </button>
         <button className={`cond-btn ${condition==="cpo"?"active active-cpo":""}`} onClick={()=>setCondition("cpo")}>
            CPO
@@ -714,7 +714,7 @@ No financing rate or payment advice.`);
         </div>
       </div>
       <div className="card">
-        <div className="ch"><span className="clbl">📍 Local Market Scan <span style={{color:"var(--green)",fontSize:9,letterSpacing:1,marginLeft:8}}>NEW</span></span></div>
+        <div className="ch"><span className="clbl">[pin] Local Market Scan <span style={{color:"var(--green)",fontSize:9,letterSpacing:1,marginLeft:8}}>NEW</span></span></div>
         <div className="cb">
           <div className="fld">
             <label>Your Zip Code  --  We scan nearby dealers for this exact vehicle</label>
@@ -732,7 +732,7 @@ No financing rate or payment advice.`);
             <div className="card ranim">
               <div className="vstrip">
                 <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>LOCAL MARKET</span>
-                <span className="badge bb">📍 NEARBY DEALER PRICES</span>
+                <span className="badge bb">[pin] NEARBY DEALER PRICES</span>
               </div>
               <MD text={market} />
             </div>
@@ -931,7 +931,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
         <div className="card ranim">
           <div className="vstrip">
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
-            <span className={`badge ${evc(eV)}`}>{eV||"👔 GLASSDOOR + INDEED"}</span>
+            <span className={`badge ${evc(eV)}`}>{eV||"[shirt] GLASSDOOR + INDEED"}</span>
             <div style={{flex:1}}/>
             {!loadingER && <button className="ghost-btn" onClick={runEmployee}>(r) Retry</button>}
           </div>
@@ -967,7 +967,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
         <div className="card ranim">
           <div className="vstrip">
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
-            <span className={`badge ${kvc(kV)}`}>{kV||"📋 BBB + AG + CFPB"}</span>
+            <span className={`badge ${kvc(kV)}`}>{kV||"[doc] BBB + AG + CFPB"}</span>
             <div style={{flex:1}}/>
             {!loadingKR && <button className="ghost-btn" onClick={runComplaints}>(r) Retry</button>}
           </div>
@@ -1333,10 +1333,10 @@ function Contact() {
       <p className="sec-sub">Real people. Real answers. We respond to every message.</p>
       <div className="contact-wrap">
         <div className="contact-info">
-          <div className="ci-item"><div className="ci-icon">📬</div><div><div className="ci-label">Email</div><div className="ci-val"><a href="mailto:info@cntrofr.com">info@cntrofr.com</a></div></div></div>
+          <div className="ci-item"><div className="ci-icon">[mail]</div><div><div className="ci-label">Email</div><div className="ci-val"><a href="mailto:info@cntrofr.com">info@cntrofr.com</a></div></div></div>
           <div className="ci-item"><div className="ci-icon"></div><div><div className="ci-label">Response Time</div><div className="ci-val">Within 24 hours</div></div></div>
-          <div className="ci-item"><div className="ci-icon">🔒</div><div><div className="ci-label">Privacy</div><div className="ci-val">We never share your info. Ever.</div></div></div>
-          <div className="ci-item"><div className="ci-icon">🚗</div><div><div className="ci-label">What We Help With</div><div className="ci-val">Deal questions, tool support, refunds, and anything else on your mind.</div></div></div>
+          <div className="ci-item"><div className="ci-icon">[lock]</div><div><div className="ci-label">Privacy</div><div className="ci-val">We never share your info. Ever.</div></div></div>
+          <div className="ci-item"><div className="ci-icon">[car]</div><div><div className="ci-label">What We Help With</div><div className="ci-val">Deal questions, tool support, refunds, and anything else on your mind.</div></div></div>
         </div>
         <div className="contact-form">
           <div className="cf-title">Send a Message</div>
@@ -1423,7 +1423,7 @@ function PayModal({plan,onClose,onSuccess}) {
   return (
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="mbox">
-        <div className="mtop"><h3>Complete Purchase</h3><button className="mx" onClick={onClose}>×</button></div>
+        <div className="mtop"><h3>Complete Purchase</h3><button className="mx" onClick={onClose}>x</button></div>
         <div className="mbody">
           <div className="order-sum">
             <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Total Due</span><span className="oprice">${plan.price}</span></div>
@@ -1450,7 +1450,7 @@ function PayModal({plan,onClose,onSuccess}) {
             </div>
           </div>
           <button className="paybtn" onClick={pay} disabled={!ready||busy}>{busy?"Processing...":"Pay $"+plan.price+"  --  Get Instant Access"}</button>
-          <div className="secnote"><span>🔒</span> Secured by Stripe  -  No account required  -  Instant access</div>
+          <div className="secnote"><span>[lock]</span> Secured by Stripe  -  No account required  -  Instant access</div>
         </div>
       </div>
     </div>
@@ -1490,12 +1490,12 @@ export default function App() {
       </div>
       {menuOpen && (
         <div className="burger-menu">
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);window.scrollTo(0,0);}}>🏠 Home</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);window.scrollTo(0,0);}}>[home] Home</button>
           <button className="bmenu-item" onClick={()=>{setView("tools");setTab("deal");setMenuOpen(false);}}> Free Deal Analyzer</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 All Tools</button>
-          <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>🎯 Mission</button>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 Pricing</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>[tools] All Tools</button>
+          <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>[target] Mission</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>[money] Pricing</button>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#faq")?.scrollIntoView({behavior:"smooth"}),100);}}>? FAQ</button>
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}> Contact</button>
@@ -1552,7 +1552,7 @@ export default function App() {
           <h2 className="sec-h2">Five Tools. One Price.</h2>
           <p className="sec-sub">Everything you need from the moment you see a car to the second before you sign.</p>
           <div className="tgrid">
-            {[{icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"*",name:"Review Purity",desc:"Real complaints vs. sour grapes  --  bot farms exposed.",free:false},{icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded  --  dealer cost, real value, exit script.",free:false},{icon:"x",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
+            {[{icon:"[search]",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"[money]",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"*",name:"Review Purity",desc:"Real complaints vs. sour grapes  --  bot farms exposed.",free:false},{icon:"[unlock]",name:"F&I Decoder",desc:"Every finance office product decoded  --  dealer cost, real value, exit script.",free:false},{icon:"x",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
               <div key={i} className="tc">
                 <div className="tc-icon">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
@@ -1568,7 +1568,7 @@ export default function App() {
           <p className="sec-sub" style={{marginBottom:24}}>No one else does all of this for $49 with no account required.</p>
           <div className="vs-wrap">
             <table className="vs-table">
-              <thead><tr><th>Feature</th><th className="us">CNTROFR ●</th><th>Human Concierge</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
+              <thead><tr><th>Feature</th><th className="us">CNTROFR </th><th>Human Concierge</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
               <tbody>
                 {[["No login required","v","x","x","x"],["Pay once, no subscription","v","x","x","v (dealer-funded)"],["Instant results","v","x hours/days","Partial","x"],["Zero dealer kickbacks","v","v","Partial","x"],["Bot review detection","v","x","x","x"],["Add-on removal scripts","v","x","x","x"],["F&I product decoder","v","x","x","x"],["State fee comparison","v","x","x","x"],["Price","$19-$49","$299-$499","$99-199/yr","Free"]].map(([feat,...vals],i)=>(
                   <tr key={i} className={i===0?"hi":""}><td className="feat">{feat}</td>{vals.map((v,j)=><td key={j}>{v==="v"?<span className="ck">v</span>:v==="x"?<span className="cx"> -- </span>:v}</td>)}</tr>
@@ -1677,7 +1677,7 @@ export default function App() {
         <div className="footer">
           <div className="footer-plate"><div className="fp">CNTROFR</div></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
-          <p>© 2025 CNTROFR  -  <a href="mailto:info@cntrofr.com">info@cntrofr.com</a></p>
+          <p>(c) 2025 CNTROFR  -  <a href="mailto:info@cntrofr.com">info@cntrofr.com</a></p>
         </div>
       </>}
 
@@ -1688,8 +1688,8 @@ export default function App() {
             {TABS.map(t=>(
               <button key={t.id} className={`ttab ${tab===t.id?"on":""} ${!canUse(t.id)?"lk":""}`} onClick={()=>{if(!canUse(t.id))buy(PLANS[2]);else setTab(t.id);}}>
                 {t.label}
-                {!t.free&&!canUse(t.id)&&<span>🔒</span>}
-                {!t.free&&canUse(t.id)&&<span style={{fontSize:6,color:tab===t.id?"#111":"var(--y)"}}>◆</span>}
+                {!t.free&&!canUse(t.id)&&<span>[lock]</span>}
+                {!t.free&&canUse(t.id)&&<span style={{fontSize:6,color:tab===t.id?"#111":"var(--y)"}}></span>}
               </button>
             ))}
           </div>
@@ -1705,7 +1705,7 @@ export default function App() {
           <PrivacyPolicy />
           <div className="footer">
             <div className="footer-plate"><div className="fp">CNTROFR</div></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC  -  <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>(c) 2025 CNTROFR LLC  -  <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
       )}
@@ -1717,7 +1717,7 @@ export default function App() {
           <TermsOfService />
           <div className="footer">
             <div className="footer-plate"><div className="fp">CNTROFR</div></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC  -  <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>(c) 2025 CNTROFR LLC  -  <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
       )}
@@ -1729,7 +1729,7 @@ export default function App() {
           <MissionPage />
           <div className="footer">
             <div className="footer-plate"><div className="fp">CNTROFR</div></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC  -  <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>(c) 2025 CNTROFR LLC  -  <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
       )}
