@@ -915,7 +915,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
               <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan employee culture when ready.</div>
               {cooldownER > 0
-                ? <button className="hbtn-y" disabled style={{padding:"10px 24px",fontSize:12,opacity:.5,cursor:"not-allowed"}}>⛽ Refueling... {cooldownER}s</button>
+                ? <button className="hbtn-y" disabled style={{padding:"10px 24px",fontSize:12,opacity:.5,cursor:"not-allowed"}}>Refueling... {cooldownER}s</button>
                 : <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runEmployee}>Continue → Employee Culture</button>
               }
             </div>
@@ -949,7 +949,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
                 <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
                   <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan complaint records when ready.</div>
                   {cooldownKR > 0
-                    ? <button className="hbtn-y" disabled style={{padding:"10px 24px",fontSize:12,opacity:.5,cursor:"not-allowed"}}>⛽ Refueling... {cooldownKR}s</button>
+                    ? <button className="hbtn-y" disabled style={{padding:"10px 24px",fontSize:12,opacity:.5,cursor:"not-allowed"}}>Refueling... {cooldownKR}s</button>
                     : <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runComplaints}>Continue → Complaint Records</button>
                   }
                 </div>
