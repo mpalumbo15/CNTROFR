@@ -788,11 +788,20 @@ function ReviewPurity() {
   const [f, setF] = useState({ dealer:"", city:"", state:"", reviews:"" });
   const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState(""); const [eV, setEV] = useState(""); const [kV, setKV] = useState("");
   const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false);
+  const [cooldownER, setCoolER] = useState(0); const [cooldownKR, setCoolKR] = useState(0);
+
+  const startCooldown = (setter, seconds=60) => {
+    setter(seconds);
+    const tick = setInterval(() => {
+      setter(prev => { if (prev <= 1) { clearInterval(tick); return 0; } return prev - 1; });
+    }, 1000);
+  };
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
 
   const runCustomer = async () => {
-    setLCR(true); setCR(null); setER(null); setKR(null);
-    const c = await ai(`Dealer review analyst. Direct, no hedging. Call it what it is.
+    setLCR(true); setCR(null);
+    try {
+      const c = await ai(`Dealer review analyst. Direct, no hedging. Call it what it is.
 Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.state}.${f.reviews?"\nUser experience notes:\n"+f.reviews:""}
 ## CUSTOMER REVIEW VERDICT — LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
 ## BOT FARMING SIGNALS — Velocity, generic language, clustered 5-star bursts.
@@ -801,14 +810,20 @@ Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.sta
 ## MANAGEMENT RESPONSES — Defensive, dismissive, or genuine?
 ## PLATFORM CROSS-CHECK — Gaps across Google, DealerRater, Cars.com. Flag gaps over 0.5 stars.
 ## CUSTOMER TRUST SCORE — HIGH / MODERATE / LOW. One line.`, true);
-    const m = c.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
-    setV(m?m[1].trim().toUpperCase():"ANALYZED");
-    setCR(c.includes("rate limit")||c.includes("token") ? "## Temporarily Unavailable\nHigh demand right now. Wait 60 seconds and try again." : c);
+      const isErr = !c || c === "RATE_LIMIT" || c.toLowerCase().includes("rate limit") || c.includes("token") || c.startsWith("Error:");
+      const m = !isErr && c.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
+      setV(m?m[1].trim().toUpperCase():"ANALYZED");
+      setCR(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : c);
+      if (!isErr) startCooldown(setCoolER);
+    } catch(err) {
+      setCR("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
+    }
     setLCR(false);
+  };
   };
 
   const runEmployee = async () => {
-    setLER(true); setER(null); setKR(null);
+    setLER(true); setER(null);
     try {
       const e = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly.
 Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
@@ -821,9 +836,9 @@ Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
 ## CULTURE VERDICT — Would you send a friend here? Yes or no.`, true);
       const isErr = !e || e === "RATE_LIMIT" || e.toLowerCase().includes("rate limit") || e.includes("token") || e.startsWith("Error:");
       setER(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : e);
-      // derive employee verdict badge
-      const em = (isErr ? "" : e).match(/(HEALTHY CULTURE|CONCERNING|TOXIC)/i);
+      const em = !isErr && e.match(/(HEALTHY CULTURE|CONCERNING|TOXIC)/i);
       setEV(em ? em[1].toUpperCase() : "ANALYZED");
+      if (!isErr) startCooldown(setCoolKR);
     } catch(err) {
       setER("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
     }
@@ -844,8 +859,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
 ## OVERALL RISK — LOW / MODERATE / HIGH with one-line reasoning.`, true);
       const isErr = !k || k === "RATE_LIMIT" || k.toLowerCase().includes("rate limit") || k.includes("token") || k.startsWith("Error:");
       setKR(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : k);
-      // derive complaint verdict badge
-      const km = (isErr ? "" : k).match(/(CLEAN|MINOR ISSUES|SIGNIFICANT CONCERNS)/i);
+      const km = !isErr && k.match(/(CLEAN|MINOR ISSUES|SIGNIFICANT CONCERNS)/i);
       setKV(km ? km[1].toUpperCase() : "ANALYZED");
     } catch(err) {
       setKR("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
@@ -857,7 +871,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
   const vc = v => /AUTHENTIC/.test(v)?"bg":/HIGH BOT/.test(v)?"br":/SUSPICIOUS/.test(v)?"ba":"bb";
   const evc = v => /HEALTHY/.test(v)?"bg":/TOXIC/.test(v)?"br":/CONCERNING/.test(v)?"ba":"bb";
   const kvc = v => /CLEAN/.test(v)?"bg":/SIGNIFICANT/.test(v)?"br":/MINOR/.test(v)?"ba":"bb";
-  const reset = () => { setCR(null); setER(null); setKR(null); setV(""); setEV(""); setKV(""); };
+  const reset = () => { setCR(null); setER(null); setKR(null); setV(""); setEV(""); setKV(""); setCoolER(0); setCoolKR(0); };
 
   return (
     <div>
@@ -900,7 +914,10 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
           {!employeeRes && !loadingER && (
             <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
               <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan employee culture when ready.</div>
-              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runEmployee}>Continue → Employee Culture</button>
+              {cooldownER > 0
+                ? <button className="hbtn-y" disabled style={{padding:"10px 24px",fontSize:12,opacity:.5,cursor:"not-allowed"}}>⛽ Refueling... {cooldownER}s</button>
+                : <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runEmployee}>Continue → Employee Culture</button>
+              }
             </div>
           )}
           {loadingER && (
@@ -931,7 +948,10 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
               {!complaintRes && !loadingKR && (
                 <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
                   <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then scan complaint records when ready.</div>
-                  <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runComplaints}>Continue → Complaint Records</button>
+                  {cooldownKR > 0
+                    ? <button className="hbtn-y" disabled style={{padding:"10px 24px",fontSize:12,opacity:.5,cursor:"not-allowed"}}>⛽ Refueling... {cooldownKR}s</button>
+                    : <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runComplaints}>Continue → Complaint Records</button>
+                  }
                 </div>
               )}
               {loadingKR && (
