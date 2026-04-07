@@ -786,7 +786,7 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.
 
 function ReviewPurity() {
   const [f, setF] = useState({ dealer:"", city:"", state:"", reviews:"" });
-  const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState("");
+  const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState(""); const [eV, setEV] = useState(""); const [kV, setKV] = useState("");
   const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false);
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
 
@@ -819,8 +819,11 @@ Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
 ## PRESSURE SIGNALS — Pushed to hit numbers at buyer's expense?
 ## TURNOVER FLAGS — High sales/F&I turnover is a buyer red flag.
 ## CULTURE VERDICT — Would you send a friend here? Yes or no.`, true);
-      const isErr = !e || e.includes("rate limit") || e.includes("token") || e.includes("Error:");
+      const isErr = !e || e === "RATE_LIMIT" || e.toLowerCase().includes("rate limit") || e.includes("token") || e.startsWith("Error:");
       setER(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : e);
+      // derive employee verdict badge
+      const em = (isErr ? "" : e).match(/(HEALTHY CULTURE|CONCERNING|TOXIC)/i);
+      setEV(em ? em[1].toUpperCase() : "ANALYZED");
     } catch(err) {
       setER("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
     }
@@ -839,16 +842,22 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
 ## LEGAL / NEWS — Lawsuits, AG actions, press coverage?
 ## QUESTIONS TO ASK — 2-3 direct questions for the dealer based on findings.
 ## OVERALL RISK — LOW / MODERATE / HIGH with one-line reasoning.`, true);
-      const isErr = !k || k.includes("rate limit") || k.includes("token") || k.includes("Error:");
+      const isErr = !k || k === "RATE_LIMIT" || k.toLowerCase().includes("rate limit") || k.includes("token") || k.startsWith("Error:");
       setKR(isErr ? "## Temporarily Unavailable\nHigh demand right now. Hit ↻ Retry to try again." : k);
+      // derive complaint verdict badge
+      const km = (isErr ? "" : k).match(/(CLEAN|MINOR ISSUES|SIGNIFICANT CONCERNS)/i);
+      setKV(km ? km[1].toUpperCase() : "ANALYZED");
     } catch(err) {
       setKR("## Scan Failed\nConnection issue. Hit ↻ Retry to try again.");
+      setKV("ANALYZED");
     }
     setLKR(false);
   };
 
   const vc = v => /AUTHENTIC/.test(v)?"bg":/HIGH BOT/.test(v)?"br":/SUSPICIOUS/.test(v)?"ba":"bb";
-  const reset = () => { setCR(null); setER(null); setKR(null); setV(""); };
+  const evc = v => /HEALTHY/.test(v)?"bg":/TOXIC/.test(v)?"br":/CONCERNING/.test(v)?"ba":"bb";
+  const kvc = v => /CLEAN/.test(v)?"bg":/SIGNIFICANT/.test(v)?"br":/MINOR/.test(v)?"ba":"bb";
+  const reset = () => { setCR(null); setER(null); setKR(null); setV(""); setEV(""); setKV(""); };
 
   return (
     <div>
@@ -907,7 +916,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
         <div className="card ranim">
           <div className="vstrip">
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
-            <span className="badge ba">👔 GLASSDOOR + INDEED</span>
+            <span className={`badge ${evc(eV)}`}>{eV||"👔 GLASSDOOR + INDEED"}</span>
             <div style={{flex:1}}/>
             {!loadingER && <button className="ghost-btn" onClick={runEmployee}>↻ Retry</button>}
           </div>
@@ -940,7 +949,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
         <div className="card ranim">
           <div className="vstrip">
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>COMPLAINT RECORDS</span>
-            <span className="badge br">📋 BBB + AG + CFPB</span>
+            <span className={`badge ${kvc(kV)}`}>{kV||"📋 BBB + AG + CFPB"}</span>
             <div style={{flex:1}}/>
             {!loadingKR && <button className="ghost-btn" onClick={runComplaints}>↻ Retry</button>}
           </div>
