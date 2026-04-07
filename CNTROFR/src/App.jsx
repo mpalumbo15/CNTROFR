@@ -789,7 +789,7 @@ function ReviewPurity() {
   const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState(""); const [eV, setEV] = useState(""); const [kV, setKV] = useState("");
   const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false);
   const [cooldownER, setCoolER] = useState(0); const [cooldownKR, setCoolKR] = useState(0);
-  const startCooldown = (setter, seconds=60) => {
+  const startCooldown = (setter, seconds=90) => {
     setter(seconds);
     const tick = setInterval(() => {
       setter(prev => { if (prev <= 1) { clearInterval(tick); return 0; } return prev - 1; });
@@ -815,7 +815,7 @@ Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.sta
       const m = !err && c.match(/(LIKELY AUTHENTIC|SUSPICIOUS|HIGH BOT RISK)/i);
       setV(m ? m[1].trim().toUpperCase() : "ANALYZED");
       setCR(err ? "## Temporarily Unavailable\nHigh demand right now. Hit Retry to try again." : c);
-      if (!err) startCooldown(setCoolER);
+      startCooldown(setCoolER);
     } catch(e) { setCR("## Scan Failed\nConnection issue. Hit Retry to try again."); }
     setLCR(false);
   };
@@ -836,7 +836,7 @@ Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
       const m = !err && e.match(/(HEALTHY CULTURE|CONCERNING|TOXIC)/i);
       setEV(m ? m[1].toUpperCase() : "ANALYZED");
       setER(err ? "## Temporarily Unavailable\nHigh demand right now. Hit Retry to try again." : e);
-      if (!err) startCooldown(setCoolKR);
+      startCooldown(setCoolKR);
     } catch(e) { setER("## Scan Failed\nConnection issue. Hit Retry to try again."); }
     setLER(false);
   };
@@ -928,7 +928,7 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>EMPLOYEE CULTURE</span>
             <span className={`badge ${evc(eV)}`}>{eV||"GLASSDOOR + INDEED"}</span>
             <div style={{flex:1}}/>
-            {!loadingER && <button className="ghost-btn" onClick={runEmployee}>Retry</button>}
+            {!loadingER && <button className="ghost-btn" onClick={runEmployee} disabled={cooldownKR>0}>{cooldownKR>0?`Refueling... ${cooldownKR}s`:"Retry"}</button>}
           </div>
           {loadingER ? (
             <div style={{padding:"32px",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
