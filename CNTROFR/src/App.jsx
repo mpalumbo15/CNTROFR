@@ -589,7 +589,7 @@ function Loading({ msg, web }) {
   );
 }
 
-function DealAnalyzer() {
+function DealAnalyzer({ ftb = false }) {
   const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
@@ -609,6 +609,12 @@ ${condition==="cpo"?"CPO: Verify manufacturer eligibility, mileage/age limits, c
 ## ADD-ONS -- Worth It / Overpriced / Skip It per item.
 ## YOUR COUNTER -- 3-4 word-for-word scripts. Specific offer, not a question.
 ## RED FLAGS -- Dealer tactics, illegal rate-tying, invoice claims, verbal-only promises.
+${ftb ? `## FIRST TIME BUYER GUIDE
+- DOWN PAYMENT -- What's a healthy ratio for this deal? What's the minimum to avoid being underwater immediately?
+- PTI (PAYMENT TO INCOME) -- Simple rule of thumb. What monthly payment range is responsible for a first time buyer?
+- SETTING UP YOUR LOAN PAYMENT ONLINE -- After signing, how do they set up their lender account online? What to expect: lender portal, autopay, ACH/debit setup, due dates. Note that checks still exist but are rarely necessary.
+- REGISTRATION & PLATES -- What happens after they drive off the lot? Temp tags, DMV timeline, when to expect permanent plates, what "dealer handles registration" actually means.
+- WHAT TO EXPECT AT SIGNING -- Brief rundown so nothing at the table surprises them.` : ""}
 No financing rate or payment advice.`);
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
@@ -629,7 +635,11 @@ No financing rate or payment advice.`);
   const vc = v => /^GO/.test(v) ? "vg" : /WALK/.test(v) ? "vr" : /NEG/.test(v) ? "vy" : "vx";
   return (
     <div>
-      <div className="phd"><h2>Deal <span>Analyzer</span></h2><p>Enter your numbers. Get your counter before you sign.</p></div>
+      <div className="phd">
+        <h2>Deal <span>Analyzer</span></h2>
+        {ftb && <div className="ftb-box"><div className="ftb-title">🎓 First Time Buyer Mode Active</div><p className="ftb-body">Your results will include a full first-time buyer guide — down payment ratios, PTI basics, how to set up your loan payment online, and what to expect after you sign.</p></div>}
+        <p>Enter your numbers. Get your counter before you sign.</p>
+      </div>
       <div className="disclaimer"><strong>Note:</strong> CNTROFR analyzes deal pricing, trade-in value, and add-on products only. We do not provide financing or credit advice. Consult a financial professional for loan decisions.</div>
       <div className="cond-toggle">
         <button className={`cond-btn ${condition==="new"?"active":""}`} onClick={()=>setCondition("new")}>
@@ -1442,7 +1452,7 @@ const BETA_CODE = "CNTROFR-BETA";
 const BETA_ACTIVE = true;
 
 const PLANS = [
-  {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't -- yet","No account. No login. Ever."],btn:"out",unlocks:[]},
+  {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't -- yet","No account. No login. Ever."],btn:"out",unlocks:["deal","ftb"]},
   {id:"single",name:"Single Report",price:19,desc:"One full deal analysis.",features:["Deal Analyzer -- full breakdown","GO / NEGOTIATE / WALK verdict","Your counter offer strategy","No account. No login. Ever."],btn:"out",unlocks:["deal"]},
   {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses"],btn:"fill",unlocks:["deal","fee","review","fi","addons"]},
   {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:[]},
@@ -1456,7 +1466,7 @@ function PayModal({plan,onClose,onSuccess}) {
   const ready=card.replace(/\s/g,"").length===16&&exp.length===5&&cvc.length>=3;
   const applyPromo = () => {
     const code = promoCode.trim().toUpperCase();
-    if (BETA_ACTIVE && code === BETA_CODE) { onSuccess(plan); }
+    if (BETA_ACTIVE && code === BETA_CODE) { onSuccess({...plan, unlocks:["deal","fee","review","fi","addons","ftb"]}); }
     else { setPromoMsg("Code not recognized or not yet active."); }
   };
   const pay=async()=>{setBusy(true);await new Promise(r=>setTimeout(r,1800));setBusy(false);onSuccess(plan);};
@@ -1512,7 +1522,7 @@ export default function App() {
   const [modal,setModal]=useState(null);
   const [access,setAccess]=useState([]);
   const buy=plan=>setModal(plan);
-  const onPaid=plan=>{setModal(null);setAccess(plan.unlocks||[]);const validTab=(plan.unlocks||[]).find(id=>TABS.find(t=>t.id===id));if(validTab){setView("tools");setTab(validTab);}else if((plan.unlocks||[]).includes("firsttime")){setView("tools");setTab("deal");}};
+  const onPaid=plan=>{setModal(null);setAccess(plan.unlocks||[]);const validTab=(plan.unlocks||[]).find(id=>TABS.find(t=>t.id===id));if(validTab){setView("tools");setTab(validTab);}else if((plan.unlocks||[]).includes("ftb")){setView("tools");setTab("deal");}};
   const canUse=id=>TABS.find(t=>t.id===id)?.free||access.includes(id)||false;
   const Active=TABS.find(t=>t.id===tab)?.component||DealAnalyzer;
   return (
@@ -1735,7 +1745,7 @@ export default function App() {
               </button>
             ))}
           </div>
-          {canUse(tab)?<Active />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro -- $49</button></div>}
+          {canUse(tab)?<Active ftb={access.includes("ftb")} />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro -- $49</button></div>}
         </div>
       )}
 
