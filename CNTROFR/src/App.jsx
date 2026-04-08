@@ -357,6 +357,40 @@ const S = `
 `;
 
 const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
+
+const GLOSSARY = {
+  "MSRP": "Manufacturer's Suggested Retail Price — the sticker price set by the manufacturer. Not what you should pay.",
+  "F&I": "Finance & Insurance — the dealership office where add-ons and financing are presented after you agree on a vehicle price.",
+  "CPO": "Certified Pre-Owned — a used vehicle that has passed a manufacturer inspection and includes an extended warranty. Programs vary widely by brand.",
+  "APR": "Annual Percentage Rate — the true yearly cost of your loan, including interest and fees. Lower is better.",
+  "MF": "Money Factor — the interest rate on a lease, expressed as a tiny decimal. Multiply by 2,400 to get the APR equivalent.",
+  "GAP": "Guaranteed Asset Protection — covers the difference between what you owe on the loan and what insurance pays out if the car is totaled or stolen.",
+  "OTD": "Out The Door price — the total amount you actually pay including vehicle price, taxes, fees, and any add-ons. Always negotiate OTD.",
+  "D&H": "Dealer Handling fee — a prep and admin charge that varies by state. Cannot be negotiated as a line item, but a high D&H is leverage on vehicle price.",
+  "Doc Fee": "Documentation Fee — the dealer's charge for paperwork processing. Some states cap it; others don't. High fees are common padding.",
+  "ACV": "Actual Cash Value — what your trade-in is worth right now, as-is, with zero reconditioning factored in. The baseline the dealer starts from before marking it up for resale.",
+  "PPI": "Pre-Purchase Inspection — an independent mechanic inspection before buying a used vehicle. Always worth it on private party and some dealer buys.",
+  "Dealer Pack": "Pre-built costs rolled into a vehicle's price covering lot prep: oil/filter, inspection, transport mode removal. Already baked in before you negotiate.",
+  "Straw Purchase": "Buying a vehicle on someone else's behalf, or financing under an identity that isn't the actual primary user. Serious legal risk for everyone involved — a reputable dealer will reject this.",
+  "Co-Signer": "A creditworthy person who shares legal responsibility for the loan. A legitimate option if you can't qualify on your own — not to be confused with a straw purchase.",
+  "Spot Delivery": "Releasing the vehicle before financing is fully funded. Common practice to keep deals moving, but understand your financing terms are not yet final.",
+  "PPF": "Paint Protection Film — a clear protective layer applied to the paint. Legitimate product, but pricing varies widely. Independent installers are usually half the dealer price.",
+  "VIN": "Vehicle Identification Number — the unique 17-character code that identifies a specific vehicle. Used to pull history reports and verify the car's background.",
+};
+
+function JargonTip({ term }) {
+  const def = GLOSSARY[term];
+  if (!def) return <span>{term}</span>;
+  return (
+    <span style={{display:"inline-flex",alignItems:"center",gap:3}}>
+      {term}
+      <span className="tooltip-wrap">
+        <span className="tooltip-icon">?</span>
+        <span className="tooltip-bubble"><strong style={{color:"var(--y)",fontFamily:"Bebas Neue",letterSpacing:1,fontSize:12}}>{term}</strong><br/>{def}</span>
+      </span>
+    </span>
+  );
+}
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -556,7 +590,7 @@ function Loading({ msg, web }) {
 }
 
 function DealAnalyzer() {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", marketRange:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
@@ -605,7 +639,7 @@ No financing rate or payment advice.`);
           🔑 Used
         </button>
         <button className={`cond-btn ${condition==="cpo"?"active active-cpo":""}`} onClick={()=>setCondition("cpo")}>
-           CPO
+           <JargonTip term="CPO" />
         </button>
       </div>
       {condition==="cpo" && (
@@ -626,6 +660,7 @@ No financing rate or payment advice.`);
             <div className="fld"><label>Year</label><input placeholder="2024" value={f.year} onChange={s("year")} /></div>
             <div className="fld"><label>Make & Model</label><input placeholder="Honda Accord EX-L" value={f.vehicle} onChange={s("vehicle")} /></div>
           </div>
+
           <div className="sp" />
           <div className="fld">
             <label style={{display:"flex",alignItems:"center"}}>
@@ -688,11 +723,17 @@ No financing rate or payment advice.`);
               </select>
             </div>
             )}
-            <div className="fld"><label>MSRP (Sticker)</label><input placeholder="32,000" value={f.msrp} onChange={s("msrp")} /></div>
+            {condition==="new"
+              ? <div className="fld"><label><JargonTip term="MSRP" /> (Sticker)</label><input placeholder="32,000" value={f.msrp} onChange={s("msrp")} /></div>
+              : <div className="fld"><label>Listed Price</label><input placeholder="29,500" value={f.msrp} onChange={s("msrp")} /></div>
+            }
           </div>
           <div className="sp" />
           <div className="g2">
-            <div className="fld"><label>Their Asking Price</label><input placeholder="29,500" value={f.offer} onChange={s("offer")} /></div>
+            {condition==="new"
+              ? <div className="fld"><label>Their Asking Price</label><input placeholder="29,500" value={f.offer} onChange={s("offer")} /></div>
+              : <div className="fld"><label>Dealer's Offer</label><input placeholder="27,000" value={f.offer} onChange={s("offer")} /></div>
+            }
           </div>
         </div>
       </div>
@@ -700,7 +741,7 @@ No financing rate or payment advice.`);
         <div className="ch"><span className="clbl">Trade-In (if any)</span></div>
         <div className="cb">
           <div className="g2">
-            <div className="fld"><label>Trade-In Offered</label><input placeholder="8,500" value={f.tradeIn} onChange={s("tradeIn")} /></div>
+            <div className="fld"><label><JargonTip term="ACV" /> — Trade-In Offered</label><input placeholder="8,500" value={f.tradeIn} onChange={s("tradeIn")} /></div>
             <div className="fld"><label>Owed on Trade</label><input placeholder="4,200" value={f.tradeOwed} onChange={s("tradeOwed")} /></div>
           </div>
         </div>
@@ -772,7 +813,7 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.
           <div className="g3">
             <div className="fld"><label>City</label><input placeholder="Dallas" value={f.city} onChange={s("city")} /></div>
             <div className="fld"><label>State</label><input placeholder="TX" value={f.state} onChange={s("state")} /></div>
-            <div className="fld"><label>Doc Fee $</label><input placeholder="799" value={f.fee} onChange={s("fee")} /></div>
+            <div className="fld"><label><JargonTip term="Doc Fee" /> $</label><input placeholder="799" value={f.fee} onChange={s("fee")} /></div>
           </div>
           <button className="go-btn" onClick={run} disabled={loading||!f.state||!f.fee}>{loading?"Researching...":"→ Analyze This Fee"}</button>
         </div>
@@ -1016,7 +1057,7 @@ For EACH:
   };
   return (
     <div>
-      <div className="phd"><h2>F&I <span>Decoder</span></h2><p>Every product exposed -- dealer cost, real value, exit script.</p></div>
+      <div className="phd"><h2><JargonTip term="F&I" /> <span>Decoder</span></h2><p>Every product exposed -- dealer cost, real value, exit script.</p></div>
       <div className="card"><div className="ch"><span className="clbl">Vehicle</span></div><div className="cb">
         <div className="g2">
           <div className="fld"><label>Year / Make / Model</label><input placeholder="2024 Toyota Camry XSE" value={veh} onChange={e=>setV(e.target.value)} /></div>
