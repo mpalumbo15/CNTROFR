@@ -1466,7 +1466,7 @@ function PayModal({plan,onClose,onSuccess}) {
   const ready=card.replace(/\s/g,"").length===16&&exp.length===5&&cvc.length>=3;
   const applyPromo = () => {
     const code = promoCode.trim().toUpperCase();
-    if (BETA_ACTIVE && code === BETA_CODE) { onSuccess({...plan, unlocks:["deal","fee","review","fi","addons","ftb"]}); }
+    if (BETA_ACTIVE && code === BETA_CODE) { onSuccess(plan); }
     else { setPromoMsg("Code not recognized or not yet active."); }
   };
   const pay=async()=>{setBusy(true);await new Promise(r=>setTimeout(r,1800));setBusy(false);onSuccess(plan);};
