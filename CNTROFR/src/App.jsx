@@ -1014,6 +1014,11 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
           ) : (
             <>
               <MD text={complaintRes} />
+              <div style={{background:"rgba(0,201,107,.06)",border:"1px solid rgba(0,201,107,.15)",borderRadius:10,margin:"0 20px 16px",padding:"14px 16px",fontSize:12,color:"var(--text2)",lineHeight:1.75,fontWeight:600}}>
+                <strong style={{color:"var(--green)",display:"block",marginBottom:4}}>A note on responsible spending —</strong>
+                CNTROFR exists to expose greed, not to burn down the industry. The profit pressure that makes car buying miserable doesn't come from the floor — it comes from ownership and management structures. Your salesperson often sees none of it.<br/><br/>
+                <strong style={{color:"var(--text)"}}>If you had a great experience — say so.</strong> Leave your salesperson a five-star review on Google, DealerRater, and Cars.com. Mention them by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them.
+              </div>
               <div style={{padding:"14px 20px",borderTop:"1px solid var(--b1)",textAlign:"center"}}>
                 <div style={{fontSize:11,color:"var(--green)",fontWeight:800}}>Full Purity Audit Complete</div>
                 <button className="ghost-btn" style={{marginTop:8}} onClick={reset}>Start New Audit</button>
@@ -1587,7 +1592,7 @@ export default function App() {
           <h2 className="sec-h2">Five Tools. One Price.</h2>
           <p className="sec-sub">Everything you need from the moment you see a car to the second before you sign.</p>
           <div className="tgrid">
-            {[{icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"",name:"Review Purity",desc:"Real complaints vs. sour grapes -- bot farms exposed.",free:false},{icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{icon:"",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
+            {[{icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{icon:"",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{icon:"",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
               <div key={i} className="tc">
                 <div className="tc-icon">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
