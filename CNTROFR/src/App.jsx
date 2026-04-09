@@ -1138,7 +1138,19 @@ For EACH:
 }
 
 const AO = [
-  {id:"tint",name:"Window Tint",legit:true,desc:"Legit -- check quality & price"},{id:"ppf",name:"Paint Film (PPF)",legit:true,desc:"Legit if properly installed"},{id:"masks",name:"Door/Bumper Masks",legit:true,desc:"Reasonable protection"},{id:"nitro",name:"Nitrogen Tires",legit:false,desc:"Air is 78% nitrogen. Scam."},{id:"vin",name:"VIN Etching",legit:false,desc:"Antiquated, overpriced"},{id:"seal",name:"Paint Sealant",legit:false,desc:"$8 product for $400"},{id:"fabric",name:"Fabric/Leather Guard",legit:false,desc:"DIY for nothing"},{id:"loj",name:"LoJack / GPS",legit:false,desc:"Buy aftermarket for less"},{id:"dent",name:"Dent Protection",legit:false,desc:"Fine print kills it"},{id:"theft",name:"Theft Stickers",legit:false,desc:"Literally stickers."},{id:"mats",name:"All-Weather Mats",legit:null,desc:"Depends on brand/price"},{id:"kit",name:"Emergency Kit",legit:false,desc:"$400 for a $25 Amazon kit"},
+  {id:"tint",name:"Window Tint",legit:true,desc:"Legit product -- verify quality, warranty & install method"},
+  {id:"ppf",name:"Paint Film (PPF)",legit:true,desc:"Legit if properly installed -- check coverage terms"},
+  {id:"masks",name:"Door/Bumper Masks",legit:true,desc:"Reasonable protection -- confirm quality of material"},
+  {id:"nitro",name:"Nitrogen Tires",legit:false,desc:"Air is already 78% nitrogen. Rarely worth the upcharge."},
+  {id:"vin",name:"VIN Etching",legit:null,desc:"Verify if insurance requires it -- often overpriced at dealer"},
+  {id:"seal",name:"Paint Sealant",legit:null,desc:"Check coverage terms -- many void in non-controlled environments"},
+  {id:"fabric",name:"Fabric/Leather Guard",legit:null,desc:"May suit your needs -- verify what voids coverage before paying"},
+  {id:"loj",name:"LoJack / GPS",legit:null,desc:"Legitimate product -- compare dealer price vs. aftermarket options"},
+  {id:"dent",name:"Dent Protection",legit:null,desc:"Can be useful -- read the fine print carefully before committing"},
+  {id:"theft",name:"Theft Stickers",legit:false,desc:"Sticker-based deterrents -- limited real-world value"},
+  {id:"tw",name:"Tire & Wheel / Road Hazard",legit:null,desc:"Worth considering for high-mileage drivers, dirt roads, or AWD vehicles needing matched tread"},
+  {id:"mats",name:"All-Weather Mats",legit:null,desc:"Depends on brand and price -- WeatherTech vs. dealer markup"},
+  {id:"kit",name:"Emergency Kit",legit:null,desc:"Useful item -- verify contents vs. building your own for less"},
 ];
 function AddOnFighter() {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
@@ -1148,7 +1160,7 @@ function AddOnFighter() {
     setL(true); setR(null);
     const list = picked.map(a=>`- ${a.name}: $${prices[a.id]||"unknown"}`).join("\n");
     const t = await ai(`Add-on pricing analyst. Direct, no hedging. Name the markup, give the script.
-Aftermarket baselines: Tint $150-400 (dealers $299-799). PPF front $500-900 independent (dealers 2-3x). Ceramic $500-1500 independent. Paint sealant $50-100 cost (charged $300-800). VIN etching $20 product (charged $200-400). Nitrogen: air is 78% nitrogen, zero benefit. Fabric protection $10-20 (charged $200-500). Roadside likely duplicated by insurance/AAA. GPS: AirTag/Bouncie $30-100 vs dealer $300-800. All-weather mats: WeatherTech $120-180 vs dealer $200-400.
+Aftermarket baselines: Tint $150-400 (dealers $299-799). PPF front $500-900 independent (dealers 2-3x). Ceramic $500-1500 independent. Paint sealant $50-100 cost (charged $300-800). VIN etching $20 product (charged $200-400). Nitrogen: air is 78% nitrogen, zero benefit. Fabric protection $10-20 (charged $200-500). Roadside likely duplicated by insurance/AAA. GPS: AirTag/Bouncie $30-100 vs dealer $300-800. All-weather mats: WeatherTech $120-180 vs dealer $200-400. Tire & Wheel (also called Road Hazard): legitimate for high-mileage drivers, dirt/gravel roads, AWD vehicles requiring matched tread within 3/32nds, or buyers in construction/trades with frequent flat exposure -- verify claim limits and deductibles before recommending removal.
 Vehicle: ${veh||"not specified"}\nAdd-ons:\n${list}
 For EACH:
 ## [ADD-ON] -- [KEEP / NEGOTIATE / REMOVE]
@@ -1161,7 +1173,7 @@ For EACH:
     setR(t); setL(false);
   };
   const lc = l => l===true?"var(--green)":l===false?"var(--red)":"var(--y)";
-  const ll = l => l===true?"LEGIT":l===false?"SCAM":"DEPENDS";
+  const ll = l => l===true?"LEGIT":l===false?"VERIFY":"REVIEW";
   return (
     <div>
       <div className="phd"><h2>Add-On <span>Fighter</span></h2><p>We know their scripts. Here's yours.</p></div>
