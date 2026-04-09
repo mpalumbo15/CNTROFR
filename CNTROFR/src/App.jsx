@@ -1189,22 +1189,84 @@ For EACH:
   );
 }
 
+function CounterGuide() {
+  const [loading, setL] = useState(false);
+  const [res, setR] = useState(null);
+  const run = async () => {
+    setL(true); setR(null);
+    const t = await ai(`You are a former automotive F&I manager and dealership insider writing a brutally honest counter guide for car buyers. Be direct, specific, and actionable. No hedging. Speak like someone who has seen every trick in the book -- because you have.
+
+## HOW DEALER PROFIT WORKS
+Explain front-end vs back-end profit. Invoice vs MSRP vs dealer cost. Holdback. Dealer cash and quota incentives. Why "we're at invoice" is almost never true. How dealers make money even on a "good deal."
+
+## THE F&I OFFICE PLAYBOOK
+Walk the buyer through exactly what happens in the F&I office. Penetration rates. How products are presented (menu selling). The 4-square method. Rate markup (reserve). What's legal vs illegal (rate-tying). Hard close tactics and how to neutralize them. The "one more thing" add-on at signing.
+
+## ADD-ON REMOVAL SCRIPTS
+The most common add-ons dealers push and exact word-for-word scripts to remove each one. Cover: paint/fabric protection, GAP insurance, extended warranty, tire & wheel, VIN etching, nitrogen tires, key replacement, window tint markups. Include what the dealer says to keep it and your counter to each.
+
+## TRADE-IN MAXIMIZATION
+How dealers undervalue trades and why. ACV vs retail markup. The bundling tactic (why they won't separate trade from deal). How to get a real number before you walk in (KBB Instant Cash Offer, CarMax offer). The exact words to use to separate the trade negotiation from the vehicle price negotiation.
+
+## YOUR CHEAT SHEET
+A concise, printable reference card with:
+- The 5 rules of the negotiation table
+- 6 word-for-word opening lines that work
+- 3 things to never say to a dealer
+- The walk-away script
+- Red flags that mean leave immediately`);
+    setR(t); setL(false);
+  };
+  return (
+    <div>
+      <div className="phd">
+        <h2>Counter <span>Guide</span></h2>
+        <p>The dealer's playbook. Now yours. Written from the inside.</p>
+      </div>
+      <div className="card">
+        <div className="ch"><span className="clbl">Your Insider Briefing</span></div>
+        <div className="cb">
+          <div style={{fontSize:13,color:"var(--text2)",lineHeight:1.8,fontWeight:600,marginBottom:16}}>
+            This guide covers how dealer profit actually works, what happens in the F&I office, add-on removal scripts, trade-in maximization tactics, and a printable cheat sheet for the table. Built from real dealership experience — not a blog post.
+          </div>
+          <div className="disclaimer"><strong>Note:</strong> This guide reflects general industry knowledge and insider experience. Tactics and pricing vary by region, brand, and dealership. Use this as your foundation — not your only source.</div>
+          <button className="go-btn" onClick={run} disabled={loading||!!res}>{loading?"Building your guide...":"→ Generate My Counter Guide"}</button>
+          {res && <button className="ghost-btn" style={{marginTop:8,width:"100%",textAlign:"center"}} onClick={()=>setR(null)}>↺ Regenerate</button>}
+        </div>
+      </div>
+      {loading && <Loading msg="Writing your insider guide" web={false} />}
+      {res && !loading && (
+        <div className="card ranim">
+          <div className="vstrip">
+            <span className="badge ba">📋 COUNTER GUIDE</span>
+            <div style={{flex:1}}/>
+            <button className="ghost-btn" onClick={()=>{navigator.clipboard.writeText(res||"")}}>📋 Copy</button>
+          </div>
+          <MD text={res}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PrivacyPolicy() {
   return (
     <div className="tos-wrap">
       <h1>Privacy Policy</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: March 2025</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: April 2025</div>
 
       <h2>Our Philosophy</h2>
       <p>CNTROFR was built to keep your money in your pocket -- and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
 
       <h2>What We Collect</h2>
-      <p>We only collect information in two situations:</p>
+      <p>We only collect information in the following situations:</p>
       <ul>
         <li><strong>Payment processing</strong> -- handled entirely by Stripe. We never see or store your full card number, CVV, or billing details. Stripe handles all of that under their own PCI-compliant infrastructure.</li>
         <li><strong>Contact form submissions</strong> -- if you reach out to us, we receive your name, email, and message. We use this only to respond to you.</li>
+        <li><strong>Anonymous deal data</strong> -- when you run a Deal Analyzer, we log a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) to build market intelligence over time. This data is never linked to your identity, your payment, or any personal information. No name, no email, no device ID -- ever.</li>
+        <li><strong>Access codes</strong> -- when a purchase is made, an access code is generated and stored to validate your session. No personal data is attached to the code.</li>
       </ul>
-      <p>The deal information you enter into our tools (vehicle details, trade-in numbers, zip codes, add-ons) is sent directly to the Anthropic Claude API to generate your analysis. <strong>We do not store, log, or retain any of this data on our servers.</strong> It is not linked to your identity in any way.</p>
+      <p>The deal information you enter into our tools is sent directly to the Anthropic Claude API to generate your analysis. Beyond the anonymous data points described above, <strong>we do not retain your full deal inputs, trade-in details, or add-on information on our servers.</strong></p>
 
       <h2>What We Do NOT Collect</h2>
       <ul>
@@ -1219,8 +1281,10 @@ function PrivacyPolicy() {
       <h2>Third-Party Services</h2>
       <p>We use a small number of trusted third-party services to operate:</p>
       <ul>
-        <li><strong>Anthropic Claude API</strong> -- processes your deal analysis. Subject to Anthropic's privacy policy at anthropic.com.</li>
+        <li><strong>Anthropic Claude API</strong> -- processes your deal analysis in real time. Subject to Anthropic's privacy policy at anthropic.com.</li>
         <li><strong>Stripe</strong> -- handles payment processing. Subject to Stripe's privacy policy at stripe.com.</li>
+        <li><strong>Supabase</strong> -- stores anonymous deal data and access codes as described above. No personally identifiable information is stored. Subject to Supabase's privacy policy at supabase.com.</li>
+        <li><strong>Cloudflare</strong> -- provides DNS, DDoS protection, and rate limiting. Standard network logs (IP address, request metadata) may be retained per Cloudflare's policy at cloudflare.com.</li>
         <li><strong>Formspree</strong> -- routes contact form submissions to our inbox. Subject to Formspree's privacy policy at formspree.io.</li>
         <li><strong>Vercel</strong> -- hosts the platform. Standard server logs (IP address, request time) may be retained per Vercel's policy.</li>
       </ul>
@@ -1230,7 +1294,7 @@ function PrivacyPolicy() {
       <p>CNTROFR runs zero advertising -- on the platform or behind the scenes. We take no money from dealers, lenders, manufacturers, or ad networks. We are funded exclusively by direct consumer purchases. There is no financial incentive for us to share your data with anyone.</p>
 
       <h2>Data Retention</h2>
-      <p>Contact form data is retained only as long as needed to resolve your inquiry. Payment records are retained by Stripe per their standard compliance requirements. We do not maintain any internal database of user profiles, deal histories, or analysis records.</p>
+      <p>Contact form data is retained only as long as needed to resolve your inquiry. Anonymous deal data is retained indefinitely for market intelligence purposes and contains no personally identifiable information. Payment records and access codes are retained by Stripe and Supabase respectively per their standard compliance requirements. We do not maintain any internal database of user profiles or personal deal histories.</p>
 
       <h2>Your Rights</h2>
       <p>If you have contacted us and want your information removed from our records, email <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a> and we will delete it promptly. Colorado residents have additional rights under the Colorado Privacy Act (CPA) -- contact us to exercise them.</p>
@@ -1248,10 +1312,10 @@ function TermsOfService() {
   return (
     <div className="tos-wrap">
       <h1>Terms of Service</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: March 2025</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: April 2025</div>
 
       <h2>1. About CNTROFR</h2>
-      <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, and prepare negotiation strategies.</p>
+      <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, decode F&I products, fight add-on markups, and prepare negotiation strategies.</p>
 
       <h2>2. Not Legal, Financial, or Professional Advice</h2>
       <p>Everything on CNTROFR.com is for informational purposes only. Our analysis tools do not constitute legal advice, financial advice, credit counseling, or professional consulting of any kind. We do not recommend specific loan products, interest rates, lenders, or financing arrangements. Always consult a licensed professional before making significant financial decisions.</p>
@@ -1260,6 +1324,14 @@ function TermsOfService() {
       <p>CNTROFR has no financial relationships with any automobile dealership, manufacturer, lender, or financing institution. We do not accept advertising from dealers or receive referral fees of any kind. Our only revenue comes from direct consumer purchases.</p>
 
       <h2>4. Use of Our Tools</h2>
+      <p>CNTROFR offers the following tools and packages, each with specific access levels:</p>
+      <ul>
+        <li><strong>Deal Analyzer</strong> -- free to all users. Analyzes vehicle price, trade-in, and add-ons with a GO / NEGOTIATE / WALK AWAY verdict.</li>
+        <li><strong>First Time Buyer Package</strong> -- paid access. Includes enhanced Deal Analyzer output with first-time buyer guidance covering down payment ratios, payment-to-income basics, online loan setup, and registration expectations.</li>
+        <li><strong>Single Report</strong> -- paid access. One full Deal Analyzer run with full counter script output.</li>
+        <li><strong>Pro Bundle</strong> -- paid access. Unlocks all five tools: Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, Add-On Fighter, and Counter Guide. Valid for 7 days from purchase.</li>
+        <li><strong>Counter Guide</strong> -- paid access. AI-generated insider guide covering dealer profit structures, F&I office tactics, add-on removal scripts, and trade-in maximization.</li>
+      </ul>
       <p>By using CNTROFR tools, you agree to:</p>
       <ul>
         <li>Use the platform for personal, non-commercial purposes only</li>
@@ -1275,7 +1347,7 @@ function TermsOfService() {
       <p>Our AI tools use current market data and are designed to reflect up-to-date dealer tactics, fee benchmarks, and pricing data. However, market conditions change rapidly. CNTROFR makes no warranty that any specific piece of analysis is accurate, complete, or applicable to your specific situation. Use our output as one informed input -- not the only one.</p>
 
       <h2>7. Privacy & Data</h2>
-      <p>We collect only what is necessary to process payments and deliver services. We do not sell, rent, or share your personal information with third parties, including automobile dealers, lenders, or advertisers. For full details, see our Privacy Policy.</p>
+      <p>We collect only what is necessary to process payments, deliver services, and improve our platform. When you use the Deal Analyzer, a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) may be logged to build market intelligence. This data is never linked to your identity or payment information. We do not sell, rent, or share your personal information with third parties, including automobile dealers, lenders, or advertisers. For full details, see our Privacy Policy.</p>
 
       <h2>8. Intellectual Property</h2>
       <p>All content, design, code, and analysis frameworks on CNTROFR.com are the intellectual property of CNTROFR LLC. You may not copy, reproduce, or build derivative products from our platform without express written consent.</p>
@@ -1454,8 +1526,8 @@ const BETA_ACTIVE = true;
 const PLANS = [
   {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't -- yet","No account. No login. Ever."],btn:"out",unlocks:["deal","ftb"]},
   {id:"single",name:"Single Report",price:19,desc:"One full deal analysis.",features:["Deal Analyzer -- full breakdown","GO / NEGOTIATE / WALK verdict","Your counter offer strategy","No account. No login. Ever."],btn:"out",unlocks:["deal"]},
-  {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses"],btn:"fill",unlocks:["deal","fee","review","fi","addons"]},
-  {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:[]},
+  {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses"],btn:"fill",unlocks:["deal","fee","review","fi","addons","guide"]},
+  {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:["guide"]},
 ];
 
 function PayModal({plan,onClose,onSuccess}) {
@@ -1513,6 +1585,7 @@ const TABS = [
   {id:"review",label:"Review Purity",free:false,component:ReviewPurity},
   {id:"fi",label:"F&I Decoder",free:false,component:FIDecoder},
   {id:"addons",label:"Add-On Fighter",free:false,component:AddOnFighter},
+  {id:"guide",label:"Counter Guide",free:false,component:CounterGuide},
 ];
 
 export default function App() {
