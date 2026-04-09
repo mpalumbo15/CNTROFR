@@ -1150,7 +1150,7 @@ const AO = [
   {id:"theft",name:"Theft Stickers",legit:false,desc:"Sticker-based deterrents -- limited real-world value"},
   {id:"tw",name:"Tire & Wheel / Road Hazard",legit:null,desc:"Worth considering for high-mileage drivers, dirt roads, or AWD vehicles needing matched tread"},
   {id:"mats",name:"All-Weather Mats",legit:null,desc:"Depends on brand and price -- WeatherTech vs. dealer markup"},
-  {id:"kit",name:"Emergency Kit",legit:null,desc:"Useful item -- verify contents vs. building your own for less"},
+  {id:"kit",name:"Emergency Kit",legit:null,desc:"Verify if included in MSRP or added separately -- dealer-added kits are often heavily marked up"},
 ];
 function AddOnFighter() {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
@@ -1160,7 +1160,7 @@ function AddOnFighter() {
     setL(true); setR(null);
     const list = picked.map(a=>`- ${a.name}: $${prices[a.id]||"unknown"}`).join("\n");
     const t = await ai(`Add-on pricing analyst. Direct, no hedging. Name the markup, give the script.
-Aftermarket baselines: Tint $150-400 (dealers $299-799). PPF front $500-900 independent (dealers 2-3x). Ceramic $500-1500 independent. Paint sealant $50-100 cost (charged $300-800). VIN etching $20 product (charged $200-400). Nitrogen: air is 78% nitrogen, zero benefit. Fabric protection $10-20 (charged $200-500). Roadside likely duplicated by insurance/AAA. GPS: AirTag/Bouncie $30-100 vs dealer $300-800. All-weather mats: WeatherTech $120-180 vs dealer $200-400. Tire & Wheel (also called Road Hazard): legitimate for high-mileage drivers, dirt/gravel roads, AWD vehicles requiring matched tread within 3/32nds, or buyers in construction/trades with frequent flat exposure -- verify claim limits and deductibles before recommending removal.
+Aftermarket baselines: Tint $150-400 (dealers $299-799). PPF front $500-900 independent (dealers 2-3x). Ceramic $500-1500 independent. Paint sealant $50-100 cost (charged $300-800). VIN etching $20 product (charged $200-400). Nitrogen: air is 78% nitrogen, zero benefit. Fabric protection $10-20 (charged $200-500). Roadside likely duplicated by insurance/AAA. GPS: AirTag/Bouncie $30-100 vs dealer $300-800. All-weather mats: WeatherTech $120-180 vs dealer $200-400. Tire & Wheel (also called Road Hazard): legitimate for high-mileage drivers, dirt/gravel roads, AWD vehicles requiring matched tread within 3/32nds, or buyers in construction/trades with frequent flat exposure -- verify claim limits and deductibles before recommending removal. Emergency Kit: IMPORTANT -- many vehicles include an emergency/safety kit as a factory option already itemized in the MSRP. Before flagging as an add-on ripoff, confirm whether it is a dealer-added line item or factory-included. If factory-included, note it is already paid for and should not appear as a separate charge. If dealer-added, typical kit costs $25-50 at retail but is commonly charged $200-400.
 Vehicle: ${veh||"not specified"}\nAdd-ons:\n${list}
 For EACH:
 ## [ADD-ON] -- [KEEP / NEGOTIATE / REMOVE]
