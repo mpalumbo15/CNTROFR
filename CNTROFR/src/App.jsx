@@ -598,7 +598,7 @@ function DealAnalyzer({ ftb = false }) {
     setLM("Analyzing your deal...");
     const t = await ai(`Automotive deal analyst. Be direct -- state facts, give scripts, move on. No hedging, no "you may want to consider", no "it appears that." Speak like an insider who's seen this a thousand times.
 Insider knowledge: dealers sell below invoice via dealer cash/quota incentives -- "we're at invoice" is rarely true. Buyer makes a specific offer, never asks what dealer will take. Flag F&I products tied to rate changes (illegal unless on lender call sheet). Hard close = leave and reconnect in writing. Target the system, not the salesperson.
-${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""} | MSRP $${f.msrp||"n/a"} | Asking $${f.offer||"n/a"}
+${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""}${condition==="new" ? " | MSRP $"+(f.msrp||"n/a") : f.msrp ? " | Listed $"+f.msrp : ""} | Asking $${f.offer||"n/a"}
 Trade: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 ${condition==="cpo"?"CPO: Verify manufacturer eligibility, mileage/age limits, coverage vs exclusions, inspection checklist signed by service manager.":""}
@@ -668,7 +668,7 @@ No financing rate or payment advice.`);
         <div className="cb">
           <div className="g2">
             <div className="fld"><label>Year</label><input placeholder="2024" value={f.year} onChange={s("year")} /></div>
-            <div className="fld"><label>Make & Model</label><input placeholder="Honda Accord EX-L" value={f.vehicle} onChange={s("vehicle")} /></div>
+            <div className="fld"><label>Make & Model</label><input placeholder="Honda Accord" value={f.vehicle} onChange={s("vehicle")} /></div>
           </div>
 
           <div className="sp" />
