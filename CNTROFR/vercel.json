@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/claude.js": {
+      "maxDuration": 90
+    }
+  },
   "redirects": [
     {
       "source": "/:path*",
