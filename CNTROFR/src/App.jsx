@@ -356,7 +356,7 @@ const S = `
   .mission-page strong { color: var(--text); font-weight: 900; }
 `;
 
-const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
+
 
 const GLOSSARY = {
   "MSRP": "Manufacturer's Suggested Retail Price — the sticker price set by the manufacturer. Not what you should pay.",
@@ -424,9 +424,9 @@ async function ai(prompt, web = false) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 90000);
 
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await fetch("/api/claude", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
       signal: controller.signal
     });
@@ -462,9 +462,9 @@ async function ai(prompt, web = false) {
       };
       const controller2 = new AbortController();
       const timeout2 = setTimeout(() => controller2.abort(), 90000);
-      const r2 = await fetch("https://api.anthropic.com/v1/messages", {
+      const r2 = await fetch("/api/claude", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body2),
         signal: controller2.signal
       });
