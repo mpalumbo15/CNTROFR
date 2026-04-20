@@ -416,9 +416,47 @@ async function saveGapFlag(description) {
   } catch(e) {}
 }
 
+async function parseStream(response) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let text = "";
+  let stopReason = null;
+  let contentBlocks = [];
+  let currentBlock = null;
+  let buffer = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      const jsonStr = line.slice(6).trim();
+      if (jsonStr === "[DONE]") continue;
+      try {
+        const data = JSON.parse(jsonStr);
+        if (data.type === "content_block_start") {
+          currentBlock = { type: data.content_block.type, id: data.content_block.id, name: data.content_block.name || "", text: "", input: "" };
+        } else if (data.type === "content_block_delta" && currentBlock) {
+          if (data.delta.type === "text_delta") { currentBlock.text += data.delta.text; text += data.delta.text; }
+          else if (data.delta.type === "input_json_delta") { currentBlock.input += data.delta.partial_json; }
+        } else if (data.type === "content_block_stop") {
+          if (currentBlock) { contentBlocks.push({ ...currentBlock }); currentBlock = null; }
+        } else if (data.type === "message_delta") {
+          if (data.delta?.stop_reason) stopReason = data.delta.stop_reason;
+        } else if (data.type === "error") {
+          return { text: `Error: ${data.error?.message || "Unknown error"}`, stopReason: "error", contentBlocks: [] };
+        }
+      } catch(e) {}
+    }
+  }
+  return { text, stopReason, contentBlocks };
+}
+
 async function ai(prompt, web = false) {
   try {
-    const body = { model: "claude-sonnet-4-5", max_tokens: 2000, messages: [{ role: "user", content: prompt }] };
+    const body = { model: "claude-sonnet-4-5", max_tokens: 2000, stream: true, messages: [{ role: "user", content: prompt }] };
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
 
     const controller = new AbortController();
@@ -432,31 +470,29 @@ async function ai(prompt, web = false) {
     });
     clearTimeout(timeout);
 
-    const d = await r.json();
-    if (d.error) return `Error: ${d.error.message || JSON.stringify(d.error)}`;
+    const { text, stopReason, contentBlocks } = await parseStream(r);
 
-    // Handle both regular responses and tool_use responses (web search)
-    const blocks = d.content || [];
-    const textBlocks = blocks.filter(b => b.type === "text").map(b => b.text).filter(Boolean);
-    
-    // If web search was used, there may be multiple turns needed
-    if (web && d.stop_reason === "tool_use") {
-      // Extract any text that came before tool use
-      const preText = textBlocks.join("\n");
-      // Make a follow-up call with tool results to get final response
-      const toolUseBlocks = blocks.filter(b => b.type === "tool_use");
+    if (web && stopReason === "tool_use") {
+      const preText = text;
+      const toolUseBlocks = contentBlocks.filter(b => b.type === "tool_use");
       const toolResults = toolUseBlocks.map(tu => ({
         type: "tool_result",
         tool_use_id: tu.id,
         content: "Search completed."
       }));
+      const assistantContent = contentBlocks.map(b =>
+        b.type === "tool_use"
+          ? { type: "tool_use", id: b.id, name: b.name, input: (() => { try { return JSON.parse(b.input || "{}"); } catch(e) { return {}; } })() }
+          : { type: "text", text: b.text }
+      );
       const body2 = {
         model: "claude-sonnet-4-5",
         max_tokens: 2000,
+        stream: true,
         tools: [{ type: "web_search_20250305", name: "web_search" }],
         messages: [
           { role: "user", content: prompt },
-          { role: "assistant", content: blocks },
+          { role: "assistant", content: assistantContent },
           { role: "user", content: toolResults }
         ]
       };
@@ -469,13 +505,11 @@ async function ai(prompt, web = false) {
         signal: controller2.signal
       });
       clearTimeout(timeout2);
-      const d2 = await r2.json();
-      if (d2.error) return preText || `Error: ${d2.error.message}`;
-      const text2 = (d2.content || []).filter(b => b.type === "text").map(b => b.text).filter(Boolean).join("\n");
+      const { text: text2 } = await parseStream(r2);
       return text2 || preText || "No results returned.";
     }
 
-    return textBlocks.join("\n") || "No analysis returned. Please try again.";
+    return text || "No analysis returned. Please try again.";
   } catch(e) {
     if (e.name === "AbortError") return "Market scan unavailable right now -- ZIP searches can take up to 90 seconds. Try again or leave the ZIP blank for instant results.";
     return `Connection error: ${e.message}`;
