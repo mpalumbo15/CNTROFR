@@ -4,6 +4,13 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+  maxDuration: 90,
+};
+
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
     res.writeHead(204, CORS);
