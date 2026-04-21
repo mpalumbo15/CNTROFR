@@ -11,19 +11,18 @@ export default async function handler(req) {
     return new Response(null, { status: 204, headers: CORS });
   }
 
-  if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
-  }
-
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return new Response(JSON.stringify({ error: { message: "API key not configured." } }), {
-      status: 500, headers: { ...CORS, "Content-Type": "application/json" },
+      status: 500,
+      headers: { ...CORS, "Content-Type": "application/json" },
     });
   }
 
   try {
     const body = await req.json();
+    body.stream = true;
+
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -34,10 +33,13 @@ export default async function handler(req) {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
-    return new Response(JSON.stringify(data), {
+    return new Response(response.body, {
       status: response.status,
-      headers: { ...CORS, "Content-Type": "application/json" },
+      headers: {
+        ...CORS,
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+      },
     });
   } catch (error) {
     return new Response(
