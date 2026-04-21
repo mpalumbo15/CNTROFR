@@ -656,7 +656,8 @@ No financing rate or payment advice.`);
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
-      const mkt = await ai(`Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
+      const mkt = await ai(`Market pricing analyst. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
+Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
 
 ## MARKET VERDICT -- Is $${f.offer} above, at, or below market?
 ## COMPARABLE LISTINGS -- Dealer name, city, price, mileage for each.
@@ -833,7 +834,7 @@ function FeeComparison() {
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
     setL(true); setR(null);
-    const t = await ai(`Doc fee analyst. Direct, no hedging. State what the fee is, what's padded, and exactly what to say.
+    const t = await ai(`Doc fee analyst. Direct, no hedging. State what the fee is, what's padded, and exactly what to say. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
 Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.fee}
 ## FEE VERDICT -- FAIR, HIGH, or EXCESSIVE?
 ## STATE CONTEXT -- Legal cap and typical range for ${f.brand} in ${f.state}.
@@ -886,7 +887,7 @@ function ReviewPurity() {
   const runCustomer = async () => {
     setLCR(true); setCR(null); setCoolER(0); setCoolKR(0);
     try {
-      const c = await ai(`Dealer review analyst. Direct, no hedging. Call it what it is.
+      const c = await ai(`Dealer review analyst. Direct, no hedging. Call it what it is. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
 Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.state}.${f.reviews?"\nUser experience notes:\n"+f.reviews:""}
 ## CUSTOMER REVIEW VERDICT -- LIKELY AUTHENTIC, SUSPICIOUS, or HIGH BOT RISK
 ## BOT FARMING SIGNALS -- Velocity, generic language, clustered 5-star bursts.
@@ -907,7 +908,7 @@ Search Google Reviews, DealerRater, Cars.com for: ${f.dealer}, ${f.city} ${f.sta
   const runEmployee = async () => {
     setLER(true); setER(null);
     try {
-      const e = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly.
+      const e = await ai(`Dealer culture analyst. Direct, no hedging. Call out pressure culture plainly. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
 Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
 ## EMPLOYEE SENTIMENT VERDICT -- HEALTHY CULTURE, CONCERNING, or TOXIC
 ## GLASSDOOR -- Rating, top complaints, management scores.
@@ -928,7 +929,7 @@ Search Glassdoor, Indeed, LinkedIn for: "${f.dealer}", ${f.city} ${f.state}.
   const runComplaints = async () => {
     setLKR(true); setKR(null);
     try {
-      const k = await ai(`Consumer protection researcher. Direct, no hedging. State what was found and what it means.
+      const k = await ai(`Consumer protection researcher. Direct, no hedging. State what was found and what it means. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
 Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city} ${f.state}.
 ## COMPLAINT RECORD VERDICT -- CLEAN, MINOR ISSUES, or SIGNIFICANT CONCERNS
 ## BBB -- Rating, complaint count, types, resolution history.
