@@ -1571,24 +1571,44 @@ const BETA_CODE = "CNTROFR-BETA";
 const BETA_ACTIVE = true;
 
 const PLANS = [
-  {id:"firsttime",name:"First Time Buyer",price:15,desc:"Never bought a car? This is your arsenal.",features:["Credit scores explained (including ghost/zero scores)","What your budget actually means monthly","Assumed ownership costs without a warranty","High mileage vehicle risks and red flags","What dealers know that you don't -- yet","No account. No login. Ever."],btn:"out",unlocks:["deal","ftb"]},
+  {id:"firsttime",name:"First Time Buyer",price:20,desc:"Your first car deal doesn't have to be your worst one.",features:["5-point dealer prep guide","What dealers assume you already know","Hidden costs that hit after you sign","Co-signer vs. first-time buyer programs","Full Deal Analyzer access","30 days access. No account. No login. Ever."],btn:"out",unlocks:["deal","ftb"]},
   {id:"single",name:"Single Report",price:19,desc:"One full deal analysis.",features:["Deal Analyzer -- full breakdown","GO / NEGOTIATE / WALK verdict","Your counter offer strategy","No account. No login. Ever."],btn:"out",unlocks:["deal"]},
   {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses"],btn:"fill",unlocks:["deal","fee","review","fi","addons","guide"]},
-  {id:"guide",name:"Counter Guide",price:14,desc:"The no-BS buyer guide written from the dealer side.",features:["How dealer profit works","F&I office playbook exposed","Add-on removal scripts","Trade-in maximization","Printable cheat sheet"],btn:"out",unlocks:["guide"]},
+  {id:"guide",name:"Negotiation Guide & Counter Scripts",price:19,desc:"Know the game before you play it. Built from the dealer side, written for the buyer.",features:["How dealer profit actually works","Negotiation strategy from offer to close","Finance office playbook -- exposed","Add-on and upsell counter scripts","Trade-in positioning","Printable cheat sheet"],btn:"out",unlocks:["guide"]},
 ];
 
 function PayModal({plan,onClose,onSuccess}) {
-  const [card,setCard]=useState("");const [exp,setExp]=useState("");const [cvc,setCvc]=useState("");const [busy,setBusy]=useState(false);
+  const [busy,setBusy]=useState(false);
   const [promoOpen,setPromoOpen]=useState(false);const [promoCode,setPromoCode]=useState("");const [promoMsg,setPromoMsg]=useState("");
-  const fmt=v=>v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
-  const fmtExp=v=>{const d=v.replace(/\D/g,"").slice(0,4);return d.length>2?d.slice(0,2)+"/"+d.slice(2):d;};
-  const ready=card.replace(/\s/g,"").length===16&&exp.length===5&&cvc.length>=3;
+  const [error,setError]=useState("");
+
   const applyPromo = () => {
     const code = promoCode.trim().toUpperCase();
     if (BETA_ACTIVE && code === BETA_CODE) { onSuccess(plan); }
     else { setPromoMsg("Code not recognized or not yet active."); }
   };
-  const pay=async()=>{setBusy(true);await new Promise(r=>setTimeout(r,1800));setBusy(false);onSuccess(plan);};
+
+  const pay = async () => {
+    setBusy(true); setError("");
+    try {
+      const r = await fetch("https://cntrofr.com/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId: plan.id }),
+      });
+      const d = await r.json();
+      if (d.url) {
+        window.location.href = d.url;
+      } else {
+        setError(d.error || "Something went wrong. Please try again.");
+        setBusy(false);
+      }
+    } catch(e) {
+      setError("Connection error. Please try again.");
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="mbox">
@@ -1610,16 +1630,14 @@ function PayModal({plan,onClose,onSuccess}) {
               </div>
             )}
           </div>
-          <div className="sbox">
-            <div className="slbl">Card Number</div>
-            <input className="sinput" placeholder="1234 5678 9012 3456" value={card} onChange={e=>setCard(fmt(e.target.value))} />
-            <div className="srow">
-              <div><div className="slbl">Expiry</div><input className="sinput" placeholder="MM/YY" value={exp} onChange={e=>setExp(fmtExp(e.target.value))} /></div>
-              <div><div className="slbl">CVC</div><input className="sinput" placeholder="•••" value={cvc} onChange={e=>setCvc(e.target.value.replace(/\D/g,"").slice(0,4))} /></div>
-            </div>
+          {error&&<div style={{background:"rgba(255,68,68,.1)",border:"1px solid rgba(255,68,68,.3)",borderRadius:8,padding:"10px 14px",fontSize:12,color:"var(--red)",fontWeight:700,marginBottom:12}}>{error}</div>}
+          <button className="paybtn" onClick={pay} disabled={busy}>
+            {busy ? "Redirecting to Stripe..." : `Pay $${plan.price} — Secure Checkout`}
+          </button>
+          <div className="secnote"><span>🔒</span> Secured by Stripe — No account required — Instant access code via email</div>
+          <div style={{fontSize:10,color:"var(--muted)",textAlign:"center",marginTop:8,fontWeight:600,lineHeight:1.6}}>
+            CNTROFR will never contact you asking for personal information or payment details. Check spam if your code doesn't arrive within 2 minutes.
           </div>
-          <button className="paybtn" onClick={pay} disabled={!ready||busy}>{busy?"Processing...":"Pay $"+plan.price+" -- Get Instant Access"}</button>
-          <div className="secnote"><span>🔒</span> Secured by Stripe - No account required - Instant access</div>
         </div>
       </div>
     </div>
@@ -1670,7 +1688,7 @@ export default function App() {
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}> Contact</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Pro Access -- $49</button>
+          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Unlock Pro Bundle -- $49</button>
         </div>
       )}
 
@@ -1776,7 +1794,7 @@ export default function App() {
                 <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro -- $49":p.id==="guide"?"Get Counter Guide -- $14":p.id==="firsttime"?"First Time Buyer -- $15":"Single Report -- $19"}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro -- $49":p.id==="guide"?"Negotiation Guide -- $19":p.id==="firsttime"?"First Time Buyer -- $20":"Single Report -- $19"}</button>
               </div>
             ))}
           </div>
