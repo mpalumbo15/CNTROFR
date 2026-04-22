@@ -39,7 +39,6 @@ export default async function handler(req) {
     }
 
     const body = new URLSearchParams({
-      "payment_method_types[]": "card",
       "line_items[0][price]": priceId,
       "line_items[0][quantity]": "1",
       "mode": "payment",
