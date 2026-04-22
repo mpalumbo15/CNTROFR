@@ -1582,10 +1582,20 @@ function PayModal({plan,onClose,onSuccess}) {
   const [promoOpen,setPromoOpen]=useState(false);const [promoCode,setPromoCode]=useState("");const [promoMsg,setPromoMsg]=useState("");
   const [error,setError]=useState("");
 
-  const applyPromo = () => {
+  const applyPromo = async () => {
     const code = promoCode.trim().toUpperCase();
-    if (BETA_ACTIVE && code === BETA_CODE) { onSuccess(plan); }
-    else { setPromoMsg("Code not recognized or not yet active."); }
+    if (BETA_ACTIVE && code === BETA_CODE) { onSuccess(plan); return; }
+    setPromoMsg("Checking...");
+    try {
+      const r = await fetch("https://cntrofr.com/api/redeem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const d = await r.json();
+      if (d.success) { onSuccess({ ...plan, unlocks: d.unlocks }); }
+      else { setPromoMsg(d.error || "Code not recognized or not yet active."); }
+    } catch(e) { setPromoMsg("Connection error. Please try again."); }
   };
 
   const pay = async () => {
@@ -1619,7 +1629,7 @@ function PayModal({plan,onClose,onSuccess}) {
             <div className="oname">CNTROFR -- {plan.name}</div>
           </div>
           <div style={{marginBottom:14}}>
-            <button onClick={()=>setPromoOpen(o=>!o)} style={{background:"none",border:"none",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,cursor:"pointer",textDecoration:"underline",padding:0}}>{promoOpen?"▾ Hide":"▸ Have a beta or promo code?"}</button>
+            <button onClick={()=>setPromoOpen(o=>!o)} style={{background:"none",border:"none",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,cursor:"pointer",textDecoration:"underline",padding:0}}>{promoOpen?"▾ Hide":"▸ Already have an access code?"}</button>
             {promoOpen&&(
               <div style={{marginTop:8}}>
                 <div style={{display:"flex",gap:8}}>
