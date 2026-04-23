@@ -1704,6 +1704,7 @@ export default function App() {
 
         <div className="hero">
           <div className="hero-road" />
+          <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
           <div className="hero-center-plate">
             <div className="hero-plate">
               <div className="hp-state">Counter Offer</div>
@@ -1711,7 +1712,7 @@ export default function App() {
               <div className="hp-url">CNTROFR.COM</div>
             </div>
           </div>
-          <h1 className="hero-h1">The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</h1>
+          <h2 className="hero-h1">The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</h2>
           <div className="hero-tagline">Don't Sign. Counter.</div>
           <p className="hero-sub">CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers.</p>
           <div className="hero-btns">
