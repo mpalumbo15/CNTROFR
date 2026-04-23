@@ -1628,18 +1628,16 @@ function PayModal({plan,onClose,onSuccess}) {
             <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Total Due</span><span className="oprice">${plan.price}</span></div>
             <div className="oname">CNTROFR -- {plan.name}</div>
           </div>
-          <div style={{marginBottom:14}}>
-            <button onClick={()=>setPromoOpen(o=>!o)} style={{background:"none",border:"none",color:"var(--muted)",fontFamily:"Nunito",fontSize:11,fontWeight:800,cursor:"pointer",textDecoration:"underline",padding:0}}>{promoOpen?"▾ Hide":"▸ Already have an access code?"}</button>
-            {promoOpen&&(
-              <div style={{marginTop:8}}>
-                <div style={{display:"flex",gap:8}}>
-                  <input value={promoCode} onChange={e=>setPromoCode(e.target.value)} placeholder="ENTER CODE" style={{flex:1,background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"JetBrains Mono",fontSize:13,padding:"9px 12px",borderRadius:8,outline:"none",textTransform:"uppercase",letterSpacing:1}} />
-                  <button onClick={applyPromo} style={{background:"var(--y)",color:"#111",border:"none",padding:"9px 18px",fontFamily:"Nunito",fontSize:12,fontWeight:900,cursor:"pointer",borderRadius:8,whiteSpace:"nowrap"}}>Apply</button>
-                </div>
-                {promoMsg&&<div style={{fontSize:11,fontWeight:800,marginTop:6,color:"var(--red)"}}>{promoMsg}</div>}
-              </div>
-            )}
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)",marginBottom:8}}>Already have an access code?</div>
+            <div style={{display:"flex",gap:8}}>
+              <input value={promoCode} onChange={e=>setPromoCode(e.target.value)} placeholder="ENTER YOUR CODE" style={{flex:1,background:"var(--bg)",border:"2px solid var(--b2)",color:"var(--text)",fontFamily:"JetBrains Mono",fontSize:15,fontWeight:700,padding:"12px 16px",borderRadius:8,outline:"none",textTransform:"uppercase",letterSpacing:2}} />
+              <button onClick={applyPromo} style={{background:"var(--y)",color:"#111",border:"none",padding:"12px 22px",fontFamily:"Nunito",fontSize:13,fontWeight:900,cursor:"pointer",borderRadius:8,whiteSpace:"nowrap"}}>Apply</button>
+            </div>
+            {promoMsg&&<div style={{fontSize:12,fontWeight:800,marginTop:8,color:promoMsg==="Checking..."?"var(--muted)":"var(--red)"}}>{promoMsg}</div>}
+            <div style={{fontSize:10,color:"var(--muted)",marginTop:6,fontWeight:700}}>Check your email after purchase — code arrives within 2 minutes. Check spam if you don't see it.</div>
           </div>
+          <div style={{height:1,background:"var(--b1)",margin:"4px 0 16px"}} />
           {error&&<div style={{background:"rgba(255,68,68,.1)",border:"1px solid rgba(255,68,68,.3)",borderRadius:8,padding:"10px 14px",fontSize:12,color:"var(--red)",fontWeight:700,marginBottom:12}}>{error}</div>}
           <button className="paybtn" onClick={pay} disabled={busy}>
             {busy ? "Redirecting to Stripe..." : `Pay $${plan.price} — Secure Checkout`}
@@ -1704,14 +1702,6 @@ export default function App() {
 
       {view==="home"&&<>
 
-        <div className="beta-banner">
-          <div className="beta-plate">PIT STOP</div>
-          <div className="beta-text">
-            <strong>We're fine-tuning under the hood.</strong> The free Deal Analyzer is live and fully loaded -- premium tools drop soon.<br/>
-            <em>Not taking payments yet. We'll let you know when we're ready to rip.</em>
-          </div>
-          <div className="beta-plate">BETA</div>
-        </div>
         <div className="hero">
           <div className="hero-road" />
           <div className="hero-center-plate">
