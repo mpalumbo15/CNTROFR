@@ -630,39 +630,39 @@ function DealAnalyzer({ ftb = false }) {
   const run = async () => {
     setL(true); setR(null); setM(null);
     setLM("Analyzing your deal...");
-    const t = await ai(`Automotive deal analyst. Be direct -- state facts, give scripts, move on. No hedging, no "you may want to consider", no "it appears that." Speak like an insider who's seen this a thousand times.
-Insider knowledge: dealers sell below invoice via dealer cash/quota incentives -- "we're at invoice" is rarely true. Buyer makes a specific offer, never asks what dealer will take. Flag F&I products tied to rate changes (illegal unless on lender call sheet). Hard close = leave and reconnect in writing. Target the system, not the salesperson.
-${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""}${condition==="new" ? " | MSRP $"+(f.msrp||"n/a") : f.msrp ? " | Listed $"+f.msrp : ""} | Asking $${f.offer||"n/a"}
-Trade: $${f.tradeIn||"none"} | Owed: $${f.tradeOwed||"none"}
+    const t = await ai(`Car deal analyst. You are writing for a regular car buyer -- not a car industry professional. Use plain, direct language. Never use industry jargon without immediately explaining it in the same sentence. Be direct -- state facts, give scripts, move on. No hedging.
+Key facts: Dealers often sell below their stated cost through manufacturer bonuses and end-of-month sales targets -- "we're at invoice" is almost never the full story. The buyer should always make a specific offer, never ask what the dealer will accept. If a dealer tries to change your interest rate based on which add-on products you buy, that is illegal unless your lender specifically requires it. If you feel pressured to decide on the spot, leaving and following up in writing always works in your favor.
+${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""}${condition==="new" ? " | Sticker price $"+(f.msrp||"n/a") : f.msrp ? " | Listed $"+f.msrp : ""} | Asking $${f.offer||"n/a"}
+Trade-in value offered: $${f.tradeIn||"none"} | Amount still owed on trade: $${f.tradeOwed||"none"}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
-${condition==="cpo"?"CPO: Verify manufacturer eligibility, mileage/age limits, coverage vs exclusions, inspection checklist signed by service manager.":""}
-## EXTREME WARNING -- Only if predatory red flags exist. Omit if clean.
-## OVERALL VERDICT -- GO, NEGOTIATE, or WALK AWAY. One sentence.
-## VEHICLE PRICE -- Fair? Room left? Depreciation on high mileage?
-## TRADE-IN -- Fair or lowball? Flag negative equity.
-## ADD-ONS -- Worth It / Overpriced / Skip It per item.
-## YOUR COUNTER -- 3-4 word-for-word scripts. Specific offer, not a question.
-## RED FLAGS -- Dealer tactics, illegal rate-tying, invoice claims, verbal-only promises.
+${condition==="cpo"?"This is a Certified Pre-Owned vehicle -- verify what the manufacturer certification actually covers, mileage and age limits, what is excluded from coverage, and that a service manager has signed off on the inspection checklist.":""}
+## EXTREME WARNING -- Only if there are serious red flags. Leave this section out completely if the deal looks clean.
+## OVERALL VERDICT -- GO, NEGOTIATE, or WALK AWAY. One sentence in plain English.
+## VEHICLE PRICE -- Is this price fair? How much room is left to negotiate? If mileage is high, explain how that affects the vehicle's value in plain terms.
+## TRADE-IN -- Is the trade-in offer fair or too low? If the buyer owes more than the car is worth, explain that clearly in plain language.
+## ADD-ONS -- For each add-on: Worth It / Overpriced / Skip It. Explain why in one plain sentence.
+## YOUR COUNTER -- 3-4 word-for-word scripts the buyer can say out loud. Make them specific dollar offers, not questions.
+## RED FLAGS -- Call out any dealer pressure tactics, illegal practices, unsupported claims, or anything that should only be agreed to in writing.
 ${ftb ? `## FIRST TIME BUYER GUIDE
-- DOWN PAYMENT -- What's a healthy ratio for this deal? What's the minimum to avoid being underwater immediately?
-- PTI (PAYMENT TO INCOME) -- Simple rule of thumb. What monthly payment range is responsible for a first time buyer?
-- SETTING UP YOUR LOAN PAYMENT ONLINE -- After signing, how do they set up their lender account online? What to expect: lender portal, autopay, ACH/debit setup, due dates. Note that checks still exist but are rarely necessary.
-- REGISTRATION & PLATES -- What happens after they drive off the lot? Temp tags, DMV timeline, when to expect permanent plates, what "dealer handles registration" actually means.
-- WHAT TO EXPECT AT SIGNING -- Brief rundown so nothing at the table surprises them.` : ""}
-No financing rate or payment advice.`);
+- DOWN PAYMENT -- What is a healthy down payment for this deal? What is the minimum to avoid immediately owing more than the car is worth? Explain in plain dollar terms.
+- MONTHLY PAYMENT REALITY CHECK -- Give a simple rule of thumb for what monthly payment range makes sense based on a responsible budget. No industry acronyms.
+- SETTING UP YOUR LOAN PAYMENT ONLINE -- After signing, how does the buyer set up their account with the lender to make payments? What should they expect: online portal, automatic payments, bank transfer setup, payment due dates.
+- REGISTRATION AND PLATES -- What happens after they drive off the lot? Explain temporary tags, how long permanent plates take, and what it means when the dealer says they handle registration.
+- WHAT TO EXPECT AT SIGNING -- A brief plain-language rundown so nothing at the signing table catches them off guard.` : ""}
+No interest rate or monthly payment recommendations.`);
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
     saveDeal({ make: f.vehicle?f.vehicle.split(" ")[0]:null, model: f.vehicle?f.vehicle.split(" ").slice(1).join(" "):null, year: f.year||null, condition, zip: f.zip||null, asking_price: f.offer?parseFloat(f.offer.replace(/,/g,"")):null, addons: f.addons||null });
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
-      const mkt = await ai(`Market pricing analyst. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
-Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned (CPO)":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", similar mileage to "+f.mileage : ""}.
+      const mkt = await ai(`Car market pricing analyst. You are writing for a regular car buyer who wants to know if the price they are being quoted is fair compared to what other dealers are charging. Use plain language. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
+Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned":condition==="used"?"used":condition} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip code ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", with similar mileage to "+f.mileage : ""}.
 
-## MARKET VERDICT -- Is $${f.offer} above, at, or below market?
-## COMPARABLE LISTINGS -- Dealer name, city, price, mileage for each.
-## LEVERAGE -- Exact words to use these comps at the table.
-## BOTTOM LINE -- What should this buyer actually pay?`, true);
+## MARKET VERDICT -- Is $${f.offer} above, at, or below what other dealers are charging for the same vehicle right now? State it plainly.
+## COMPARABLE LISTINGS -- List each comparable vehicle found: dealer name, city, price, and mileage. Plain and readable.
+## HOW TO USE THIS -- The exact words the buyer can say at the dealership to use these comparisons as negotiating leverage.
+## BOTTOM LINE -- What should this buyer realistically expect to pay based on current market data?`, true);
       setM(mkt);
     }
     setL(false); setLM("");
@@ -834,14 +834,14 @@ function FeeComparison() {
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
     setL(true); setR(null);
-    const t = await ai(`Doc fee analyst. Direct, no hedging. State what the fee is, what's padded, and exactly what to say. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
-Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Doc Fee: $${f.fee}
+    const t = await ai(`Car dealer fee analyst. You are writing for a regular car buyer who just received a quote with fees they don't recognize. Use plain language. Explain what each fee actually is and whether it is fair. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
+Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Documentation fee charged: $${f.fee}
 ## FEE VERDICT -- FAIR, HIGH, or EXCESSIVE?
-## STATE CONTEXT -- Legal cap and typical range for ${f.brand} in ${f.state}.
-## WHAT IT COVERS -- Legitimate components only.
-## WHAT IT DOESN'T JUSTIFY -- Padding.
-## YOUR COUNTER -- Exact words to push back.
-## LEVERAGE -- How to use competing dealer quotes.`, true);
+## STATE CONTEXT -- Does ${f.state} have a legal cap on this fee? What do most ${f.brand} dealers in ${f.state} actually charge? Explain in plain terms.
+## WHAT THIS FEE COVERS -- The legitimate work the dealer does to justify this charge. Be specific.
+## WHAT IT DOES NOT JUSTIFY -- Any portion of this fee that is pure profit padding with no real service behind it.
+## WHAT TO SAY -- The exact words to push back on this fee at the dealership.
+## HOW TO USE THIS AS LEVERAGE -- If a competing dealer charges less, explain exactly how to use that information to negotiate a better deal.`, true);
     setR(t); setL(false);
   };
   return (
@@ -1088,21 +1088,21 @@ function FIDecoder() {
   const run = async () => {
     setL(true); setR(null);
     const list = picked.map(p=>`- ${p.name}: $${prices[p.id]||"unknown"}`).join("\n");
-    const t = await ai(`F&I insider analyst. Direct, no hedging. Tell the buyer what it costs, what to say, and what to skip.
-F&I managers are measured on penetration -- they'll discount everything for a yes. Rate-tying to F&I products is illegal unless on lender call sheet. Hard closes are tactics, not reality.
-Vehicle: ${veh||"not specified"}${warrantyBrand?"\nWarranty: "+warrantyBrand:""}${drivingHabits?"\nDriving: "+drivingHabits:""}${ownershipLength?"\nOwnership: "+ownershipLength:""}
-Products:\n${list}
-For EACH:
-## [NAME] -- [WORTH IT / OVERPRICED / SKIP IT / DEPENDS]
-- Dealer cost vs. charge
-- Claims approval vs. denial rate (current data)
-- Fine print traps and denial triggers
-- Cheaper alternative if exists
-- Exact script to decline or negotiate
-## OVERALL F&I STRATEGY -- Keep, cut, estimated savings.
-## PENETRATION INSIGHT -- They'll discount everything for a yes. "I want to think about it" always works.
-## MAINTENANCE NOTE -- Flag if upkeep cost suggests wrong vehicle.
-## OPENING LINE -- First words walking into F&I office.`);
+    const t = await ai(`Finance office product analyst. You are writing for a regular car buyer sitting across from a finance manager for the first time. Use plain, direct language. Never use industry terms without explaining them in the same sentence. Be direct and specific.
+Key facts: Finance managers are measured on how many products they sell per deal -- they will discount or bundle products to get a yes. If a finance manager tries to change your interest rate based on which products you buy, that is illegal unless your lender specifically requires it. Feeling pressured to decide immediately is a tactic, not a real deadline.
+Vehicle: ${veh||"not specified"}${warrantyBrand?"\nWarranty provider: "+warrantyBrand:""}${drivingHabits?"\nHow they drive: "+drivingHabits:""}${ownershipLength?"\nHow long they plan to own it: "+ownershipLength:""}
+Products presented:\n${list}
+For EACH product:
+## [NAME] -- [WORTH IT / OVERPRICED / SKIP IT / DEPENDS ON YOUR SITUATION]
+- What the dealer paid for it vs what they are charging you
+- How often claims actually get approved vs denied (use current data)
+- The fine print that causes claims to be denied -- explain in plain terms
+- A cheaper way to get the same protection if one exists
+- Word-for-word script to decline or negotiate the price down
+## OVERALL FINANCE OFFICE STRATEGY -- Which to keep, which to cut, and how much you could save by removing the flagged ones.
+## HOW THEY SELL IT -- Finance managers will discount everything if you push back. Explain that "I want to think about it" and "I need to see that in writing" always work.
+## MAINTENANCE NOTE -- If the vehicle or driving habits suggest the buyer may be choosing the wrong product, flag it plainly.
+## OPENING LINE -- The exact first words to say when sitting down in the finance office.`);
     setR(t); setL(false);
   };
   return (
@@ -1194,17 +1194,17 @@ function AddOnFighter() {
   const run = async () => {
     setL(true); setR(null);
     const list = picked.map(a=>`- ${a.name}: $${prices[a.id]||"unknown"}`).join("\n");
-    const t = await ai(`Add-on pricing analyst. Direct, no hedging. Name the markup, give the script.
-Aftermarket baselines: Tint $150-400 (dealers $299-799). PPF front $500-900 independent (dealers 2-3x). Ceramic $500-1500 independent. Paint sealant $50-100 cost (charged $300-800). VIN etching $20 product (charged $200-400). Nitrogen: air is 78% nitrogen, zero benefit. Fabric protection $10-20 (charged $200-500). Roadside likely duplicated by insurance/AAA. GPS: AirTag/Bouncie $30-100 vs dealer $300-800. All-weather mats: WeatherTech $120-180 vs dealer $200-400. Tire & Wheel (also called Road Hazard): legitimate for high-mileage drivers, dirt/gravel roads, AWD vehicles requiring matched tread within 3/32nds, or buyers in construction/trades with frequent flat exposure -- verify claim limits and deductibles before recommending removal. Emergency Kit: IMPORTANT -- many vehicles include an emergency/safety kit as a factory option already itemized in the MSRP. Before flagging as an add-on ripoff, confirm whether it is a dealer-added line item or factory-included. If factory-included, note it is already paid for and should not appear as a separate charge. If dealer-added, typical kit costs $25-50 at retail but is commonly charged $200-400.
+    const t = await ai(`Car dealer add-on analyst. You are writing for a regular car buyer who just walked into a dealership and found extra items added to their vehicle. Use plain language. Explain what each add-on actually is, what the dealer paid for it, and what the buyer should say. Be direct and specific.
+Real market costs for reference: Window tint $150-400 at an independent shop (dealers charge $299-799). Paint protection film on the front $500-900 at an independent shop (dealers charge 2-3x that). Ceramic coating $500-1500 independent. Paint sealant costs $50-100 to apply (dealers charge $300-800). VIN etching product costs $20 (dealers charge $200-400). Nitrogen in tires: regular air is already 78% nitrogen, there is zero real benefit. Fabric protection costs $10-20 to apply (dealers charge $200-500). Roadside assistance is likely already covered by your insurance or AAA. GPS trackers: a consumer GPS device costs $30-100 (dealers charge $300-800). All-weather floor mats: WeatherTech direct is $120-180 (dealers charge $200-400). Tire and wheel protection (also called road hazard): this is actually worth it for drivers with high mileage, gravel or dirt roads, AWD vehicles, or anyone in construction or trades -- verify the claim limits and deductibles before removing. Emergency kit: many vehicles already include one from the factory -- confirm whether this is already included in the vehicle price before flagging it as an extra charge.
 Vehicle: ${veh||"not specified"}\nAdd-ons:\n${list}
-For EACH:
-## [ADD-ON] -- [KEEP / NEGOTIATE / REMOVE]
-- Dealer cost vs. charge vs. aftermarket price
-- Their script to keep it
-- Your exact words to remove it
-- If already installed, what to say
-## BATTLE PLAN -- Step by step removal. What if they say it can't come off?
-## TOTAL SAVINGS -- Estimated by removing flagged items.`);
+For EACH add-on:
+## [ADD-ON NAME] -- [KEEP / NEGOTIATE / REMOVE]
+- What the dealer paid for it, what they are charging, and what it costs elsewhere
+- The exact words the dealer will use to keep it on the deal
+- The exact words the buyer should say to remove it or negotiate the price
+- If it is already physically installed on the vehicle, what to say in that situation
+## BATTLE PLAN -- Step by step instructions for removing flagged items. What to say if the dealer claims it cannot be removed.
+## TOTAL POTENTIAL SAVINGS -- Estimated dollar amount by removing the flagged items.`);
     setR(t); setL(false);
   };
   const lc = l => l===true?"var(--green)":l===false?"var(--red)":"var(--y)";
@@ -1241,27 +1241,27 @@ function CounterGuide() {
   const [res, setR] = useState(null);
   const run = async () => {
     setL(true); setR(null);
-    const t = await ai(`You are a former automotive F&I manager and dealership insider writing a brutally honest counter guide for car buyers. Be direct, specific, and actionable. No hedging. Speak like someone who has seen every trick in the book -- because you have.
+    const t = await ai(`You are a former automotive finance manager and dealership insider writing a brutally honest negotiation guide for everyday car buyers. Write for someone who has never bought a car before and has no industry knowledge. Every time you use an industry term, immediately explain it in plain English in the same sentence. Be direct, specific, and actionable.
 
 ## HOW DEALER PROFIT WORKS
-Explain front-end vs back-end profit. Invoice vs MSRP vs dealer cost. Holdback. Dealer cash and quota incentives. Why "we're at invoice" is almost never true. How dealers make money even on a "good deal."
+Explain in plain language: how dealers make money on the front end (the vehicle price) and the back end (financing and add-on products). Explain what invoice price means and why "we're at invoice" is almost never the whole story. Explain manufacturer bonuses and end-of-month sales targets. Explain why dealers can make money even when they appear to give you a great deal.
 
-## THE F&I OFFICE PLAYBOOK
-Walk the buyer through exactly what happens in the F&I office. Penetration rates. How products are presented (menu selling). The 4-square method. Rate markup (reserve). What's legal vs illegal (rate-tying). Hard close tactics and how to neutralize them. The "one more thing" add-on at signing.
+## THE FINANCE OFFICE PLAYBOOK
+Walk the buyer through exactly what happens when they sit down with the finance manager after agreeing on a vehicle price. Explain how products are presented one at a time or as a bundle. Explain the four-square negotiation method in plain terms. Explain how dealers mark up interest rates and keep the difference -- and when that practice is illegal. Explain high-pressure closing tactics and exactly how to neutralize each one. Explain the last-minute add-on that often appears at the signing table.
 
 ## ADD-ON REMOVAL SCRIPTS
-The most common add-ons dealers push and exact word-for-word scripts to remove each one. Cover: paint/fabric protection, GAP insurance, extended warranty, tire & wheel, VIN etching, nitrogen tires, key replacement, window tint markups. Include what the dealer says to keep it and your counter to each.
+Cover the most common add-ons dealers push. For each one: explain what it actually is, what it really costs, what the dealer says to keep it, and the exact word-for-word response to remove it. Cover: paint and fabric protection, gap insurance (pays the difference between what you owe and what insurance pays if the car is totaled), extended warranty, tire and wheel protection, VIN etching, nitrogen tire fill, key replacement, and window tint markups.
 
-## TRADE-IN MAXIMIZATION
-How dealers undervalue trades and why. ACV vs retail markup. The bundling tactic (why they won't separate trade from deal). How to get a real number before you walk in (KBB Instant Cash Offer, CarMax offer). The exact words to use to separate the trade negotiation from the vehicle price negotiation.
+## TRADE-IN STRATEGY
+Explain in plain terms how dealers undervalue trade-ins and why. Explain the difference between what a dealer pays for a trade (wholesale value) and what they sell it for (retail price). Explain why dealers prefer to bundle the trade-in negotiation with the vehicle price negotiation -- and how to keep them separate. Explain how to get a real trade-in offer before walking into the dealership using online tools.
 
 ## YOUR CHEAT SHEET
-A concise, printable reference card with:
-- The 5 rules of the negotiation table
+A concise reference the buyer can actually use at the table:
+- The 5 rules of negotiating a car deal
 - 6 word-for-word opening lines that work
 - 3 things to never say to a dealer
-- The walk-away script
-- Red flags that mean leave immediately`);
+- The exact words to use when walking away
+- Red flags that mean you should leave immediately`);
     setR(t); setL(false);
   };
   return (
