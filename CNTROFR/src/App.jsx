@@ -794,7 +794,7 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
         </div>
       </div>
       <div className="card">
-        <div className="ch"><span className="clbl">The Dealer</span><span className="clbl-sub">Optional — helps us flag corporate pressure patterns</span></div>
+        <div className="ch"><span className="clbl">The Dealer</span><span className="clbl-sub">Optional — this information is only used to sharpen your analysis. It is never shared with the dealer in any form.</span></div>
         <div className="cb">
           <div className="g2">
             <div className="fld"><label>Dealer Name</label><input placeholder="AutoNation Honda" value={f.dealerName||""} onChange={s("dealerName")} /></div>
