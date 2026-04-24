@@ -632,12 +632,14 @@ function DealAnalyzer({ ftb = false }) {
     setLM("Analyzing your deal...");
     const t = await ai(`Car deal analyst. You are writing for a regular car buyer -- not a car industry professional. Use plain, direct language. Never use industry jargon without immediately explaining it in the same sentence. Be direct -- state facts, give scripts, move on. No hedging.
 Key facts: Dealers often sell below their stated cost through manufacturer bonuses and end-of-month sales targets -- "we're at invoice" is almost never the full story. The buyer should always make a specific offer, never ask what the dealer will accept. If a dealer tries to change your interest rate based on which add-on products you buy, that is illegal unless your lender specifically requires it. If you feel pressured to decide on the spot, leaving and following up in writing always works in your favor.
+${f.dealerName ? `Dealer: ${f.dealerName}${f.dealerCity ? ", "+f.dealerCity : ""}${f.dealerState ? " "+f.dealerState : ""}` : "Dealer: not specified"}
 ${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""}${condition==="new" ? " | Sticker price $"+(f.msrp||"n/a") : f.msrp ? " | Listed $"+f.msrp : ""} | Asking $${f.offer||"n/a"}
 Trade-in value offered: $${f.tradeIn||"none"} | Amount still owed on trade: $${f.tradeOwed||"none"}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 ${condition==="cpo"?"This is a Certified Pre-Owned vehicle -- verify what the manufacturer certification actually covers, mileage and age limits, what is excluded from coverage, and that a service manager has signed off on the inspection checklist.":""}
 ## EXTREME WARNING -- Only if there are serious red flags. Leave this section out completely if the deal looks clean.
 ## OVERALL VERDICT -- GO, NEGOTIATE, or WALK AWAY. One sentence in plain English.
+${f.dealerName ? `## DEALER INTEL -- If you recognize this dealer as part of a major corporate group (AutoNation, Lithia, Asbury, Penske, Sonic, Holman, or similar), briefly note it in one plain sentence and explain what corporate-owned dealerships typically means for the buyer's negotiating experience. If you do not recognize the dealer or cannot confirm the parent company, skip this section entirely.` : ""}
 ## VEHICLE PRICE -- Is this price fair? How much room is left to negotiate? If mileage is high, explain how that affects the vehicle's value in plain terms.
 ## TRADE-IN -- Is the trade-in offer fair or too low? If the buyer owes more than the car is worth, explain that clearly in plain language.
 ## ADD-ONS -- For each add-on: Worth It / Overpriced / Skip It. Explain why in one plain sentence.
@@ -652,7 +654,7 @@ ${ftb ? `## FIRST TIME BUYER GUIDE
 No interest rate or monthly payment recommendations.`);
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
-    saveDeal({ make: f.vehicle?f.vehicle.split(" ")[0]:null, model: f.vehicle?f.vehicle.split(" ").slice(1).join(" "):null, year: f.year||null, condition, zip: f.zip||null, asking_price: f.offer?parseFloat(f.offer.replace(/,/g,"")):null, addons: f.addons||null });
+    saveDeal({ make: f.vehicle?f.vehicle.split(" ")[0]:null, model: f.vehicle?f.vehicle.split(" ").slice(1).join(" "):null, year: f.year||null, condition, zip: f.zip||null, asking_price: f.offer?parseFloat(f.offer.replace(/,/g,"")):null, addons: f.addons||null, dealer_name: f.dealerName||null, dealer_city: f.dealerCity||null, dealer_state: f.dealerState||null });
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
@@ -789,6 +791,16 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
             <div className="fld"><label><JargonTip term="ACV" /> — Trade-In Offered</label><input placeholder="8,500" value={f.tradeIn} onChange={s("tradeIn")} /></div>
             <div className="fld"><label>Owed on Trade</label><input placeholder="4,200" value={f.tradeOwed} onChange={s("tradeOwed")} /></div>
           </div>
+        </div>
+      </div>
+      <div className="card">
+        <div className="ch"><span className="clbl">The Dealer</span><span className="clbl-sub">Optional — helps us flag corporate pressure patterns</span></div>
+        <div className="cb">
+          <div className="g2">
+            <div className="fld"><label>Dealer Name</label><input placeholder="AutoNation Honda" value={f.dealerName||""} onChange={s("dealerName")} /></div>
+            <div className="fld"><label>City</label><input placeholder="Denver" value={f.dealerCity||""} onChange={s("dealerCity")} /></div>
+          </div>
+          <div className="fld" style={{marginTop:12}}><label>State</label><input placeholder="CO" value={f.dealerState||""} onChange={s("dealerState")} maxLength={2} style={{maxWidth:80}} /></div>
         </div>
       </div>
       <div className="card">
