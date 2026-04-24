@@ -416,7 +416,7 @@ async function saveGapFlag(description) {
   } catch(e) {}
 }
 
-async function parseStream(response) {
+async function parseStream(response, onChunk = null) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let text = "";
@@ -439,7 +439,7 @@ async function parseStream(response) {
         if (data.type === "content_block_start") {
           currentBlock = { type: data.content_block.type, id: data.content_block.id, name: data.content_block.name || "", text: "", input: "" };
         } else if (data.type === "content_block_delta" && currentBlock) {
-          if (data.delta.type === "text_delta") { currentBlock.text += data.delta.text; text += data.delta.text; }
+          if (data.delta.type === "text_delta") { currentBlock.text += data.delta.text; text += data.delta.text; if (onChunk) onChunk(text); }
           else if (data.delta.type === "input_json_delta") { currentBlock.input += data.delta.partial_json; }
         } else if (data.type === "content_block_stop") {
           if (currentBlock) { contentBlocks.push({ ...currentBlock }); currentBlock = null; }
@@ -454,7 +454,7 @@ async function parseStream(response) {
   return { text, stopReason, contentBlocks };
 }
 
-async function ai(prompt, web = false) {
+async function ai(prompt, web = false, onChunk = null) {
   try {
     const body = { model: "claude-sonnet-4-5", max_tokens: 2000, stream: true, messages: [{ role: "user", content: prompt }] };
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
@@ -470,7 +470,7 @@ async function ai(prompt, web = false) {
     });
     clearTimeout(timeout);
 
-    const { text, stopReason, contentBlocks } = await parseStream(r);
+    const { text, stopReason, contentBlocks } = await parseStream(r, web ? null : onChunk);
 
     if (web && stopReason === "tool_use") {
       const preText = text;
@@ -505,7 +505,7 @@ async function ai(prompt, web = false) {
         signal: controller2.signal
       });
       clearTimeout(timeout2);
-      const { text: text2 } = await parseStream(r2);
+      const { text: text2 } = await parseStream(r2, onChunk);
       return text2 || preText || "No results returned.";
     }
 
@@ -535,7 +535,7 @@ function MD({ text }) {
 
 function Res({ verdict, vc, text, onReset }) {
   const [copied, setCopied] = useState(false);
-  const displayVerdict = verdict === "GO" ? "🟢 GREEN LIGHT" : verdict === "WALK AWAY" ? "🔴 WALK AWAY" : verdict === "NEGOTIATE" ? "🟡 NEGOTIATE" : verdict;
+  const displayVerdict = verdict === "GO" ? "🟢 GREEN LIGHT" : verdict === "WALK AWAY" ? "🔴 WALK AWAY" : verdict === "NEGOTIATE" ? "🟡 NEGOTIATE" : verdict === "ANALYZING" ? "Analyzing..." : verdict;
   const copyResults = () => { navigator.clipboard.writeText(text||"").then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2000); }); };
   const savePDF = () => {
     const w = window.open("","_blank");
@@ -628,7 +628,7 @@ function DealAnalyzer({ ftb = false }) {
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
-    setL(true); setR(null); setM(null);
+    setL(true); setR(null); setM(null); setV("ANALYZING");
     setLM("Analyzing your deal...");
     const t = await ai(`Car deal analyst. You are writing for a regular car buyer -- not a car industry professional. Use plain, direct language. Never use industry jargon without immediately explaining it in the same sentence. Be direct -- state facts, give scripts, move on. No hedging.
 Key facts: Dealers often sell below their stated cost through manufacturer bonuses and end-of-month sales targets -- "we're at invoice" is almost never the full story. The buyer should always make a specific offer, never ask what the dealer will accept. If a dealer tries to change your interest rate based on which add-on products you buy, that is illegal unless your lender specifically requires it. If you feel pressured to decide on the spot, leaving and following up in writing always works in your favor.
@@ -651,7 +651,7 @@ ${ftb ? `## FIRST TIME BUYER GUIDE
 - SETTING UP YOUR LOAN PAYMENT ONLINE -- After signing, how does the buyer set up their account with the lender to make payments? What should they expect: online portal, automatic payments, bank transfer setup, payment due dates.
 - REGISTRATION AND PLATES -- What happens after they drive off the lot? Explain temporary tags, how long permanent plates take, and what it means when the dealer says they handle registration.
 - WHAT TO EXPECT AT SIGNING -- A brief plain-language rundown so nothing at the signing table catches them off guard.` : ""}
-No interest rate or monthly payment recommendations.`);
+No interest rate or monthly payment recommendations.`, false, chunk => setR(chunk));
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
     saveDeal({ make: f.vehicle?f.vehicle.split(" ")[0]:null, model: f.vehicle?f.vehicle.split(" ").slice(1).join(" "):null, year: f.year||null, condition, zip: f.zip||null, asking_price: f.offer?parseFloat(f.offer.replace(/,/g,"")):null, addons: f.addons||null, dealer_name: f.dealerName||null, dealer_city: f.dealerCity||null, dealer_state: f.dealerState||null });
@@ -827,11 +827,11 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
           <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
       </div>
-      {loading && <Loading msg={loadMsg} web={!!f.zip} />}
-      {res && !loading && (
+      {loading && !res && <Loading msg={loadMsg} web={!!f.zip} />}
+      {res && (
         <>
           <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);}} />
-          {market && (
+          {!loading && market && (
             <div className="card ranim">
               <div className="vstrip">
                 <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>LOCAL MARKET</span>
@@ -859,7 +859,7 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Documentation 
 ## WHAT THIS FEE COVERS -- The legitimate work the dealer does to justify this charge. Be specific.
 ## WHAT IT DOES NOT JUSTIFY -- Any portion of this fee that is pure profit padding with no real service behind it.
 ## WHAT TO SAY -- The exact words to push back on this fee at the dealership.
-## HOW TO USE THIS AS LEVERAGE -- If a competing dealer charges less, explain exactly how to use that information to negotiate a better deal.`, true);
+## HOW TO USE THIS AS LEVERAGE -- If a competing dealer charges less, explain exactly how to use that information to negotiate a better deal.`, true, chunk => setR(chunk));
     setR(t); setL(false);
   };
   return (
@@ -881,8 +881,8 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Documentation 
           <button className="go-btn" onClick={run} disabled={loading||!f.state||!f.fee}>{loading?"Researching...":"→ Analyze This Fee"}</button>
         </div>
       </div>
-      {loading && <Loading msg="Researching fee standards" web={true} />}
-      {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge ba">FEE ANALYSIS</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
+      {loading && !res && <Loading msg="Researching fee standards" web={true} />}
+      {res && <div className="card ranim"><div className="vstrip"><span className="badge ba">FEE ANALYSIS</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
     </div>
   );
 }
@@ -1120,7 +1120,7 @@ For EACH product:
 ## OVERALL FINANCE OFFICE STRATEGY -- Which to keep, which to cut, and how much you could save by removing the flagged ones.
 ## HOW THEY SELL IT -- Finance managers will discount everything if you push back. Explain that "I want to think about it" and "I need to see that in writing" always work.
 ## MAINTENANCE NOTE -- If the vehicle or driving habits suggest the buyer may be choosing the wrong product, flag it plainly.
-## OPENING LINE -- The exact first words to say when sitting down in the finance office.`);
+## OPENING LINE -- The exact first words to say when sitting down in the finance office.`, false, chunk => setR(chunk));
     setR(t); setL(false);
   };
   return (
@@ -1184,8 +1184,8 @@ For EACH product:
           <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Decoding...":`→ Decode ${picked.length} Product${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
-      {loading && <Loading msg="Decoding F&I products" web={true} />}
-      {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge ba">F&I DECODED</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
+      {loading && !res && <Loading msg="Decoding F&I products" web={true} />}
+      {res && <div className="card ranim"><div className="vstrip"><span className="badge ba">F&I DECODED</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
     </div>
   );
 }
@@ -1222,7 +1222,7 @@ For EACH add-on:
 - The exact words the buyer should say to remove it or negotiate the price
 - If it is already physically installed on the vehicle, what to say in that situation
 ## BATTLE PLAN -- Step by step instructions for removing flagged items. What to say if the dealer claims it cannot be removed.
-## TOTAL POTENTIAL SAVINGS -- Estimated dollar amount by removing the flagged items.`);
+## TOTAL POTENTIAL SAVINGS -- Estimated dollar amount by removing the flagged items.`, false, chunk => setR(chunk));
     setR(t); setL(false);
   };
   const lc = l => l===true?"var(--green)":l===false?"var(--red)":"var(--y)";
@@ -1248,8 +1248,8 @@ For EACH add-on:
           <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Arming you up...":`→ Fight ${picked.length} Add-On${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
-      {loading && <Loading msg="Loading counter scripts" web={false} />}
-      {res && !loading && <div className="card ranim"><div className="vstrip"><span className="badge br">FIGHT BACK</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
+      {loading && !res && <Loading msg="Loading counter scripts" web={false} />}
+      {res && <div className="card ranim"><div className="vstrip"><span className="badge br">FIGHT BACK</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
     </div>
   );
 }
