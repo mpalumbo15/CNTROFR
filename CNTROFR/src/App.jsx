@@ -874,7 +874,7 @@ function ReviewPurity() {
   const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState(""); const [eV, setEV] = useState(""); const [kV, setKV] = useState("");
   const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false);
   const [cooldownER, setCoolER] = useState(0); const [cooldownKR, setCoolKR] = useState(0);
-  const startCooldown = (setter, seconds=90) => {
+  const startCooldown = (setter, seconds=20) => {
     setter(seconds);
     const tick = setInterval(() => {
       setter(prev => { if (prev <= 1) { clearInterval(tick); return 0; } return prev - 1; });
