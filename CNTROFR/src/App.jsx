@@ -271,6 +271,8 @@ const S = `
   .cond-btn:hover { border-color: var(--b2); color: var(--text2); }
   .cond-btn.active { background: var(--y); border-color: var(--y); color: #111; }
   .cond-btn.active-cpo { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .cond-btn.active-custom { background: var(--b2); border-color: var(--text2); color: var(--text); }
+  .hcaptcha-wrap { display: flex; justify-content: center; margin: 10px 0 4px; }
   .cond-tag { display: inline-block; font-size: 9px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px; border-radius: 100px; margin-left: 8px; }
   .cond-tag-new { background: rgba(0,201,107,.12); color: var(--green); border: 1px solid rgba(0,201,107,.25); }
   .cond-tag-used { background: rgba(255,214,0,.12); color: var(--y); border: 1px solid rgba(255,214,0,.25); }
@@ -393,6 +395,7 @@ function JargonTip({ term }) {
 }
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const HCAPTCHA_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001";
 
 async function saveDeal(data) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
@@ -414,6 +417,18 @@ async function saveGapFlag(description) {
       body: JSON.stringify({ description, timestamp: new Date().toISOString() })
     });
   } catch(e) {}
+}
+
+function parseAndFlagGaps(responseText) {
+  if (!responseText) return;
+  const lines = responseText.split("\n");
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("GAP:")) {
+      const desc = trimmed.slice(4).trim();
+      if (desc) saveGapFlag(desc);
+    }
+  });
 }
 
 async function parseStream(response, onChunk = null) {
@@ -626,21 +641,35 @@ function Loading({ msg, web }) {
 function DealAnalyzer({ ftb = false }) {
   const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
+  const [hcToken, setHcToken] = useState("");
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
+  useEffect(() => {
+    window.onHcVerify = token => setHcToken(token);
+    window.onHcExpire = () => setHcToken("");
+    if (!document.getElementById("hcaptcha-script")) {
+      const sc = document.createElement("script");
+      sc.id = "hcaptcha-script";
+      sc.src = "https://js.hcaptcha.com/1/api.js";
+      sc.async = true; sc.defer = true;
+      document.head.appendChild(sc);
+    }
+  }, []);
   const run = async () => {
     setL(true); setR(null); setM(null); setV("ANALYZING");
     setLM("Analyzing your deal...");
+    if (window.hcaptcha) window.hcaptcha.reset(); setHcToken("");
     const t = await ai(`Car deal analyst. You are writing for a regular car buyer -- not a car industry professional. Use plain, direct language. Never use industry jargon without immediately explaining it in the same sentence. Be direct -- state facts, give scripts, move on. No hedging.
 Key facts: Dealers often sell below their stated cost through manufacturer bonuses and end-of-month sales targets -- "we're at invoice" is almost never the full story. The buyer should always make a specific offer, never ask what the dealer will accept. If a dealer tries to change your interest rate based on which add-on products you buy, that is illegal unless your lender specifically requires it. If you feel pressured to decide on the spot, leaving and following up in writing always works in your favor.
 ${f.dealerName ? `Dealer: ${f.dealerName}${f.dealerCity ? ", "+f.dealerCity : ""}${f.dealerState ? " "+f.dealerState : ""}` : "Dealer: not specified"}
-${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":""} | ${condition==="new"?"New":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners ? " | "+f.owners+" previous owner(s)" : ""}${condition==="new" ? " | Sticker price $"+(f.msrp||"n/a") : f.msrp ? " | Listed $"+f.msrp : ""} | Asking $${f.offer||"n/a"}
+${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":condition==="custom"?" (CUSTOM ORDER)":""} | ${condition==="new"||condition==="custom"?"Factory order -- no odometer":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners && condition==="used" ? " | "+f.owners+" previous owner(s)" : ""}${condition==="new" ? " | Sticker price $"+(f.msrp||"n/a") : condition==="custom" ? "" : f.msrp ? " | Listed $"+f.msrp : ""} | Asking $${f.offer||"n/a"}
 Trade-in value offered: $${f.tradeIn||"none"} | Amount still owed on trade: $${f.tradeOwed||"none"}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 ${condition==="cpo"?"This is a Certified Pre-Owned vehicle -- verify what the manufacturer certification actually covers, mileage and age limits, what is excluded from coverage, and that a service manager has signed off on the inspection checklist.":""}
+${condition==="custom"?"This is a custom factory order. The buyer has already committed to a specific vehicle configuration. Price leverage on the vehicle itself is limited -- the analysis should focus entirely on F&I products, add-ons, delivery protection, fees, and financing. Do not analyze the vehicle price as negotiable. Do focus on everything that happens after the vehicle price is locked.":""}
 ## EXTREME WARNING -- Only if there are serious red flags. Leave this section out completely if the deal looks clean.
 ## OVERALL VERDICT -- GO, NEGOTIATE, or WALK AWAY. One sentence in plain English.
 ${f.dealerName ? `## DEALER INTEL -- If you recognize this dealer as part of a major corporate group (AutoNation, Lithia, Asbury, Penske, Sonic, Holman, or similar), briefly note it in one plain sentence and explain what corporate-owned dealerships typically means for the buyer's negotiating experience. If you do not recognize the dealer or cannot confirm the parent company, skip this section entirely.` : ""}
-## VEHICLE PRICE -- Is this price fair? How much room is left to negotiate? If mileage is high, explain how that affects the vehicle's value in plain terms.
+${condition!=="custom" ? `## VEHICLE PRICE -- Is this price fair? How much room is left to negotiate? If mileage is high, explain how that affects the vehicle's value in plain terms.` : "## DELIVERY & FEES -- What fees are standard at delivery for a custom order and which are negotiable? Flag anything that should have been agreed to in writing before the order was placed."}
 ## TRADE-IN -- Is the trade-in offer fair or too low? If the buyer owes more than the car is worth, explain that clearly in plain language.
 ## ADD-ONS -- For each add-on: Worth It / Overpriced / Skip It. Explain why in one plain sentence.
 ## YOUR COUNTER -- 3-4 word-for-word scripts the buyer can say out loud. Make them specific dollar offers, not questions.
@@ -651,15 +680,17 @@ ${ftb ? `## FIRST TIME BUYER GUIDE
 - SETTING UP YOUR LOAN PAYMENT ONLINE -- After signing, how does the buyer set up their account with the lender to make payments? What should they expect: online portal, automatic payments, bank transfer setup, payment due dates.
 - REGISTRATION AND PLATES -- What happens after they drive off the lot? Explain temporary tags, how long permanent plates take, and what it means when the dealer says they handle registration.
 - WHAT TO EXPECT AT SIGNING -- A brief plain-language rundown so nothing at the signing table catches them off guard.` : ""}
-No interest rate or monthly payment recommendations.`, false, chunk => setR(chunk));
+No interest rate or monthly payment recommendations.
+If any add-on, fee, or product in this deal is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [item name] -- [brief reason you could not fully evaluate it]`, false, chunk => setR(chunk));
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
+    parseAndFlagGaps(t);
     saveDeal({ make: f.vehicle?f.vehicle.split(" ")[0]:null, model: f.vehicle?f.vehicle.split(" ").slice(1).join(" "):null, year: f.year||null, condition, zip: f.zip||null, asking_price: f.offer?parseFloat(f.offer.replace(/,/g,"")):null, addons: f.addons||null, dealer_name: f.dealerName||null, dealer_city: f.dealerCity||null, dealer_state: f.dealerState||null });
     if (f.zip && f.year && f.vehicle) {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
       const mkt = await ai(`Car market pricing analyst. You are writing for a regular car buyer who wants to know if the price they are being quoted is fair compared to what other dealers are charging. Use plain language. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
-Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-owned":condition==="used"?"used":condition} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip code ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", with similar mileage to "+f.mileage : ""}.
+Search for current ${condition==="new"||condition==="custom"?"new":condition==="cpo"?"certified pre-owned":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip code ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", with similar mileage to "+f.mileage : ""}.
 
 ## MARKET VERDICT -- Is $${f.offer} above, at, or below what other dealers are charging for the same vehicle right now? State it plainly.
 ## COMPARABLE LISTINGS -- List each comparable vehicle found: dealer name, city, price, and mileage. Plain and readable.
@@ -688,7 +719,15 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
         <button className={`cond-btn ${condition==="cpo"?"active active-cpo":""}`} onClick={()=>setCondition("cpo")}>
            <JargonTip term="CPO" />
         </button>
+        <button className={`cond-btn ${condition==="custom"?"active-custom active":""}`} onClick={()=>setCondition("custom")}>
+          🔧 Custom Order
+        </button>
       </div>
+      {condition==="custom" && (
+        <div style={{background:"rgba(168,164,200,.06)",border:"1px solid rgba(168,164,200,.2)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:11,color:"var(--text2)",fontWeight:700,lineHeight:1.7}}>
+          <strong style={{color:"var(--text)"}}>Custom orders limit price leverage</strong> -- but F&I products, add-ons, and fees are still fully negotiable. We'll focus the analysis there.
+        </div>
+      )}
       {condition==="cpo" && (
         <div style={{background:"rgba(59,158,255,.06)",border:"1px solid rgba(59,158,255,.2)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:11,color:"#A0C8FF",fontWeight:700,lineHeight:1.7}}>
           <strong style={{color:"var(--blue)"}}>CPO heads up:</strong> Certified Pre-Owned programs vary wildly by manufacturer. We'll analyze what the certification actually covers, what it doesn't, whether the dealer is marking up the CPO premium, and if you'd be better off with an independent warranty instead.
@@ -736,7 +775,7 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
           </div>
           <div className="sp" />
           <div className="g2">
-            {condition!=="new" && (
+            {condition!=="new" && condition!=="custom" && (
             <div className="fld">
               <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer",fontSize:12,fontWeight:800,color:"var(--text2)"}}>
                 <input type="checkbox" checked={accidentReported} onChange={e=>{setAccidentReported(e.target.checked);if(!e.target.checked)setAccidentSeverity("");}} style={{accentColor:"var(--y)",width:14,height:14}} />
@@ -760,7 +799,7 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
               )}
             </div>
             )}
-            {condition!=="new" && (
+            {condition!=="new" && condition!=="custom" && (
             <div className="fld">
               <label style={{display:"flex",alignItems:"center"}}>
                 Mileage
@@ -787,6 +826,7 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
             )}
             {condition==="new"
               ? <div className="fld"><label><JargonTip term="MSRP" /> (Sticker)</label><input placeholder="32,000" value={f.msrp} onChange={s("msrp")} /></div>
+              : condition==="custom" ? null
               : <div className="fld"><label>Listed Price</label><input placeholder="29,500" value={f.msrp} onChange={s("msrp")} /></div>
             }
           </div>
@@ -794,6 +834,8 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
           <div className="g2">
             {condition==="new"
               ? <div className="fld"><label>Their Asking Price</label><input placeholder="29,500" value={f.offer} onChange={s("offer")} /></div>
+              : condition==="custom"
+              ? <div className="fld"><label>Agreed Vehicle Price</label><input placeholder="42,000" value={f.offer} onChange={s("offer")} /></div>
               : <div className="fld"><label>Dealer's Offer</label><input placeholder="27,000" value={f.offer} onChange={s("offer")} /></div>
             }
           </div>
@@ -814,6 +856,9 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
         <div className="cb">
           <div className="fld" style={{marginBottom:12}}><label>Add-Ons</label><input placeholder="Extended warranty $2,100 - GAP $895 - Paint protection $499" value={f.addons} onChange={s("addons")} /></div>
           <div className="fld"><label>Anything Else We Should Know</label><textarea placeholder="Been on lot 60 days, competing offer, etc..." value={f.notes} onChange={s("notes")} /></div>
+          <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,marginTop:10,lineHeight:1.65,padding:"8px 0",borderTop:"1px solid var(--b1)"}}>
+            📌 <strong style={{color:"var(--text2)"}}>State fees (registration, title, taxes) are set by your state government and cannot be negotiated.</strong> They are typically under $50 in most states and must appear as separate line items. Any attempt to inflate or bundle them into other fees is worth flagging.
+          </div>
         </div>
       </div>
       <div className="card">
@@ -824,13 +869,24 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
             <input placeholder="e.g. 80021 -- leave blank to skip market scan" value={f.zip} onChange={s("zip")} maxLength={5} />
           </div>
           <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Optional but powerful -- we find what other dealers nearby are charging for the same car and hand you that leverage.</div>
-          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:12,marginBottom:4,fontWeight:700,lineHeight:1.65}}>
+            💡 <strong style={{color:"var(--text2)"}}>Works best with an active quote or specific offer in hand.</strong> The more detail you enter, the sharper your counter.
+          </div>
+          <div className="hcaptcha-wrap">
+            <div className="h-captcha" data-sitekey={HCAPTCHA_KEY} data-callback="onHcVerify" data-expired-callback="onHcExpire" />
+          </div>
+          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)||!hcToken}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
       </div>
       {loading && !res && <Loading msg={loadMsg} web={!!f.zip} />}
       {res && (
         <>
           <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);}} />
+          {(condition==="used"||condition==="cpo") && !loading && (
+            <div style={{background:"rgba(255,214,0,.04)",border:"1px solid rgba(255,214,0,.12)",borderRadius:10,padding:"10px 16px",fontSize:11,color:"var(--muted)",fontWeight:700,lineHeight:1.65,marginBottom:8}}>
+              ⚠ <strong style={{color:"var(--text2)"}}>Not all pre-owned vehicles are created equal.</strong> This analysis reflects the information you provided. A <JargonTip term="PPI" /> from an independent mechanic before signing is always worth the $100-150.
+            </div>
+          )}
           {!loading && market && (
             <div className="card ranim">
               <div className="vstrip">
@@ -1100,7 +1156,6 @@ const FI = [
 function FIDecoder() {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
   const [warrantyBrand, setWB] = useState(""); const [drivingHabits, setDrivingHabits] = useState(""); const [ownershipLength, setOwnershipLength] = useState("");
-  const WARRANTY_COS = ["","Safe-Guard Products","JM&A Group","Assurant Dealer Services","EFG Companies","Protective Asset Protection"];
   const toggle = id => setSel(s=>({...s,[id]:!s[id]}));
   const picked = FI.filter(p=>sel[p.id]);
   const run = async () => {
@@ -1120,8 +1175,9 @@ For EACH product:
 ## OVERALL FINANCE OFFICE STRATEGY -- Which to keep, which to cut, and how much you could save by removing the flagged ones.
 ## HOW THEY SELL IT -- Finance managers will discount everything if you push back. Explain that "I want to think about it" and "I need to see that in writing" always work.
 ## MAINTENANCE NOTE -- If the vehicle or driving habits suggest the buyer may be choosing the wrong product, flag it plainly.
-## OPENING LINE -- The exact first words to say when sitting down in the finance office.`, false, chunk => setR(chunk));
-    setR(t); setL(false);
+## OPENING LINE -- The exact first words to say when sitting down in the finance office.
+If any product or fee in this list is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [item name] -- [brief reason you could not fully evaluate it]`, false, chunk => setR(chunk));
+    setR(t); setL(false); parseAndFlagGaps(t);
   };
   return (
     <div>
@@ -1132,15 +1188,10 @@ For EACH product:
           <div className="fld">
             <label style={{display:"flex",alignItems:"center"}}>
               Warranty Provider
-              <div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">We selected the top 5 F&I warranty providers by dealership market share. Selecting yours lets us pull specific claims approval rates, known denial patterns, and coverage gaps for that provider.</div></div>
+              <div className="tooltip-wrap"><span className="tooltip-icon">?</span><div className="tooltip-bubble">Enter the warranty company name if shown on your paperwork. We'll pull specific claims approval rates, known denial patterns, and coverage gaps for that provider.</div></div>
             </label>
-            <select value={warrantyBrand} onChange={e=>setWB(e.target.value)} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
-              {WARRANTY_COS.map(w=><option key={w} value={w}>{w||"Select provider (optional)"}</option>)}
-            </select>
+            <input placeholder="e.g. Safe-Guard, JM&A, Assurant -- optional" value={warrantyBrand} onChange={e=>setWB(e.target.value)} />
           </div>
-        </div>
-        <div style={{fontSize:10,color:"var(--muted)",marginTop:8,fontWeight:700,lineHeight:1.6}}>
-          * Top 5 selected by dealership market share (F&I industry data). Not an endorsement. All providers analyzed objectively.
         </div>
       </div></div>
       <div className="card"><div className="ch"><span className="clbl">Your Situation</span><span className="clbl-sub">Helps us match coverage to your actual needs</span></div><div className="cb">
@@ -1222,8 +1273,9 @@ For EACH add-on:
 - The exact words the buyer should say to remove it or negotiate the price
 - If it is already physically installed on the vehicle, what to say in that situation
 ## BATTLE PLAN -- Step by step instructions for removing flagged items. What to say if the dealer claims it cannot be removed.
-## TOTAL POTENTIAL SAVINGS -- Estimated dollar amount by removing the flagged items.`, false, chunk => setR(chunk));
-    setR(t); setL(false);
+## TOTAL POTENTIAL SAVINGS -- Estimated dollar amount by removing the flagged items.
+If any add-on in this list is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [add-on name] -- [brief reason you could not fully evaluate it]`, false, chunk => setR(chunk));
+    setR(t); setL(false); parseAndFlagGaps(t);
   };
   const lc = l => l===true?"var(--green)":l===false?"var(--red)":"var(--y)";
   const ll = l => l===true?"LEGIT":l===false?"VERIFY":"REVIEW";
@@ -1433,6 +1485,7 @@ function TermsOfService() {
 }
 
 const FAQS = [
+  {q:"Does CNTROFR sell my information or refer me to dealers?",a:"Never. CNTROFR takes zero money from dealers, lenders, manufacturers, or advertising networks. We do not generate leads, sell your contact information, or refer you to any dealership. The moment we do that, the platform is worthless -- our entire value is that we work for you, not for them. Our only revenue comes from direct purchases by buyers like you."},
   {q:"Do you hate car salespeople?",a:"Definitely not. Your salesperson is just that -- a person. If you like their vibe and they listen to your needs, stick with them and let them earn your business. In most cases, the overcharges and the greed don't go to the salesperson. That money goes to the folks in the suits, not the ones working long hours and holidays to move metal."},
   {q:"Why no subscription or app?",a:"Simple -- use us when you need us. CNTROFR is built for the moment you're ready to make a large auto purchase, not something that needs to live on your phone year-round. You're not always car shopping, and you shouldn't be. Pay once, get what you need, go enjoy your new ride."},
   {q:"How do you protect my personal information?",a:"We keep it minimal by design. While some information is necessary for payment processing, we'd rather not hold onto your personal data at all. CNTROFR exists to keep your money with you -- not to collect, sell, or monetize your information in any way."},
