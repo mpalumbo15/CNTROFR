@@ -703,6 +703,21 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
       <div className="card">
         <div className="ch"><span className="clbl">The Vehicle</span></div>
         <div className="cb">
+          <div className="g3">
+            <div className="fld">
+              <label style={{display:"flex",alignItems:"center"}}>
+                Dealer
+                <div className="tooltip-wrap">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-bubble">Adding dealer info sharpens your counter script — we identify parent company pressure tactics, regional fee patterns, and market context. Never shared with them in any form.</div>
+                </div>
+              </label>
+              <input placeholder="AutoNation Honda" value={f.dealerName||""} onChange={s("dealerName")} />
+            </div>
+            <div className="fld"><label>City</label><input placeholder="Denver" value={f.dealerCity||""} onChange={s("dealerCity")} /></div>
+            <div className="fld"><label>State</label><input placeholder="CO" value={f.dealerState||""} onChange={s("dealerState")} maxLength={2} /></div>
+          </div>
+          <div className="sp" />
           <div className="g2">
             <div className="fld"><label>Year</label><input placeholder="2024" value={f.year} onChange={s("year")} /></div>
             <div className="fld"><label>Make & Model</label><input placeholder="Honda Accord" value={f.vehicle} onChange={s("vehicle")} /></div>
@@ -793,16 +808,7 @@ Search for current ${condition==="new"?"new":condition==="cpo"?"certified pre-ow
           </div>
         </div>
       </div>
-      <div className="card">
-        <div className="ch"><span className="clbl">The Dealer</span><span className="clbl-sub">Optional — this information is only used to sharpen your analysis. It is never shared with the dealer in any form.</span></div>
-        <div className="cb">
-          <div className="g2">
-            <div className="fld"><label>Dealer Name</label><input placeholder="AutoNation Honda" value={f.dealerName||""} onChange={s("dealerName")} /></div>
-            <div className="fld"><label>City</label><input placeholder="Denver" value={f.dealerCity||""} onChange={s("dealerCity")} /></div>
-          </div>
-          <div className="fld" style={{marginTop:12}}><label>State</label><input placeholder="CO" value={f.dealerState||""} onChange={s("dealerState")} maxLength={2} style={{maxWidth:80}} /></div>
-        </div>
-      </div>
+
       <div className="card">
         <div className="ch"><span className="clbl">Add-Ons & Notes</span></div>
         <div className="cb">
