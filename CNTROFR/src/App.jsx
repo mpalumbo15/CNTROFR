@@ -1370,7 +1370,7 @@ function PrivacyPolicy() {
   return (
     <div className="tos-wrap">
       <h1>Privacy Policy</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: April 2025</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: April 25, 2025</div>
 
       <h2>Our Philosophy</h2>
       <p>CNTROFR was built to keep your money in your pocket -- and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
@@ -1382,6 +1382,7 @@ function PrivacyPolicy() {
         <li><strong>Contact form submissions</strong> -- if you reach out to us, we receive your name, email, and message. We use this only to respond to you.</li>
         <li><strong>Anonymous deal data</strong> -- when you run a Deal Analyzer, we log a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) to build market intelligence over time. This data is never linked to your identity, your payment, or any personal information. No name, no email, no device ID -- ever.</li>
         <li><strong>Access codes</strong> -- when a purchase is made, an access code is generated and stored to validate your session. No personal data is attached to the code.</li>
+        <li><strong>Anonymous gap flags</strong> -- when our tools encounter a product, fee, or add-on they cannot fully evaluate, a brief anonymous description is logged for our internal review. This contains only the item name and a note -- no deal data, no personal information, and no connection to your session.</li>
       </ul>
       <p>The deal information you enter into our tools is sent directly to the Anthropic Claude API to generate your analysis. Beyond the anonymous data points described above, <strong>we do not retain your full deal inputs, trade-in details, or add-on information on our servers.</strong></p>
 
@@ -1402,6 +1403,7 @@ function PrivacyPolicy() {
         <li><strong>Stripe</strong> -- handles payment processing. Subject to Stripe's privacy policy at stripe.com.</li>
         <li><strong>Supabase</strong> -- stores anonymous deal data and access codes as described above. No personally identifiable information is stored. Subject to Supabase's privacy policy at supabase.com.</li>
         <li><strong>Cloudflare</strong> -- provides DNS, DDoS protection, and rate limiting. Standard network logs (IP address, request metadata) may be retained per Cloudflare's policy at cloudflare.com.</li>
+        <li><strong>hCaptcha</strong> -- provides bot detection on form submissions. hCaptcha may process limited technical data (browser type, interaction behavior) to verify you are human. No personal information is collected or shared. Subject to hCaptcha's privacy policy at hcaptcha.com.</li>
         <li><strong>Formspree</strong> -- routes contact form submissions to our inbox. Subject to Formspree's privacy policy at formspree.io.</li>
         <li><strong>Vercel</strong> -- hosts the platform. Standard server logs (IP address, request time) may be retained per Vercel's policy.</li>
       </ul>
@@ -1429,7 +1431,7 @@ function TermsOfService() {
   return (
     <div className="tos-wrap">
       <h1>Terms of Service</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: April 2025</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: April 25, 2025</div>
 
       <h2>1. About CNTROFR</h2>
       <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, decode F&I products, fight add-on markups, and prepare negotiation strategies.</p>
@@ -1449,6 +1451,7 @@ function TermsOfService() {
         <li><strong>Pro Bundle</strong> -- paid access. Unlocks all five tools: Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, Add-On Fighter, and Counter Guide. Valid for 7 days from purchase.</li>
         <li><strong>Counter Guide</strong> -- paid access. AI-generated insider guide covering dealer profit structures, F&I office tactics, add-on removal scripts, and trade-in maximization.</li>
       </ul>
+      <p>The Deal Analyzer supports four vehicle conditions: New, Used, Certified Pre-Owned (CPO), and Custom Order. Custom Order mode shifts analysis to F&I products, add-ons, fees, and delivery -- reflecting that vehicle price leverage is limited once a factory order is placed.</p>
       <p>By using CNTROFR tools, you agree to:</p>
       <ul>
         <li>Use the platform for personal, non-commercial purposes only</li>
@@ -1465,6 +1468,7 @@ function TermsOfService() {
 
       <h2>7. Privacy & Data</h2>
       <p>We collect only what is necessary to process payments, deliver services, and improve our platform. When you use the Deal Analyzer, a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) may be logged to build market intelligence. This data is never linked to your identity or payment information. We do not sell, rent, or share your personal information with third parties, including automobile dealers, lenders, or advertisers. For full details, see our Privacy Policy.</p>
+      <p>Form submissions are protected by hCaptcha bot detection. hCaptcha processes limited technical data to verify you are human. No personal information is collected or shared as part of this process.</p>
 
       <h2>8. Intellectual Property</h2>
       <p>All content, design, code, and analysis frameworks on CNTROFR.com are the intellectual property of CNTROFR LLC. You may not copy, reproduce, or build derivative products from our platform without express written consent.</p>
