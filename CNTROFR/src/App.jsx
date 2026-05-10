@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import { useState, useEffect } from "react";
 
 const S = `
@@ -2000,6 +2001,7 @@ export default function App() {
         </>
       )}
       {modal&&<PayModal plan={modal} onClose={()=>setModal(null)} onSuccess={onPaid} />}
+      <Analytics />
     </>
   );
 }
