@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const S = `
 
@@ -642,6 +642,7 @@ function DealAnalyzer({ ftb = false }) {
   const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const [hcToken, setHcToken] = useState("");
+  const captchaRef = useRef(null);
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   useEffect(() => {
     window.onHcVerify = token => setHcToken(token);
@@ -652,6 +653,22 @@ function DealAnalyzer({ ftb = false }) {
       sc.src = "https://js.hcaptcha.com/1/api.js";
       sc.async = true; sc.defer = true;
       document.head.appendChild(sc);
+    }
+    const tryRender = () => {
+      if (window.hcaptcha && captchaRef.current && !captchaRef.current.dataset.rendered) {
+        captchaRef.current.dataset.rendered = "true";
+        window.hcaptcha.render(captchaRef.current, {
+          sitekey: HCAPTCHA_KEY,
+          callback: "onHcVerify",
+          "expired-callback": "onHcExpire"
+        });
+      }
+    };
+    if (window.hcaptcha) {
+      tryRender();
+    } else {
+      const iv = setInterval(() => { if (window.hcaptcha) { tryRender(); clearInterval(iv); } }, 200);
+      return () => clearInterval(iv);
     }
   }, []);
   const run = async () => {
@@ -873,7 +890,7 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
             💡 <strong style={{color:"var(--text2)"}}>Works best with an active quote or specific offer in hand.</strong> The more detail you enter, the sharper your counter.
           </div>
           <div className="hcaptcha-wrap">
-            <div className="h-captcha" data-sitekey={HCAPTCHA_KEY} data-callback="onHcVerify" data-expired-callback="onHcExpire" />
+            <div ref={captchaRef} className="h-captcha" data-sitekey={HCAPTCHA_KEY} data-callback="onHcVerify" data-expired-callback="onHcExpire" />
           </div>
           <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)||!hcToken}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
@@ -1935,6 +1952,7 @@ export default function App() {
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
           </div>
+
         </div>
       </>}
 
@@ -1949,7 +1967,10 @@ export default function App() {
 
       {view==="tools"&&(
         <div className="tarea">
-          {access.length>0&&<div className="access-ok">✓ &nbsp;Pro Access Active -- All 5 tools unlocked</div>}
+          {access.includes("fee") && <div className="access-ok">✓ &nbsp;Pro Access Active -- All 5 tools unlocked</div>}
+          {access.includes("ftb") && !access.includes("fee") && <div className="access-ok">✓ &nbsp;First Time Buyer Mode Active -- Deal Analyzer unlocked</div>}
+          {access.includes("deal") && !access.includes("ftb") && !access.includes("fee") && <div className="access-ok">✓ &nbsp;Single Report Active -- Deal Analyzer unlocked</div>}
+          {access.includes("guide") && !access.includes("fee") && <div className="access-ok">✓ &nbsp;Negotiation Guide Unlocked</div>}
           <div className="tnav">
             {TABS.map(t=>(
               <button key={t.id} className={`ttab ${tab===t.id?"on":""} ${!canUse(t.id)?"lk":""}`} onClick={()=>{if(!canUse(t.id))buy(PLANS[2]);else setTab(t.id);}}>
