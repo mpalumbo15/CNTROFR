@@ -73,7 +73,15 @@ const S = `
   .beta-text strong { color: var(--y); }
   .beta-text em { color: var(--muted); font-style: normal; font-size: 11px; }
 
-  .alert { background: rgba(255,68,68,.07); border-top: 1px solid rgba(255,68,68,.2); border-bottom: 1px solid rgba(255,68,68,.2); padding: 12px 24px; text-align: center; }
+  .session-warn-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn .2s ease; }
+  .session-warn-box { background: var(--bg2); border: 2px solid var(--y); border-radius: 16px; max-width: 480px; width: 100%; padding: 32px 28px; text-align: center; }
+  .session-warn-icon { font-size: 36px; margin-bottom: 12px; }
+  .session-warn-title { font-family: 'Bebas Neue'; font-size: 26px; letter-spacing: 2px; color: var(--y); margin-bottom: 8px; }
+  .session-warn-body { font-size: 13px; color: var(--text2); line-height: 1.8; font-weight: 600; margin-bottom: 24px; }
+  .session-warn-body strong { color: var(--text); }
+  .session-warn-list { text-align: left; background: var(--bg3); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .session-warn-list li { font-size: 12px; color: var(--text2); font-weight: 700; list-style: none; display: flex; align-items: flex-start; gap: 8px; }
+  .session-warn-list li::before { content: '✓'; color: var(--y); font-weight: 900; flex-shrink: 0; }
   .alert p { font-size: 12px; color: #FF8888; font-weight: 700; }
   .alert p strong { color: var(--red); }
   .sec { max-width: 900px; margin: 0 auto; padding: 48px 16px; } @media(min-width:600px){ .sec { padding: 64px 24px; } }
@@ -1664,7 +1672,7 @@ const BETA_ACTIVE = true;
 
 const PLANS = [
   {id:"firsttime",name:"First Time Buyer",price:20,desc:"Your first car deal doesn't have to be your worst one.",features:["5-point dealer prep guide","What dealers assume you already know","Hidden costs that hit after you sign","Co-signer vs. first-time buyer programs","Full Deal Analyzer access","30 days access. No account. No login. Ever."],btn:"out",unlocks:["deal","ftb"]},
-  {id:"single",name:"Single Report",price:19,desc:"One full deal analysis.",features:["Deal Analyzer -- full breakdown","GO / NEGOTIATE / WALK verdict","Your counter offer strategy","No account. No login. Ever."],btn:"out",unlocks:["deal"]},
+  {id:"single",name:"Single Report",price:20,desc:"Every tool. One deal. One session.",features:["All 5 tools unlocked","Deal Analyzer -- full breakdown","Fee Comparison, F&I Decoder, Add-On Fighter","Counter Guide included","One session -- close the tab, access ends","No account. No login. Ever."],btn:"out",unlocks:["deal","fee","review","fi","addons","guide"]},
   {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses"],btn:"fill",unlocks:["deal","fee","review","fi","addons","guide"]},
   {id:"guide",name:"Negotiation Guide & Counter Scripts",price:19,desc:"Know the game before you play it. Built from the dealer side, written for the buyer.",features:["How dealer profit actually works","Negotiation strategy from offer to close","Finance office playbook -- exposed","Add-on and upsell counter scripts","Trade-in positioning","Printable cheat sheet"],btn:"out",unlocks:["guide"]},
 ];
@@ -1759,8 +1767,9 @@ export default function App() {
   const [tab,setTab]=useState("deal");
   const [modal,setModal]=useState(null);
   const [access,setAccess]=useState([]);
+  const [sessionWarning,setSessionWarning]=useState(false);
   const buy=plan=>setModal(plan);
-  const onPaid=plan=>{setModal(null);setAccess(plan.unlocks||[]);const validTab=(plan.unlocks||[]).find(id=>TABS.find(t=>t.id===id));if(validTab){setView("tools");setTab(validTab);}else if((plan.unlocks||[]).includes("ftb")){setView("tools");setTab("deal");}};
+  const onPaid=plan=>{setModal(null);setAccess(plan.unlocks||[]);if(plan.id==="single"){setSessionWarning(true);}else{const validTab=(plan.unlocks||[]).find(id=>TABS.find(t=>t.id===id));if(validTab){setView("tools");setTab(validTab);}else if((plan.unlocks||[]).includes("ftb")){setView("tools");setTab("deal");}}};
   const canUse=id=>TABS.find(t=>t.id===id)?.free||access.includes(id)||false;
   const Active=TABS.find(t=>t.id===tab)?.component||DealAnalyzer;
   return (
@@ -1967,9 +1976,9 @@ export default function App() {
 
       {view==="tools"&&(
         <div className="tarea">
-          {access.includes("fee") && <div className="access-ok">✓ &nbsp;Pro Access Active -- All 5 tools unlocked</div>}
+          {access.includes("fee") && !sessionWarning && <div className="access-ok">✓ &nbsp;Pro Access Active -- All 5 tools unlocked</div>}
           {access.includes("ftb") && !access.includes("fee") && <div className="access-ok">✓ &nbsp;First Time Buyer Mode Active -- Deal Analyzer unlocked</div>}
-          {access.includes("deal") && !access.includes("ftb") && !access.includes("fee") && <div className="access-ok">✓ &nbsp;Single Report Active -- Deal Analyzer unlocked</div>}
+          {access.includes("deal") && !access.includes("ftb") && !access.includes("fee") && <div className="access-ok">✓ &nbsp;Single Report Active -- All tools unlocked for this session</div>}
           {access.includes("guide") && !access.includes("fee") && <div className="access-ok">✓ &nbsp;Negotiation Guide Unlocked</div>}
           <div className="tnav">
             {TABS.map(t=>(
@@ -2021,6 +2030,23 @@ export default function App() {
         </>
       )}
       {modal&&<PayModal plan={modal} onClose={()=>setModal(null)} onSuccess={onPaid} />}
+      {sessionWarning&&(
+        <div className="session-warn-overlay">
+          <div className="session-warn-box">
+            <div className="session-warn-icon">⚠️</div>
+            <div className="session-warn-title">Before You Start</div>
+            <div className="session-warn-body">This is a <strong>single session</strong>. Close this tab and your access is gone — no exceptions, no refunds for incomplete sessions.</div>
+            <ul className="session-warn-list">
+              <li>Have your deal sheet or quote in front of you</li>
+              <li>Know your vehicle year, make, model, and asking price</li>
+              <li>Have all fees and F&I products listed</li>
+              <li>Know your trade-in details if applicable</li>
+              <li>Do not close or refresh this tab during your session</li>
+            </ul>
+            <button className="hbtn-y" style={{width:"100%",padding:"14px",fontSize:14}} onClick={()=>{setSessionWarning(false);setView("tools");setTab("deal");}}>I'm Ready — Let's Go</button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
