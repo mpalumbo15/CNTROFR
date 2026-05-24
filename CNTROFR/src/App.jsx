@@ -1785,7 +1785,7 @@ export default function App() {
           <span/><span/><span/>
         </button>
         <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
-          <img src="/cntrofrplate.svg" alt="CNTROFR" style={{height:"40px",width:"auto",display:"block"}} />
+          <img src="/cntrofrplate.png" alt="CNTROFR" style={{height:"40px",width:"auto",display:"block"}} />
           <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
         </div>
       </div>
@@ -1811,7 +1811,7 @@ export default function App() {
           <div className="hero-road" />
           <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
           <div className="hero-center-plate">
-            <img src="/cntrofrplate.svg" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
+            <img src="/cntrofrplate.png" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
           </div>
           <h2 className="hero-h1">The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</h2>
           <div className="hero-tagline">Don't Sign. Counter.</div>
@@ -1946,7 +1946,7 @@ export default function App() {
 
         <div id="faq"><FAQ /></div>
         <div className="footer">
-          <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
           <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>
             <div className="powered-by">
@@ -1969,7 +1969,7 @@ export default function App() {
       {view==="contact"&&<>
         <Contact />
         <div className="footer">
-          <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
           <p>© 2025 CNTROFR - <a href="mailto:info@cntrofr.com">info@cntrofr.com</a></p>
         </div>
@@ -2001,7 +2001,7 @@ export default function App() {
           </div>
           <PrivacyPolicy />
           <div className="footer">
-            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
@@ -2013,7 +2013,7 @@ export default function App() {
           </div>
           <TermsOfService />
           <div className="footer">
-            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
@@ -2025,7 +2025,7 @@ export default function App() {
           </div>
           <MissionPage />
           <div className="footer">
-            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
