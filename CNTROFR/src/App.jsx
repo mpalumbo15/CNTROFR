@@ -35,9 +35,9 @@ const S = `
   .bmenu-item.highlight { background: var(--y); color: #111; margin-top: 4px; text-align: center; }
   .bmenu-item.highlight:hover { background: var(--yd); }
   .bmenu-divider { height: 1px; background: var(--b1); margin: 4px 8px; }
-  .hero { max-width: 900px; margin: 0 auto; padding: 36px 24px 60px; text-align: center; position: relative; }
+  .hero { max-width: 900px; margin: 0 auto; padding: 12px 24px 60px; text-align: center; position: relative; }
   .hero-road { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: repeating-linear-gradient(90deg, var(--y) 0px, var(--y) 40px, transparent 40px, transparent 80px); opacity: .3; }
-  .hero-center-plate { display: flex; justify-content: center; margin-bottom: 32px; }
+  .hero-center-plate { display: flex; justify-content: center; margin-bottom: 24px; }
   .hero-plate { background: var(--y); border: 6px solid #B8A000; border-radius: 12px; padding: 10px 32px 12px; box-shadow: 0 6px 0 #8A7800, 0 10px 40px rgba(255,214,0,.35); position: relative; display: inline-flex; flex-direction: column; align-items: center; }
   .hero-plate::before, .hero-plate::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); font-size: 10px; color: rgba(0,0,0,.3); }
   .hero-plate::before { left: 10px; } .hero-plate::after { right: 10px; }
@@ -1785,7 +1785,8 @@ export default function App() {
           <span/><span/><span/>
         </button>
         <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
-          <img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"48px",width:"auto",objectFit:"contain",display:"block"}} />
+          <img src="/cntrofrplate.png" alt="CNTROFR" style={{height:"44px",width:"140px",objectFit:"cover",objectPosition:"center",display:"block",borderRadius:"6px"}} />
+          <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
         </div>
       </div>
       {menuOpen && (
@@ -1810,7 +1811,7 @@ export default function App() {
           <div className="hero-road" />
           <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
           <div className="hero-center-plate">
-            <img src="/cntrofrplate.png" alt="CNTROFR" style={{maxWidth:"min(580px,92vw)",height:"auto",display:"block"}} />
+            <img src="/cntrofrplate.png" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
           </div>
           <h2 className="hero-h1">The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</h2>
           <div className="hero-tagline">Don't Sign. Counter.</div>
