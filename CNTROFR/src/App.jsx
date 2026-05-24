@@ -327,8 +327,8 @@ const S = `
   .powered-by span { font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
   .powered-by-logo { font-size: 10px; font-weight: 900; color: var(--text2); letter-spacing: .5px; }
 
-  .footer { border-top: 2px solid var(--b1); padding: 36px 24px; text-align: center; }
-  .footer-plate { display: flex; justify-content: center; margin-bottom: 12px; }
+  .footer { border-top: 2px solid var(--b1); padding: 24px 24px 20px; text-align: center; }
+  .footer-plate { display: flex; justify-content: center; margin-bottom: 8px; overflow: hidden; }
   .fp { background: var(--y); border: 3px solid #B8A000; border-radius: 6px; padding: 5px 18px; box-shadow: 0 3px 0 #8A7800; font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 5px; color: #111; }
   .footer-slogan { font-family: 'Bebas Neue'; font-size: 13px; letter-spacing: 4px; color: var(--muted); margin-bottom: 14px; }
   .footer p { font-size: 11px; color: var(--muted); line-height: 1.8; max-width: 560px; margin: 0 auto; font-weight: 600; }
@@ -1785,8 +1785,7 @@ export default function App() {
           <span/><span/><span/>
         </button>
         <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
-          <img src="/cntrofrplate.png" alt="CNTROFR" style={{height:"44px",width:"180px",objectFit:"contain",objectPosition:"left center",display:"block"}} />
-          <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
+          <img src="/cntrofrplate.png" alt="CNTROFR" style={{height:"52px",width:"auto",display:"block"}} />
         </div>
       </div>
       {menuOpen && (
@@ -1946,7 +1945,7 @@ export default function App() {
 
         <div id="faq"><FAQ /></div>
         <div className="footer">
-          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
+          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
           <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>
             <div className="powered-by">
@@ -1961,7 +1960,7 @@ export default function App() {
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
           </div>
-          <div style={{marginTop:14,fontSize:11,color:"var(--muted)",fontWeight:700}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)"}}>@righthandman</a></div>
+          <div style={{marginTop:16,fontSize:13,color:"var(--text2)",fontWeight:800,letterSpacing:.3}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
 
         </div>
       </>}
@@ -1969,7 +1968,7 @@ export default function App() {
       {view==="contact"&&<>
         <Contact />
         <div className="footer">
-          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
+          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
           <p>© 2025 CNTROFR - <a href="mailto:info@cntrofr.com">info@cntrofr.com</a></p>
         </div>
@@ -2001,7 +2000,7 @@ export default function App() {
           </div>
           <PrivacyPolicy />
           <div className="footer">
-            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
@@ -2013,7 +2012,7 @@ export default function App() {
           </div>
           <TermsOfService />
           <div className="footer">
-            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
@@ -2025,7 +2024,7 @@ export default function App() {
           </div>
           <MissionPage />
           <div className="footer">
-            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
