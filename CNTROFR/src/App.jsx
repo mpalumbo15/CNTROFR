@@ -35,7 +35,7 @@ const S = `
   .bmenu-item.highlight { background: var(--y); color: #111; margin-top: 4px; text-align: center; }
   .bmenu-item.highlight:hover { background: var(--yd); }
   .bmenu-divider { height: 1px; background: var(--b1); margin: 4px 8px; }
-  .hero { max-width: 900px; margin: 0 auto; padding: 80px 24px 60px; text-align: center; position: relative; }
+  .hero { max-width: 900px; margin: 0 auto; padding: 36px 24px 60px; text-align: center; position: relative; }
   .hero-road { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: repeating-linear-gradient(90deg, var(--y) 0px, var(--y) 40px, transparent 40px, transparent 80px); opacity: .3; }
   .hero-center-plate { display: flex; justify-content: center; margin-bottom: 32px; }
   .hero-plate { background: var(--y); border: 6px solid #B8A000; border-radius: 12px; padding: 10px 32px 12px; box-shadow: 0 6px 0 #8A7800, 0 10px 40px rgba(255,214,0,.35); position: relative; display: inline-flex; flex-direction: column; align-items: center; }
@@ -1785,7 +1785,7 @@ export default function App() {
           <span/><span/><span/>
         </button>
         <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
-          <img src="/cntrofrfavicon.png" alt="CNTROFR" style={{height:"36px",width:"36px",objectFit:"contain"}} />
+          <img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"44px",width:"auto",objectFit:"contain"}} />
           <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
           <div className="hdr-tagline">Don't Sign. Counter.</div>
         </div>
