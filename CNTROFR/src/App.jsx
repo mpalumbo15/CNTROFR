@@ -11,7 +11,7 @@ const S = `
     --muted: #606080; --text: #EEEAF8; --text2: #A8A4C8;
   }
   body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; overflow-x: hidden; }
-  .hdr { position: sticky; top: 0; z-index: 200; background: rgba(14,14,20,.96); backdrop-filter: blur(12px); border-bottom: 2px solid var(--b1); padding: 0 16px; display: flex; align-items: center; height: 56px; gap: 12px; }
+  .hdr { position: sticky; top: 0; z-index: 200; background: rgba(14,14,20,.96); backdrop-filter: blur(12px); border-bottom: 2px solid var(--b1); padding: 0 16px; display: flex; align-items: center; height: 64px; gap: 12px; }
   .hdr-logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
   .hdr-plate { background: var(--y); border: 2px solid #B8A000; border-radius: 5px; padding: 3px 10px; box-shadow: 0 2px 0 #8A7800, 0 3px 10px rgba(255,214,0,.25); font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 4px; color: #111; position: relative; }
   .hdr-plate::before, .hdr-plate::after { content: '●'; position: absolute; top: 50%; transform: translateY(-50%); font-size: 6px; color: #B8A000; }
@@ -1785,9 +1785,7 @@ export default function App() {
           <span/><span/><span/>
         </button>
         <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
-          <img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"44px",width:"auto",objectFit:"contain"}} />
-          <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
-          <div className="hdr-tagline">Don't Sign. Counter.</div>
+          <img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"48px",width:"auto",objectFit:"contain",display:"block"}} />
         </div>
       </div>
       {menuOpen && (
