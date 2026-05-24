@@ -82,7 +82,8 @@ const S = `
   .session-warn-list { text-align: left; background: var(--bg3); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
   .session-warn-list li { font-size: 12px; color: var(--text2); font-weight: 700; list-style: none; display: flex; align-items: flex-start; gap: 8px; }
   .session-warn-list li::before { content: '✓'; color: var(--y); font-weight: 900; flex-shrink: 0; }
-  .alert p { font-size: 12px; color: #FF8888; font-weight: 700; }
+  .alert { background: rgba(255,68,68,.07); border-top: 1px solid rgba(255,68,68,.2); border-bottom: 1px solid rgba(255,68,68,.2); padding: 14px 24px; display: flex; justify-content: center; align-items: center; }
+  .alert p { font-size: 14px; color: #FF8888; font-weight: 700; max-width: 860px; line-height: 1.6; text-align: center; }
   .alert p strong { color: var(--red); }
   .sec { max-width: 900px; margin: 0 auto; padding: 48px 16px; } @media(min-width:600px){ .sec { padding: 64px 24px; } }
   .sec-eye { font-family: 'Bebas Neue'; font-size: 12px; letter-spacing: 4px; color: var(--y); text-align: center; margin-bottom: 10px; }
@@ -585,12 +586,15 @@ function Res({ verdict, vc, text, onReset }) {
 }
 
 function CookieBanner() {
-  const [show, setShow] = useState(() => !sessionStorage.getItem("cookie_dismissed"));
+  const [show, setShow] = useState(() => {
+    try { return !sessionStorage.getItem("cookie_dismissed"); }
+    catch { return true; }
+  });
   if (!show) return null;
   return (
     <div className="cookie-banner">
       <div className="cookie-text"><strong>This website doesn't want your cookies.</strong> You're welcome. No tracking, no ad networks, no behavioral data. Just the tools you came for.</div>
-      <button className="cookie-dismiss" onClick={()=>{ sessionStorage.setItem("cookie_dismissed","1"); setShow(false); }}>Got It ✓</button>
+      <button className="cookie-dismiss" onClick={()=>{ try { sessionStorage.setItem("cookie_dismissed","1"); } catch {} setShow(false); }}>Got It ✓</button>
     </div>
   );
 }
