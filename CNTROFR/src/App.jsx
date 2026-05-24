@@ -1811,11 +1811,7 @@ export default function App() {
           <div className="hero-road" />
           <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
           <div className="hero-center-plate">
-            <div className="hero-plate">
-              <div className="hp-state">Counter Offer</div>
-              <div className="hp-text">CNTROFR</div>
-              <div className="hp-url">CNTROFR.COM</div>
-            </div>
+            <img src="/cntrofrplate.png" alt="CNTROFR" style={{maxWidth:"min(420px,90vw)",height:"auto",display:"block"}} />
           </div>
           <h2 className="hero-h1">The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</h2>
           <div className="hero-tagline">Don't Sign. Counter.</div>
@@ -1865,7 +1861,7 @@ export default function App() {
             <table className="vs-table">
               <thead><tr><th>Feature</th><th className="us">CNTROFR ●</th><th>Human Concierge</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
               <tbody>
-                {[["No login required","✓","✗","✗","✗"],["Pay once, no subscription","✓","✗","✗","✓ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","Partial","✗"],["Bot review detection","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Price","$19-$49","$299-$499","$99-199/yr","Free"]].map(([feat,...vals],i)=>(
+                {[["No login required","✓","✗","✗","✗"],["Pay once, no subscription","✓","✗","✗","✓ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","Partial","✗"],["Bot review detection","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Price","$20-$49","$299-$499","$99-199/yr","Free"]].map(([feat,...vals],i)=>(
                   <tr key={i} className={i===0?"hi":""}><td className="feat">{feat}</td>{vals.map((v,j)=><td key={j}>{v==="✓"?<span className="ck">✓</span>:v==="✗"?<span className="cx">--</span>:v}</td>)}</tr>
                 ))}
               </tbody>
@@ -1900,7 +1896,7 @@ export default function App() {
                 <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro -- $49":p.id==="guide"?"Negotiation Guide -- $19":p.id==="firsttime"?"First Time Buyer -- $20":"Single Report -- $19"}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro -- $49":p.id==="guide"?"Negotiation Guide -- $19":p.id==="firsttime"?"First Time Buyer -- $20":"Single Report -- $20"}</button>
               </div>
             ))}
           </div>
@@ -1950,7 +1946,7 @@ export default function App() {
 
         <div id="faq"><FAQ /></div>
         <div className="footer">
-          <div className="footer-plate"><div className="fp">CNTROFR</div></div>
+          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
           <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>
             <div className="powered-by">
@@ -1972,7 +1968,7 @@ export default function App() {
       {view==="contact"&&<>
         <Contact />
         <div className="footer">
-          <div className="footer-plate"><div className="fp">CNTROFR</div></div>
+          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
           <p>© 2025 CNTROFR - <a href="mailto:info@cntrofr.com">info@cntrofr.com</a></p>
         </div>
@@ -2004,7 +2000,7 @@ export default function App() {
           </div>
           <PrivacyPolicy />
           <div className="footer">
-            <div className="footer-plate"><div className="fp">CNTROFR</div></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
@@ -2016,7 +2012,7 @@ export default function App() {
           </div>
           <TermsOfService />
           <div className="footer">
-            <div className="footer-plate"><div className="fp">CNTROFR</div></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
@@ -2028,7 +2024,7 @@ export default function App() {
           </div>
           <MissionPage />
           <div className="footer">
-            <div className="footer-plate"><div className="fp">CNTROFR</div></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{maxWidth:"280px",height:"auto",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
