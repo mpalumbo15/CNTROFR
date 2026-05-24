@@ -1785,7 +1785,7 @@ export default function App() {
           <span/><span/><span/>
         </button>
         <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
-          <img src="/cntrofrplate.png" alt="CNTROFR" style={{height:"44px",width:"140px",objectFit:"cover",objectPosition:"center",display:"block",borderRadius:"6px"}} />
+          <img src="/cntrofrplate.png" alt="CNTROFR" style={{height:"44px",width:"180px",objectFit:"contain",objectPosition:"left center",display:"block"}} />
           <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
         </div>
       </div>
@@ -1961,6 +1961,7 @@ export default function App() {
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
           </div>
+          <div style={{marginTop:14,fontSize:11,color:"var(--muted)",fontWeight:700}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)"}}>@righthandman</a></div>
 
         </div>
       </>}
