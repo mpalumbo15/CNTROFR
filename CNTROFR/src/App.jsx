@@ -1785,7 +1785,8 @@ export default function App() {
           <span/><span/><span/>
         </button>
         <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
-          <div className="hdr-plate">CNTROFR</div>
+          <img src="/cntrofrfavicon.png" alt="CNTROFR" style={{height:"36px",width:"36px",objectFit:"contain"}} />
+          <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
           <div className="hdr-tagline">Don't Sign. Counter.</div>
         </div>
       </div>
@@ -1811,7 +1812,7 @@ export default function App() {
           <div className="hero-road" />
           <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
           <div className="hero-center-plate">
-            <img src="/cntrofrplate.png" alt="CNTROFR" style={{maxWidth:"min(420px,90vw)",height:"auto",display:"block"}} />
+            <img src="/cntrofrplate.png" alt="CNTROFR" style={{maxWidth:"min(580px,92vw)",height:"auto",display:"block"}} />
           </div>
           <h2 className="hero-h1">The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</h2>
           <div className="hero-tagline">Don't Sign. Counter.</div>
