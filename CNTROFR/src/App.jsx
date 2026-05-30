@@ -428,6 +428,17 @@ async function saveGapFlag(description) {
   } catch(e) {}
 }
 
+async function saveToolRun(data) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/tool_runs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Prefer": "return=minimal" },
+      body: JSON.stringify({ ...data, timestamp: new Date().toISOString() })
+    });
+  } catch(e) {}
+}
+
 function parseAndFlagGaps(responseText) {
   if (!responseText) return;
   const lines = responseText.split("\n");
@@ -650,10 +661,12 @@ function Loading({ msg, web }) {
   );
 }
 
-function DealAnalyzer({ ftb = false }) {
+function DealAnalyzer({ ftb = false, paid = false, tier = "single", onBuy = null }) {
   const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const [hcToken, setHcToken] = useState("");
+  const [finalOffer, setFinalOffer] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const captchaRef = useRef(null);
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   useEffect(() => {
@@ -710,7 +723,13 @@ ${ftb ? `## FIRST TIME BUYER GUIDE
 - REGISTRATION AND PLATES -- What happens after they drive off the lot? Explain temporary tags, how long permanent plates take, and what it means when the dealer says they handle registration.
 - WHAT TO EXPECT AT SIGNING -- A brief plain-language rundown so nothing at the signing table catches them off guard.` : ""}
 No interest rate or monthly payment recommendations.
-If any add-on, fee, or product in this deal is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [item name] -- [brief reason you could not fully evaluate it]`, false, chunk => setR(chunk));
+If any add-on, fee, or product in this deal is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [item name] -- [brief reason you could not fully evaluate it]
+${finalOffer ? `## FINAL OFFER MODE -- ACTIVATED
+The dealer has stated this is their best price or the buyer is about to enter the finance office. Shift to maximum protection mode.
+## LAST MOVE -- Give 2 word-for-word final counter scripts. Specific dollar offers. Not questions. Statements.
+## FINANCE OFFICE ALERT -- What the F&I manager will try in the next 30 minutes. Word-for-word responses to the most common pressure plays.
+## WALK TRIGGER -- Is there anything in this deal that should stop the buyer from signing right now? Answer directly: yes or no, and why.
+## FINAL CHECKLIST -- 5 things to verify before ink hits paper.` : ""}`, false, chunk => setR(chunk));
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
     parseAndFlagGaps(t);
@@ -728,10 +747,23 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
       setM(mkt);
     }
     setL(false); setLM("");
+    saveToolRun({ tool: "deal_analyzer", tier, final_offer: finalOffer, condition, zip: f.zip||null, vehicle: f.vehicle||null });
+    if (tier === "single") setSubmitted(true);
   };
   const vc = v => /^GO/.test(v) ? "vg" : /WALK/.test(v) ? "vr" : /NEG/.test(v) ? "vy" : "vx";
   return (
     <div>
+      {!paid && onBuy && (
+        <div style={{position:"fixed",bottom:24,right:16,zIndex:500,filter:"drop-shadow(0 4px 20px rgba(255,214,0,.4))"}}>
+          <button className="hbtn-y" style={{padding:"13px 22px",fontSize:13,fontWeight:900,borderRadius:12}} onClick={onBuy}>⚡ Upgrade to Pro — $49</button>
+        </div>
+      )}
+      {submitted && (
+        <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.2)",borderRadius:10,padding:"12px 16px",marginBottom:12,textAlign:"center",fontSize:13,color:"var(--text2)",fontWeight:800}}>
+          ✓ Session submitted. Your results are locked below. Close this tab and access ends.
+        </div>
+      )}
+      <div style={submitted ? {pointerEvents:"none",opacity:.45,userSelect:"none",filter:"grayscale(.3)"} : {}}>
       <div className="phd">
         <h2>Deal <span>Analyzer</span></h2>
         {ftb && <div className="ftb-box"><div className="ftb-title">🎓 First Time Buyer Mode Active</div><p className="ftb-body">Your results will include a full first-time buyer guide — down payment ratios, PTI basics, how to set up your loan payment online, and what to expect after you sign.</p></div>}
@@ -880,6 +912,7 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
         </div>
       </div>
 
+      {paid && (
       <div className="card">
         <div className="ch"><span className="clbl">Add-Ons & Notes</span></div>
         <div className="cb">
@@ -890,6 +923,8 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
           </div>
         </div>
       </div>
+      )}
+      {paid && (
       <div className="card">
         <div className="ch"><span className="clbl">📍 Local Market Scan <span style={{color:"var(--green)",fontSize:9,letterSpacing:1,marginLeft:8}}>NEW</span></span></div>
         <div className="cb">
@@ -901,12 +936,34 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
           <div style={{fontSize:11,color:"var(--muted)",marginTop:12,marginBottom:4,fontWeight:700,lineHeight:1.65}}>
             💡 <strong style={{color:"var(--text2)"}}>Works best with an active quote or specific offer in hand.</strong> The more detail you enter, the sharper your counter.
           </div>
+        </div>
+      </div>
+      )}
+      <div className="card">
+        <div className="cb">
+          {paid && (
+            <div onClick={()=>setFinalOffer(!finalOffer)} style={{cursor:"pointer",background:finalOffer?"rgba(255,214,0,.1)":"rgba(255,255,255,.03)",border:`2px solid ${finalOffer?"var(--y)":"var(--b1)"}`,borderRadius:10,padding:"12px 16px",marginBottom:14,transition:"all .2s"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+                <span style={{fontSize:18}}>🏁</span>
+                <span style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:finalOffer?"var(--y)":"var(--text2)"}}>
+                  {finalOffer ? "FINAL OFFER MODE — ON" : "FINAL OFFER MODE"}
+                </span>
+                <div style={{marginLeft:"auto",background:finalOffer?"var(--y)":"var(--b1)",borderRadius:20,width:36,height:20,position:"relative",transition:"background .2s"}}>
+                  <div style={{position:"absolute",top:3,left:finalOffer?18:3,width:14,height:14,borderRadius:"50%",background:finalOffer?"#000":"var(--muted)",transition:"left .2s"}} />
+                </div>
+              </div>
+              <div style={{fontSize:11,color:"var(--muted)",fontWeight:700,lineHeight:1.65}}>
+                Dealer says this is their best price — or you've agreed on a number and you're heading to the finance office. Activate this for last-line-of-defense counter scripts, F&I office warnings, and a final checklist before you sign.
+              </div>
+            </div>
+          )}
           <div className="hcaptcha-wrap">
             <div ref={captchaRef} className="h-captcha" data-sitekey={HCAPTCHA_KEY} data-callback="onHcVerify" data-expired-callback="onHcExpire" />
           </div>
-          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)||!hcToken}>{loading ? loadMsg||"Working..." : f.zip ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
+          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)||!hcToken}>{loading ? loadMsg||"Working..." : finalOffer ? "→ Get My Final Counter" : f.zip && paid ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
       </div>
+      </div>{/* end field lock wrapper */}
       {loading && !res && <Loading msg={loadMsg} web={!!f.zip} />}
       {res && (
         <>
@@ -931,9 +988,10 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
   );
 }
 
-function FeeComparison() {
+function FeeComparison({ tier = "single" }) {
   const [f, setF] = useState({ dealer:"", city:"", state:"", fee:"", brand:"" });
   const [loading, setL] = useState(false); const [res, setR] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
   const run = async () => {
     setL(true); setR(null);
@@ -946,10 +1004,13 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Documentation 
 ## WHAT TO SAY -- The exact words to push back on this fee at the dealership.
 ## HOW TO USE THIS AS LEVERAGE -- If a competing dealer charges less, explain exactly how to use that information to negotiate a better deal.`, true, chunk => setR(chunk));
     setR(t); setL(false);
+    saveToolRun({ tool: "fee_comparison", tier, state: f.state||null });
+    if (tier === "single") setSubmitted(true);
   };
   return (
     <div>
       <div className="phd"><h2>Fee <span>Comparison</span></h2><p>Is that doc fee legit -- or greed with paperwork on top?</p></div>
+      <div style={submitted ? {pointerEvents:"none",opacity:.45,userSelect:"none",filter:"grayscale(.3)"} : {}}>
       <div className="card">
         <div className="ch"><span className="clbl">Dealer & Fee Details</span></div>
         <div className="cb">
@@ -966,6 +1027,8 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Documentation 
           <button className="go-btn" onClick={run} disabled={loading||!f.state||!f.fee}>{loading?"Researching...":"→ Analyze This Fee"}</button>
         </div>
       </div>
+      </div>
+      {submitted && <div style={{textAlign:"center",fontSize:12,color:"var(--muted)",fontWeight:800,padding:"8px",marginBottom:8}}>✓ Session submitted. Results locked below.</div>}
       {loading && !res && <Loading msg="Researching fee standards" web={true} />}
       {res && <div className="card ranim"><div className="vstrip"><span className="badge ba">FEE ANALYSIS</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
     </div>
@@ -1182,9 +1245,10 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
 const FI = [
   {id:"ew",name:"Extended Warranty",desc:"3rd-party coverage after factory"},{id:"gap",name:"GAP Insurance",desc:"Covers gap if totaled & underwater"},{id:"tw",name:"Tire & Wheel",desc:"Road hazard protection"},{id:"ppf",name:"Paint Protection Film",desc:"Physical chip/scratch film"},{id:"cc",name:"Ceramic Coating",desc:"Chemical paint protection"},{id:"ip",name:"Interior Protection",desc:"Scotchgard-type treatment"},{id:"cl",name:"Credit Life/Disability",desc:"Loan paid if you die/disabled"},{id:"kr",name:"Key Replacement",desc:"Lost/broken smart key"},{id:"ws",name:"Windshield Protection",desc:"Glass repair/replace"},{id:"rs",name:"Roadside Assistance",desc:"Often duplicated by insurance"},{id:"pm",name:"Prepaid Maintenance",desc:"Oil changes rolled in"},
 ];
-function FIDecoder() {
+function FIDecoder({ tier = "single" }) {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
   const [warrantyBrand, setWB] = useState(""); const [drivingHabits, setDrivingHabits] = useState(""); const [ownershipLength, setOwnershipLength] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const toggle = id => setSel(s=>({...s,[id]:!s[id]}));
   const picked = FI.filter(p=>sel[p.id]);
   const run = async () => {
@@ -1207,9 +1271,13 @@ For EACH product:
 ## OPENING LINE -- The exact first words to say when sitting down in the finance office.
 If any product or fee in this list is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [item name] -- [brief reason you could not fully evaluate it]`, false, chunk => setR(chunk));
     setR(t); setL(false); parseAndFlagGaps(t);
+    saveToolRun({ tool: "fi_decoder", tier, vehicle: veh||null });
+    if (tier === "single") setSubmitted(true);
   };
   return (
     <div>
+      {submitted && <div style={{textAlign:"center",fontSize:12,color:"var(--muted)",fontWeight:800,padding:"8px",marginBottom:8}}>✓ Session submitted. Results locked below.</div>}
+      <div style={submitted ? {pointerEvents:"none",opacity:.45,userSelect:"none",filter:"grayscale(.3)"} : {}}>
       <div className="phd"><h2><JargonTip term="F&I" /> <span>Decoder</span></h2><p>Every product exposed -- dealer cost, real value, exit script.</p></div>
       <div className="card"><div className="ch"><span className="clbl">Vehicle</span></div><div className="cb">
         <div className="g2">
@@ -1264,6 +1332,7 @@ If any product or fee in this list is something you cannot fully evaluate or hav
           <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Decoding...":`→ Decode ${picked.length} Product${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
+      </div>{/* end field lock wrapper */}
       {loading && !res && <Loading msg="Decoding F&I products" web={true} />}
       {res && <div className="card ranim"><div className="vstrip"><span className="badge ba">F&I DECODED</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
     </div>
@@ -1285,8 +1354,9 @@ const AO = [
   {id:"mats",name:"All-Weather Mats",legit:null,desc:"Depends on brand and price -- WeatherTech vs. dealer markup"},
   {id:"kit",name:"Emergency Kit",legit:null,desc:"Verify if included in MSRP or added separately -- dealer-added kits are often heavily marked up"},
 ];
-function AddOnFighter() {
+function AddOnFighter({ tier = "single" }) {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
   const toggle = id => setSel(s=>({...s,[id]:!s[id]}));
   const picked = AO.filter(a=>sel[a.id]);
   const run = async () => {
@@ -1305,11 +1375,15 @@ For EACH add-on:
 ## TOTAL POTENTIAL SAVINGS -- Estimated dollar amount by removing the flagged items.
 If any add-on in this list is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [add-on name] -- [brief reason you could not fully evaluate it]`, false, chunk => setR(chunk));
     setR(t); setL(false); parseAndFlagGaps(t);
+    saveToolRun({ tool: "addon_fighter", tier, vehicle: veh||null });
+    if (tier === "single") setSubmitted(true);
   };
   const lc = l => l===true?"var(--green)":l===false?"var(--red)":"var(--y)";
   const ll = l => l===true?"LEGIT":l===false?"VERIFY":"REVIEW";
   return (
     <div>
+      {submitted && <div style={{textAlign:"center",fontSize:12,color:"var(--muted)",fontWeight:800,padding:"8px",marginBottom:8}}>✓ Session submitted. Results locked below.</div>}
+      <div style={submitted ? {pointerEvents:"none",opacity:.45,userSelect:"none",filter:"grayscale(.3)"} : {}}>
       <div className="phd"><h2>Add-On <span>Fighter</span></h2><p>We know their scripts. Here's yours.</p></div>
       <div className="card"><div className="ch"><span className="clbl">Vehicle</span></div><div className="cb"><div className="fld"><label>Year / Make / Model</label><input placeholder="2024 Chevrolet Equinox LT" value={veh} onChange={e=>setV(e.target.value)} /></div></div></div>
       <div className="card">
@@ -1329,6 +1403,7 @@ If any add-on in this list is something you cannot fully evaluate or have not en
           <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Arming you up...":`→ Fight ${picked.length} Add-On${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
+      </div>{/* end field lock wrapper */}
       {loading && !res && <Loading msg="Loading counter scripts" web={false} />}
       {res && <div className="card ranim"><div className="vstrip"><span className="badge br">FIGHT BACK</span><div style={{flex:1}}/><button className="ghost-btn" onClick={()=>setR(null)}>Reset</button></div><MD text={res}/></div>}
     </div>
@@ -1362,6 +1437,7 @@ A concise reference the buyer can actually use at the table:
 - The exact words to use when walking away
 - Red flags that mean you should leave immediately`);
     setR(t); setL(false);
+    saveToolRun({ tool: "counter_guide", tier: "paid" });
   };
   return (
     <div>
@@ -1675,10 +1751,10 @@ const BETA_CODE = "CNTROFR-BETA";
 const BETA_ACTIVE = true;
 
 const PLANS = [
-  {id:"firsttime",name:"First Time Buyer",price:20,desc:"Your first car deal doesn't have to be your worst one.",features:["5-point dealer prep guide","What dealers assume you already know","Hidden costs that hit after you sign","Co-signer vs. first-time buyer programs","Full Deal Analyzer access","30 days access. No account. No login. Ever."],btn:"out",unlocks:["deal","ftb"]},
+  {id:"firsttime",name:"First Time Buyer",price:25,desc:"Your first car deal doesn't have to be your worst one.",features:["5-point dealer prep guide","What dealers assume you already know","Hidden costs that hit after you sign","Co-signer vs. first-time buyer programs","Full Deal Analyzer access","30 days access. No account. No login. Ever."],btn:"out",unlocks:["deal","ftb"]},
   {id:"single",name:"Single Report",price:20,desc:"Every tool. One deal. One session.",features:["All 5 tools unlocked","Deal Analyzer -- full breakdown","Fee Comparison, F&I Decoder, Add-On Fighter","Counter Guide included","One session -- close the tab, access ends","No account. No login. Ever."],btn:"out",unlocks:["deal","fee","review","fi","addons","guide"]},
-  {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses"],btn:"fill",unlocks:["deal","fee","review","fi","addons","guide"]},
-  {id:"guide",name:"Negotiation Guide & Counter Scripts",price:19,desc:"Know the game before you play it. Built from the dealer side, written for the buyer.",features:["How dealer profit actually works","Negotiation strategy from offer to close","Finance office playbook -- exposed","Add-on and upsell counter scripts","Trade-in positioning","Printable cheat sheet"],btn:"out",unlocks:["guide"]},
+  {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses","Working multiple deals? This is for you."],btn:"fill",unlocks:["deal","fee","review","fi","addons","guide"]},
+  {id:"guide",name:"Negotiation Guide & Counter Scripts",price:20,desc:"Know the game before you play it. Built from the dealer side, written for the buyer.",features:["How dealer profit actually works","Negotiation strategy from offer to close","Finance office playbook -- exposed","Add-on and upsell counter scripts","Trade-in positioning","Printable cheat sheet"],btn:"out",unlocks:["guide"]},
 ];
 
 function PayModal({plan,onClose,onSuccess}) {
@@ -1785,7 +1861,7 @@ export default function App() {
           <span/><span/><span/>
         </button>
         <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
-          <img src="/cntrofrplate.png" alt="CNTROFR" style={{height:"40px",width:"auto",display:"block"}} />
+          <img src="/cntrofrplate.svg" alt="CNTROFR" style={{height:"40px",width:"auto",display:"block"}} />
           <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
         </div>
       </div>
@@ -1811,7 +1887,7 @@ export default function App() {
           <div className="hero-road" />
           <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
           <div className="hero-center-plate">
-            <img src="/cntrofrplate.png" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
+            <img src="/cntrofrplate.svg" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
           </div>
           <h2 className="hero-h1">The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</h2>
           <div className="hero-tagline">Don't Sign. Counter.</div>
@@ -1896,7 +1972,7 @@ export default function App() {
                 <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro -- $49":p.id==="guide"?"Negotiation Guide -- $19":p.id==="firsttime"?"First Time Buyer -- $20":"Single Report -- $20"}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro -- $49":p.id==="guide"?"Negotiation Guide -- $20":p.id==="firsttime"?"First Time Buyer -- $25":"Single Report -- $20"}</button>
               </div>
             ))}
           </div>
@@ -1946,7 +2022,7 @@ export default function App() {
 
         <div id="faq"><FAQ /></div>
         <div className="footer">
-          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+          <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
           <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>
             <div className="powered-by">
@@ -1962,6 +2038,7 @@ export default function App() {
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
           </div>
           <div style={{marginTop:16,fontSize:13,color:"var(--text2)",fontWeight:800,letterSpacing:.3}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
+          <div style={{marginTop:8,fontSize:11,color:"var(--muted)",fontWeight:700,letterSpacing:.5}}>🏔️ Developed in Colorado. Built for buyers everywhere.</div>
 
         </div>
       </>}
@@ -1969,7 +2046,7 @@ export default function App() {
       {view==="contact"&&<>
         <Contact />
         <div className="footer">
-          <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+          <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
           <p>© 2025 CNTROFR - <a href="mailto:info@cntrofr.com">info@cntrofr.com</a></p>
         </div>
@@ -1990,7 +2067,7 @@ export default function App() {
               </button>
             ))}
           </div>
-          {canUse(tab)?<Active ftb={access.includes("ftb")} />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro -- $49</button></div>}
+          {canUse(tab)?<Active ftb={access.includes("ftb")} paid={access.length>0} tier={access.includes("fee")?"pro":access.includes("ftb")?"ftb":access.includes("guide")&&access.length===1?"guide":"single"} onBuy={()=>buy(PLANS[2])} />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro -- $49</button></div>}
         </div>
       )}
 
@@ -2001,7 +2078,7 @@ export default function App() {
           </div>
           <PrivacyPolicy />
           <div className="footer">
-            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
@@ -2013,7 +2090,7 @@ export default function App() {
           </div>
           <TermsOfService />
           <div className="footer">
-            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
@@ -2025,7 +2102,7 @@ export default function App() {
           </div>
           <MissionPage />
           <div className="footer">
-            <div className="footer-plate"><img src="/cntrofrplateplus.png" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
           </div>
         </>
