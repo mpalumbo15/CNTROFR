@@ -73,7 +73,9 @@ const S = `
   .beta-text strong { color: var(--y); }
   .beta-text em { color: var(--muted); font-style: normal; font-size: 11px; }
 
-  .session-warn-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn .2s ease; }
+  .sticky-upgrade-wrap { position: relative; display: inline-block; }
+  .sticky-tooltip { display: none; position: absolute; bottom: calc(100% + 10px); right: 0; background: var(--bg2); border: 1px solid var(--y); border-radius: 10px; padding: 12px 14px; width: 220px; font-size: 11px; color: var(--text2); font-weight: 700; line-height: 1.5; white-space: normal; z-index: 600; }
+  .sticky-upgrade-wrap:hover .sticky-tooltip { display: block; }
   .session-warn-box { background: var(--bg2); border: 2px solid var(--y); border-radius: 16px; max-width: 480px; width: 100%; padding: 32px 28px; text-align: center; }
   .session-warn-icon { font-size: 36px; margin-bottom: 12px; }
   .session-warn-title { font-family: 'Bebas Neue'; font-size: 26px; letter-spacing: 2px; color: var(--y); margin-bottom: 8px; }
@@ -755,7 +757,20 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
     <div>
       {!paid && onBuy && (
         <div style={{position:"fixed",bottom:24,right:16,zIndex:500,filter:"drop-shadow(0 4px 20px rgba(255,214,0,.4))"}}>
-          <button className="hbtn-y" style={{padding:"13px 22px",fontSize:13,fontWeight:900,borderRadius:12}} onClick={onBuy}>⚡ Upgrade to Pro — $49</button>
+          <div className="sticky-upgrade-wrap">
+            <button className="hbtn-y" style={{padding:"13px 22px",fontSize:13,fontWeight:900,borderRadius:12}} onClick={onBuy}>⚡ Upgrade to Pro — $49</button>
+            <div className="sticky-tooltip">
+              <strong>All 5 tools unlocked:</strong>
+              <ul style={{margin:"6px 0 0",paddingLeft:16,lineHeight:1.8}}>
+                <li>Deal Analyzer — full breakdown</li>
+                <li>Fee Comparison — live state data</li>
+                <li>Review Purity — dealer audit</li>
+                <li>F&I Decoder — finance office exposed</li>
+                <li>Add-On Fighter — counter scripts</li>
+              </ul>
+              <div style={{marginTop:8,fontSize:10,color:"var(--y)",fontWeight:800}}>Valid 7 days · Unlimited uses · No account</div>
+            </div>
+          </div>
         </div>
       )}
       {submitted && (
@@ -1723,24 +1738,26 @@ function MissionPage() {
       <h1>Our Mission</h1>
       <div className="mp-date">CNTROFR LLC - Denver, Colorado - Built For Buyers</div>
 
-      <h2>The Manifesto</h2>
-      <p>We are the scared first-time buyer. The person who got taken last time and swore never again. The one sitting in a parking lot right now working up the nerve to go back inside.</p>
-      <p>We are the disruption in a toxic industry -- built by no one, funded by no one, owned by everyone who's ever felt powerless at that desk. No name. No face. No agenda. Just the truth about your deal.</p>
+      <h2>Who Built This — And Why Should You Trust It?</h2>
+      <p>Fair question. You're about to hand a dealership tens of thousands of dollars. You should be skeptical of everyone in the room — including us.</p>
+      <p>CNTROFR was built by someone who spent years inside automotive retail — on the sales floor and in the finance office. That means sitting in the training sessions dealers run to maximize profit per deal. Learning the objection scripts. Watching how buyers get moved from price negotiation to payment negotiation without realizing it. Seeing firsthand which add-ons have real value and which ones exist purely to pad gross.</p>
+      <p><strong>That experience is the intelligence layer behind every tool on this platform.</strong> Not a blog post. Not scraped data. Actual dealership knowledge — flipped to work for you instead of against you.</p>
 
       <h2>Why We Built This</h2>
-      <p>The dealership has lawyers, trainers, and ten thousand deals worth of experience working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk -- including you. They have scripts for every objection. They know when you're nervous. They know when you're in love with the car.</p>
-      <p>We studied the same playbooks. We sat in the training sessions. <strong>Now you do too.</strong></p>
-      <p>CNTROFR was built because that information asymmetry is fixable -- and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $400 and still take referral fees. Not the "free" tools that monetize your data the moment you click submit.</p>
-
-      <h2>Real-Time Market Intelligence</h2>
-      <p>CNTROFR gets smarter with every deal analyzed. Every submission logs anonymous data -- make, model, year, condition, zip, asking price -- to build a real-time market intelligence layer. No personal information. No tracking. No identity. Just market truth that gets sharper every day.</p>
-      <p><strong>That's the mission: make the deal fair, one anonymous data point at a time.</strong></p>
+      <p>The dealership has lawyers, trainers, and ten thousand deals worth of experience working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you. They have scripts for every objection. They know when you're nervous. They know when you're in love with the car.</p>
+      <p>We studied the same playbooks. We sat in the same training sessions. <strong>Now you do too.</strong></p>
+      <p>CNTROFR was built because that information gap is fixable — and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $400 and still take referral fees. Not the "free" tools that sell your data the moment you click submit.</p>
 
       <h2>Zero Dealer Affiliations. Ever.</h2>
-      <p>CNTROFR has no financial relationships with any dealership, manufacturer, lender, or advertising network -- and never will. Our only revenue comes from the buyers who use the platform. The moment we take dealer money, the platform is worthless. We built the business model around that fact.</p>
+      <p>CNTROFR has no financial relationships with any dealership, manufacturer, lender, or advertising network — and never will. Our only revenue comes from buyers who use the platform. The moment we take dealer money, the platform is worthless. We built the entire business model around that fact.</p>
+      <p>No ads. No lead generation. No referral fees. If it conflicts with the buyer's interest, it doesn't exist here.</p>
+
+      <h2>Real-Time Market Intelligence</h2>
+      <p>Every deal analyzed makes the platform smarter. Every submission logs anonymous data — make, model, year, condition, zip, asking price — to build a real-time intelligence layer. No personal information. No tracking. No identity. Just market truth that gets sharper every day.</p>
+      <p><strong>That's the mission: make the deal fair, one anonymous data point at a time.</strong></p>
 
       <h2>For Buyers. Not Shoppers.</h2>
-      <p>Come back when you're ready to ink up. That focus is what makes us different from every other car research site. We're not helping you find a car. We're making sure the one you already found doesn't cost you more than it should.</p>
+      <p>We're not helping you find a car. We're making sure the one you already found doesn't cost you more than it should. Come back when you're ready to sign — we'll be ready to counter.</p>
       <p style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,color:"var(--y)",marginTop:24}}>"I built the tool I wish my customers had."</p>
       <p style={{color:"var(--muted)",fontSize:12}}>-- The CNTROFR Team - Built in Denver, Colorado</p>
     </div>
@@ -2080,6 +2097,8 @@ export default function App() {
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+            <div style={{marginTop:12,fontSize:13,color:"var(--text2)",fontWeight:800}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
+            <div style={{marginTop:6,fontSize:11,color:"var(--muted)",fontWeight:700}}>🏔️ Developed in Colorado. Built for buyers everywhere.</div>
           </div>
         </>
       )}
@@ -2092,6 +2111,8 @@ export default function App() {
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+            <div style={{marginTop:12,fontSize:13,color:"var(--text2)",fontWeight:800}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
+            <div style={{marginTop:6,fontSize:11,color:"var(--muted)",fontWeight:700}}>🏔️ Developed in Colorado. Built for buyers everywhere.</div>
           </div>
         </>
       )}
@@ -2104,6 +2125,8 @@ export default function App() {
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
+            <div style={{marginTop:12,fontSize:13,color:"var(--text2)",fontWeight:800}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
+            <div style={{marginTop:6,fontSize:11,color:"var(--muted)",fontWeight:700}}>🏔️ Developed in Colorado. Built for buyers everywhere.</div>
           </div>
         </>
       )}
