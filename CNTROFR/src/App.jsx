@@ -704,6 +704,7 @@ function DealAnalyzer({ ftb = false, paid = false, tier = "single", onBuy = null
     if (window.hcaptcha) window.hcaptcha.reset(); setHcToken("");
     const t = await ai(`Car deal analyst. You are writing for a regular car buyer -- not a car industry professional. Use plain, direct language. Never use industry jargon without immediately explaining it in the same sentence. Be direct -- state facts, give scripts, move on. No hedging.
 Key facts: Dealers often sell below their stated cost through manufacturer bonuses and end-of-month sales targets -- "we're at invoice" is almost never the full story. The buyer should always make a specific offer, never ask what the dealer will accept. If a dealer tries to change your interest rate based on which add-on products you buy, that is illegal unless your lender specifically requires it. If you feel pressured to decide on the spot, leaving and following up in writing always works in your favor.
+PRICING FORMAT RULE: Any price stated in counter scripts must always be written as "$X++" where the first + represents state taxes and the second + represents dealer fees. Example: "$22,800++" not "$22,800 out the door." This is because dealers cannot pay the buyer's taxes and must show fees as separate line items by law. Never write a flat out-the-door number without the ++ notation. Always explain to the buyer that ++ means taxes and fees are added on top.
 ${f.dealerName ? `Dealer: ${f.dealerName}${f.dealerCity ? ", "+f.dealerCity : ""}${f.dealerState ? " "+f.dealerState : ""}` : "Dealer: not specified"}
 ${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":condition==="custom"?" (CUSTOM ORDER)":""} | ${condition==="new"||condition==="custom"?"Factory order -- no odometer":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners && condition==="used" ? " | "+f.owners+" previous owner(s)" : ""}${condition==="new" ? " | Sticker price $"+(f.msrp||"n/a") : condition==="custom" ? "" : f.msrp ? " | Listed $"+f.msrp : ""} | Asking $${f.offer||"n/a"}
 Trade-in value offered: $${f.tradeIn||"none"} | Amount still owed on trade: $${f.tradeOwed||"none"}
@@ -728,7 +729,7 @@ No interest rate or monthly payment recommendations.
 If any add-on, fee, or product in this deal is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [item name] -- [brief reason you could not fully evaluate it]
 ${finalOffer ? `## FINAL OFFER MODE -- ACTIVATED
 The dealer has stated this is their best price or the buyer is about to enter the finance office. Shift to maximum protection mode.
-## LAST MOVE -- Give 2 word-for-word final counter scripts. Specific dollar offers. Not questions. Statements.
+## LAST MOVE -- Give 2 word-for-word final counter scripts. Specific dollar offers written as "$X++" (++ = taxes and fees on top, which the dealer cannot waive). Not questions. Statements.
 ## FINANCE OFFICE ALERT -- What the F&I manager will try in the next 30 minutes. Word-for-word responses to the most common pressure plays.
 ## WALK TRIGGER -- Is there anything in this deal that should stop the buyer from signing right now? Answer directly: yes or no, and why.
 ## FINAL CHECKLIST -- 5 things to verify before ink hits paper.` : ""}`, false, chunk => setR(chunk));
