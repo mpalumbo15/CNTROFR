@@ -1491,7 +1491,7 @@ function PrivacyPolicy() {
   return (
     <div className="tos-wrap">
       <h1>Privacy Policy</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: April 25, 2026</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: May 29, 2026</div>
 
       <h2>Our Philosophy</h2>
       <p>CNTROFR was built to keep your money in your pocket -- and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
@@ -1552,7 +1552,7 @@ function TermsOfService() {
   return (
     <div className="tos-wrap">
       <h1>Terms of Service</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: April 25, 2026</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: May 29, 2026</div>
 
       <h2>1. About CNTROFR</h2>
       <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, decode F&I products, fight add-on markups, and prepare negotiation strategies.</p>
@@ -1568,7 +1568,7 @@ function TermsOfService() {
       <ul>
         <li><strong>Deal Analyzer</strong> -- free to all users. Analyzes vehicle price, trade-in, and add-ons with a GO / NEGOTIATE / WALK AWAY verdict.</li>
         <li><strong>First Time Buyer Package</strong> -- paid access. Includes enhanced Deal Analyzer output with first-time buyer guidance covering down payment ratios, payment-to-income basics, online loan setup, and registration expectations.</li>
-        <li><strong>Single Report</strong> -- paid access. One full Deal Analyzer run with full counter script output.</li>
+        <li><strong>Single Report</strong> -- paid access. Unlocks all five tools for one browser session. Access is tied to the active browser session only. Closing or refreshing the tab ends access permanently. Users are presented with a pre-session warning confirming these terms before access is granted.</li>
         <li><strong>Pro Bundle</strong> -- paid access. Unlocks all five tools: Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, Add-On Fighter, and Counter Guide. Valid for 7 days from purchase.</li>
         <li><strong>Counter Guide</strong> -- paid access. AI-generated insider guide covering dealer profit structures, F&I office tactics, add-on removal scripts, and trade-in maximization.</li>
       </ul>
@@ -1582,7 +1582,10 @@ function TermsOfService() {
       </ul>
 
       <h2>5. Payment & Refunds</h2>
-      <p>All purchases are processed securely through Stripe. Access is granted immediately upon payment confirmation. Due to the instant digital nature of our services, all sales are final. If you experience a technical failure that prevented access, contact us at info@cntrofr.com within 48 hours and we will make it right.</p>
+      <p>All purchases are processed securely through Stripe. Access is granted immediately upon payment confirmation. Due to the instant digital nature of our services, <strong>all sales are final and non-refundable once an access code has been redeemed.</strong></p>
+      <p><strong>Single Report sessions:</strong> Single Report access is explicitly limited to one browser session. Users are shown a pre-session disclosure confirming that closing or refreshing the tab ends access permanently and that no refunds will be issued for incomplete or unused sessions. By proceeding past this disclosure, users accept these terms in full.</p>
+      <p><strong>Pro Bundle:</strong> Access expires 7 days from the date of purchase regardless of usage. No refunds are issued for unused days or unused tools within the access period.</p>
+      <p>If you experience a verified technical failure on our end that prevented access entirely, contact us at info@cntrofr.com within 48 hours with details and we will review and make it right at our discretion.</p>
 
       <h2>6. Accuracy of Information</h2>
       <p>Our AI tools use current market data and are designed to reflect up-to-date dealer tactics, fee benchmarks, and pricing data. However, market conditions change rapidly. CNTROFR makes no warranty that any specific piece of analysis is accurate, complete, or applicable to your specific situation. Use our output as one informed input -- not the only one.</p>
