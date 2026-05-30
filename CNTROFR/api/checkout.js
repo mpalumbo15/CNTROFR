@@ -9,7 +9,7 @@ const CORS = {
 const PRICE_IDS = {
   firsttime: "price_1TP7lGBz9PmlRkE21ZTCkVgl",
   single:    "price_1TP7mNBz9PmlRkE2znrpdHV0",
-  pro:       "price_1TP7npBz9PmlRkE2gFadqAqP",
+  pro:       "price_1Tcdh0Bz9PmlRkE2EQXmS9rs",
   guide:     "price_1TP7ohBz9PmlRkE2pnGsS8Ky",
 };
 
