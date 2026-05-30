@@ -1746,7 +1746,7 @@ function MissionPage() {
       <h2>Why We Built This</h2>
       <p>The dealership has lawyers, trainers, and ten thousand deals worth of experience working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you. They have scripts for every objection. They know when you're nervous. They know when you're in love with the car.</p>
       <p>We studied the same playbooks. We sat in the same training sessions. <strong>Now you do too.</strong></p>
-      <p>CNTROFR was built because that information gap is fixable — and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $400 and still take referral fees. Not the "free" tools that sell your data the moment you click submit.</p>
+      <p>CNTROFR was built because that information gap is fixable — and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $999 and still share your information with dealers. Not the "free" tools that sell your data the moment you click submit.</p>
 
       <h2>Zero Dealer Affiliations. Ever.</h2>
       <p>CNTROFR has no financial relationships with any dealership, manufacturer, lender, or advertising network — and never will. Our only revenue comes from buyers who use the platform. The moment we take dealer money, the platform is worthless. We built the entire business model around that fact.</p>
@@ -1954,7 +1954,7 @@ export default function App() {
             <table className="vs-table">
               <thead><tr><th>Feature</th><th className="us">CNTROFR ●</th><th>Human Concierge</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
               <tbody>
-                {[["No login required","✓","✗","✗","✗"],["Pay once, no subscription","✓","✗","✗","✓ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","Partial","✗"],["Bot review detection","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Price","$20-$49","$299-$499","$99-199/yr","Free"]].map(([feat,...vals],i)=>(
+                {[["No login required","✓","✗","✗ (account required)","✗"],["Pay once, no subscription","✓","✗","✗ (monthly/annual)","✗ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","✗ (connects to dealers)","✗"],["No data shared with dealers","✓","✗","✗","✗"],["Dealer review audit","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Local market scan","✓","✗","Partial","✗"],["Final Offer mode","✓","✗","✗","✗"],["Built by industry insider","✓","Varies","✗","✗"],["Price","$20-$49","$999+","$99-199/yr","Free"]].map(([feat,...vals],i)=>(
                   <tr key={i} className={i===0?"hi":""}><td className="feat">{feat}</td>{vals.map((v,j)=><td key={j}>{v==="✓"?<span className="ck">✓</span>:v==="✗"?<span className="cx">--</span>:v}</td>)}</tr>
                 ))}
               </tbody>
