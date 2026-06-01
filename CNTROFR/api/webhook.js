@@ -114,44 +114,110 @@ async function sendEmail(to, planId, code, expiryISO) {
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) return;
 
-  const config = PLAN_CONFIG[planId];
+  const cfg = PLAN_CONFIG[planId];
   const expiryFormatted = expiryISO ? formatExpiryDate(expiryISO) : null;
 
   const expiryNote = planId === "pro"
-    ? `Your access is valid for 7 days. Expires ${expiryFormatted} UTC. Unlimited uses within your window.`
-    : config.emailNote;
+    ? `Your access is valid for 7 days. Expires <strong style="color:#EEEAF8;">${expiryFormatted} UTC</strong>. Unlimited uses within your window.`
+    : cfg.emailNote;
 
-  const prepSection = config.prepSteps
-    ? `\n\n${"─".repeat(60)}\n${config.prepSteps}\n${"─".repeat(60)}`
-    : "";
+  // Build prep steps HTML if present
+  const prepStepsHtml = cfg.prepSteps ? (() => {
+    const steps = cfg.prepSteps.trim().split(/\n\n(?=\d+\.)/).filter(Boolean);
+    return `
+      <div style="margin:32px 0 0;">
+        <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#FFD600;margin-bottom:16px;">${planId === "pro" ? "Run The Tools In This Order" : "Before You Walk In — Your 5-Point Prep"}</div>
+        ${steps.map(step => {
+          const lines = step.trim().split("\n");
+          const header = lines[0].replace(/^\d+\.\s*/, "").trim();
+          const body = lines.slice(1).map(l => l.trim()).filter(Boolean).join(" ");
+          const num = (lines[0].match(/^(\d+)/) || ["",""])[1];
+          return `
+          <div style="display:flex;gap:16px;margin-bottom:20px;align-items:flex-start;">
+            <div style="flex-shrink:0;width:32px;height:32px;background:#FFD600;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:900;color:#111;line-height:32px;text-align:center;">${num}</div>
+            <div>
+              <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;font-weight:900;color:#EEEAF8;margin-bottom:4px;">${header}</div>
+              <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#A8A4C8;line-height:1.7;">${body}</div>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>`;
+  })() : "";
 
-  const body = `
-CNTROFR — ${config.name}
-${"═".repeat(60)}
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Your CNTROFR Access Code</title>
+</head>
+<body style="margin:0;padding:0;background:#0A0A10;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#0A0A10;padding:40px 16px;">
+  <tr><td align="center">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
 
-${config.emailIntro}
-${prepSection}
+      <!-- HEADER / LOGO -->
+      <tr><td style="padding-bottom:28px;text-align:center;">
+        <img src="https://cntrofr.com/cntrofrplateplus.png" alt="CNTROFR" width="280" style="display:block;margin:0 auto;height:auto;" />
+        <div style="margin-top:14px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:#606080;">Don't Sign. Counter.</div>
+      </td></tr>
 
-YOUR ACCESS CODE:
+      <!-- MAIN CARD -->
+      <tr><td style="background:#16161E;border:2px solid #28283A;border-radius:16px;padding:32px 28px;">
 
-  ${code}
+        <!-- PLAN NAME -->
+        <div style="font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#606080;margin-bottom:6px;">${cfg.name}</div>
+        <div style="font-size:22px;font-weight:900;color:#EEEAF8;margin-bottom:20px;line-height:1.2;">Your access code is ready.</div>
 
-Go to cntrofr.com, click your package, and enter this code at checkout.
+        <!-- INTRO -->
+        <div style="font-size:13px;color:#A8A4C8;line-height:1.8;font-weight:600;margin-bottom:28px;">${cfg.emailIntro}</div>
 
-${expiryNote}
+        <!-- PREP STEPS -->
+        ${prepStepsHtml ? `<div style="background:#1E1E28;border:1px solid #28283A;border-radius:12px;padding:24px;margin-bottom:28px;">${prepStepsHtml}</div>` : ""}
 
-${"─".repeat(60)}
-SECURITY NOTICE
+        <!-- ACCESS CODE BOX -->
+        <div style="background:#0E0E14;border:2px solid #FFD600;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
+          <div style="font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#606080;margin-bottom:12px;">Your Access Code</div>
+          <div style="font-size:32px;font-weight:900;letter-spacing:6px;color:#FFD600;font-family:'Courier New',monospace;margin-bottom:12px;">${code}</div>
+          <div style="font-size:11px;color:#A8A4C8;font-weight:700;margin-bottom:20px;">${expiryNote}</div>
+          <a href="https://cntrofr.com" style="display:inline-block;background:#FFD600;color:#111;font-size:13px;font-weight:900;padding:12px 32px;border-radius:8px;text-decoration:none;letter-spacing:.5px;">Go to CNTROFR.com →</a>
+        </div>
 
-CNTROFR will never contact you asking for personal information, payment details, login credentials, or your access code. If you receive a message claiming to be from CNTROFR and asking for any of this — it did not come from us.
+        <!-- HOW TO USE -->
+        <div style="background:#1E1E28;border-radius:10px;padding:16px 20px;margin-bottom:28px;">
+          <div style="font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#606080;margin-bottom:10px;">How To Use Your Code</div>
+          ${["Go to cntrofr.com","Click your package on the homepage","Enter your access code when prompted","Run your analysis — you're in"].map((step, i) => `
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">
+            <div style="flex-shrink:0;width:20px;height:20px;background:#28283A;border-radius:4px;font-size:10px;font-weight:900;color:#FFD600;text-align:center;line-height:20px;">${i+1}</div>
+            <div style="font-size:12px;color:#A8A4C8;font-weight:700;line-height:20px;">${step}</div>
+          </div>`).join("")}
+        </div>
 
-If your code isn't working, check your spam or junk folder first. If you still need help, contact us at info@cntrofr.com.
-${"─".repeat(60)}
+        <!-- SECURITY NOTICE -->
+        <div style="border-top:1px solid #28283A;padding-top:20px;">
+          <div style="font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#606080;margin-bottom:8px;">Security Notice</div>
+          <div style="font-size:11px;color:#606080;line-height:1.75;font-weight:600;">CNTROFR will never contact you asking for personal information, payment details, login credentials, or your access code. If you receive a message claiming to be from CNTROFR and asking for any of this — it did not come from us.<br/><br/>If your code isn't working, check your spam folder first. Still need help? <a href="mailto:info@cntrofr.com" style="color:#FFD600;text-decoration:none;">info@cntrofr.com</a></div>
+        </div>
 
-CNTROFR LLC — Built for buyers. Zero dealer affiliations. Ever.
-cntrofr.com | info@cntrofr.com
-Don't Sign. Counter.
-`.trim();
+      </td></tr>
+
+      <!-- FOOTER -->
+      <tr><td style="padding-top:24px;text-align:center;">
+        <div style="font-size:11px;color:#606080;font-weight:700;line-height:1.8;">
+          CNTROFR LLC — Built for buyers. Zero dealer affiliations. Ever.<br/>
+          <a href="https://cntrofr.com" style="color:#A8A4C8;text-decoration:none;">cntrofr.com</a> &nbsp;·&nbsp; <a href="mailto:info@cntrofr.com" style="color:#A8A4C8;text-decoration:none;">info@cntrofr.com</a>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#38385A;font-weight:700;">🏔️ Developed in Colorado. Built for buyers everywhere.</div>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
+
+  // Plain text fallback
+  const text = `CNTROFR — ${cfg.name}\n\n${cfg.emailIntro}\n\nYOUR ACCESS CODE: ${code}\n\nGo to cntrofr.com to redeem.\n\n${expiryNote}\n\nSecurity: CNTROFR will never ask for your code, payment info, or credentials.\nQuestions? info@cntrofr.com\n\nCNTROFR LLC — Don't Sign. Counter.`;
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -162,8 +228,9 @@ Don't Sign. Counter.
     body: JSON.stringify({
       from: "CNTROFR <onboarding@resend.dev>",
       to: [to],
-      subject: `Your CNTROFR Access Code — ${config.name}`,
-      text: body,
+      subject: `Your CNTROFR Access Code — ${cfg.name}`,
+      html,
+      text,
     }),
   });
 }
