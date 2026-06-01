@@ -2114,6 +2114,16 @@ export default function App() {
             ))}
           </div>
           {canUse(tab)?<Active ftb={access.includes("ftb")} paid={access.length>0} tier={access.includes("fee")?"pro":access.includes("ftb")?"ftb":access.includes("guide")&&access.length===1?"guide":"single"} onBuy={()=>buy(PLANS[2])} />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro -- $49</button></div>}
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+            <div className="footer-links">
+              <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+            </div>
+          </div>
         </div>
       )}
 
