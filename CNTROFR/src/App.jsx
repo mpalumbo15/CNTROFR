@@ -2088,7 +2088,13 @@ export default function App() {
         <div className="footer">
           <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
           <div className="footer-slogan">Don't Sign. Counter.</div>
-          <p>© 2025 CNTROFR - <a href="mailto:info@cntrofr.com">info@cntrofr.com</a></p>
+          <p>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+          <div className="footer-links">
+            <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+          </div>
         </div>
       </>}
 
@@ -2119,9 +2125,13 @@ export default function App() {
           <PrivacyPolicy />
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
-            <div style={{marginTop:12,fontSize:13,color:"var(--text2)",fontWeight:800}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
-            <div style={{marginTop:6,fontSize:11,color:"var(--muted)",fontWeight:700}}>🏔️ Developed in Colorado. Built for buyers everywhere.</div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+            <div className="footer-links">
+              <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+            </div>
           </div>
         </>
       )}
@@ -2133,9 +2143,13 @@ export default function App() {
           <TermsOfService />
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
-            <div style={{marginTop:12,fontSize:13,color:"var(--text2)",fontWeight:800}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
-            <div style={{marginTop:6,fontSize:11,color:"var(--muted)",fontWeight:700}}>🏔️ Developed in Colorado. Built for buyers everywhere.</div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+            <div className="footer-links">
+              <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+            </div>
           </div>
         </>
       )}
@@ -2147,9 +2161,13 @@ export default function App() {
           <MissionPage />
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>© 2025 CNTROFR LLC - <a href="mailto:info@cntrofr.com" style={{color:"var(--text2)"}}>info@cntrofr.com</a></p>
-            <div style={{marginTop:12,fontSize:13,color:"var(--text2)",fontWeight:800}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
-            <div style={{marginTop:6,fontSize:11,color:"var(--muted)",fontWeight:700}}>🏔️ Developed in Colorado. Built for buyers everywhere.</div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+            <div className="footer-links">
+              <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+            </div>
           </div>
         </>
       )}
