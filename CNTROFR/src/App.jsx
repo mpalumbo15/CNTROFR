@@ -1970,30 +1970,30 @@ export default function App() {
           </div>
         </div>
         <div className="sec" style={{paddingTop:0}}>
-          <div className="sec-eye">The Arsenal</div>
-          <h2 className="sec-h2">Five Tools. One Price.</h2>
-          <p className="sec-sub">Everything you need from the moment you see a car to the second before you sign.</p>
+          <div className="sec-eye">{lang==="es"?"El Arsenal":"The Arsenal"}</div>
+          <h2 className="sec-h2">{lang==="es"?"Cinco Herramientas. Un Precio.":"Five Tools. One Price."}</h2>
+          <p className="sec-sub">{lang==="es"?"Todo lo que necesitas desde que ves un auto hasta el segundo antes de firmar.":"Everything you need from the moment you see a car to the second before you sign."}</p>
           <div className="tgrid">
-            {[{id:"deal",icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{id:"fee",icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{id:"review",icon:"🔎",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{id:"fi",icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{id:"addons",icon:"🥊",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}].map((t,i)=>(
+            {(lang==="es"?[{id:"deal",icon:"🔍",name:"Analizador de Ofertas",desc:"Desglose completo de precio, intercambio y extras con un veredicto de PROCEDE / NEGOCIA / RETÍRATE.",free:true},{id:"fee",icon:"💰",name:"Comparación de Tarifas",desc:"¿Es justa esa tarifa de documentación para tu estado? Lo averiguamos con datos en vivo.",free:false},{id:"review",icon:"🔎",name:"Pureza de Reseñas",desc:"Conoce a quién le estás comprando. Reseñas reales, cultura laboral e historial de quejas -- para que tu dinero vaya a concesionarios que se lo merecen.",free:false},{id:"fi",icon:"🔓",name:"Decodificador F&I",desc:"Cada producto de la oficina de financiamiento decodificado -- costo del concesionario, valor real, guion de salida.",free:false},{id:"addons",icon:"🥊",name:"Luchador de Extras",desc:"Conocemos los guiones que usan los concesionarios. Aquí están los tuyos para contraatacar.",free:false}]:[{id:"deal",icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{id:"fee",icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{id:"review",icon:"🔎",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{id:"fi",icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{id:"addons",icon:"🥊",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}]).map((t,i)=>(
               <div key={i} className="tc" style={{cursor:"pointer"}} onClick={()=>{if(canUse(t.id)){setView("tools");setTab(t.id);window.scrollTo(0,0);}else{buy(PLANS[2]);}}}>
                 <div className="tc-icon">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
                 <div className="tc-desc">{t.desc}</div>
-                {t.free?<span className="tag-free">Free</span>:<span className="tag-pro">Pro</span>}
+                {t.free?<span className="tag-free">{lang==="es"?"Gratis":"Free"}</span>:<span className="tag-pro">Pro</span>}
               </div>
             ))}
           </div>
         </div>
         <div className="sec" style={{paddingTop:0}}>
-          <div className="sec-eye">The Comparison</div>
-          <h2 className="sec-h2" style={{marginBottom:6}}>Why CNTROFR?</h2>
-          <p className="sec-sub" style={{marginBottom:24}}>No one else does all of this for $49 with no account required.</p>
+          <div className="sec-eye">{lang==="es"?"La Comparación":"The Comparison"}</div>
+          <h2 className="sec-h2" style={{marginBottom:6}}>{lang==="es"?"¿Por Qué CNTROFR?":"Why CNTROFR?"}</h2>
+          <p className="sec-sub" style={{marginBottom:24}}>{lang==="es"?"Nadie más hace todo esto por $49 sin necesidad de cuenta.":"No one else does all of this for $49 with no account required."}</p>
           <div style={{overflowX:"auto",WebkitOverflowScrolling:"touch",borderRadius:16,border:"2px solid var(--b1)"}}>
           <div className="vs-wrap" style={{border:"none",borderRadius:0,minWidth:520}}>
             <table className="vs-table">
-              <thead><tr><th>Feature</th><th className="us">CNTROFR ●</th><th>Human Concierge</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
+              <thead><tr><th>{lang==="es"?"Función":"Feature"}</th><th className="us">CNTROFR ●</th><th>{lang==="es"?"Concierge Humano":"Human Concierge"}</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
               <tbody>
-                {[["No login required","✓","✗","✗ (account required)","✗"],["Pay once, no subscription","✓","✗","✗ (monthly/annual)","✗ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","✗ (connects to dealers)","✗"],["No data shared with dealers","✓","✗","✗","✗"],["Dealer review audit","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Local market scan","✓","✗","Partial","✗"],["Final Offer mode","✓","✗","✗","✗"],["Built by industry insider","✓","Varies","✗","✗"],["Price","$20-$49","$999+","$99-199/yr","Free"]].map(([feat,...vals],i)=>(
+                {(lang==="es"?[["No requiere cuenta","✓","✗","✗ (requiere cuenta)","✗"],["Pago único, sin suscripción","✓","✗","✗ (mensual/anual)","✗ (financiado por concesionarios)"],["Resultados instantáneos","✓","✗ horas/días","Parcial","✗"],["Cero comisiones de concesionarios","✓","✓","✗ (conecta con concesionarios)","✗"],["Sin datos compartidos con concesionarios","✓","✗","✗","✗"],["Auditoría de reseñas de concesionarios","✓","✗","✗","✗"],["Guiones para eliminar extras","✓","✗","✗","✗"],["Decodificador de productos F&I","✓","✗","✗","✗"],["Comparación de tarifas estatales","✓","✗","✗","✗"],["Análisis del mercado local","✓","✗","Parcial","✗"],["Modo Oferta Final","✓","✗","✗","✗"],["Creado por experto de la industria","✓","Varía","✗","✗"],["Precio","$20-$49","$999+","$99-199/año","Gratis"]]:[["No login required","✓","✗","✗ (account required)","✗"],["Pay once, no subscription","✓","✗","✗ (monthly/annual)","✗ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","✗ (connects to dealers)","✗"],["No data shared with dealers","✓","✗","✗","✗"],["Dealer review audit","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Local market scan","✓","✗","Partial","✗"],["Final Offer mode","✓","✗","✗","✗"],["Built by industry insider","✓","Varies","✗","✗"],["Price","$20-$49","$999+","$99-199/yr","Free"]]).map(([feat,...vals],i)=>(
                   <tr key={i} className={i===0?"hi":""}><td className="feat">{feat}</td>{vals.map((v,j)=><td key={j}>{v==="✓"?<span className="ck">✓</span>:v==="✗"?<span className="cx">--</span>:v}</td>)}</tr>
                 ))}
               </tbody>
@@ -2003,18 +2003,23 @@ export default function App() {
         </div>
         <div id="mission" className="mission">
           <div className="mission-inner">
-            <div className="mission-eye">Our Mission</div>
-            <h2 className="mission-h">The Dealer Has A Playbook.<br/><span className="y">Now You Do Too.</span></h2>
+            <div className="mission-eye">{lang==="es"?"Nuestra Misión":"Our Mission"}</div>
+            <h2 className="mission-h">{lang==="es"?<>El Concesionario Tiene un Manual.<br/><span className="y">Ahora Tú También.</span></>:<>The Dealer Has A Playbook.<br/><span className="y">Now You Do Too.</span></>}</h2>
             <p className="mission-body">
-              We built CNTROFR because <strong>the house always wins -- until now.</strong> No dealer kickbacks. No advertiser relationships. No suits pulling strings behind the curtain. Just raw, unfiltered intelligence about your deal, handed to you before you sign your name to anything.<br/><br/>
+              {lang==="es"?<>Creamos CNTROFR porque <strong>la casa siempre gana -- hasta ahora.</strong> Sin comisiones de concesionarios. Sin relaciones publicitarias. Sin trajes manejando los hilos detrás de la cortina. Solo inteligencia cruda y sin filtros sobre tu oferta, entregada antes de que firmes cualquier cosa.<br/><br/>
+              El concesionario tiene abogados, capacitadores y <strong>diez mil ofertas de experiencia</strong> trabajando en tu contra todos los días. Sus gerentes de F&I van a la escuela para aprender a extraer la máxima ganancia de cada comprador que se sienta frente a ese escritorio -- incluyéndote a ti.<br/><br/>
+              Estudiamos los mismos manuales. Conocemos los guiones. <strong>Ahora tú también.</strong><br/><br/>
+              Y algo más que vale la pena decir: <strong>un trato justo es bueno para todos.</strong> Tu vendedor está trabajando horas largas y días festivos para alimentar a su familia -- merece tu respeto y tu negocio si te trata bien. La codicia vive en la cima. CNTROFR apunta a eso, no a la gente en el piso de ventas.<br/><br/>
+              No firmes. Contraataca.</>:<>We built CNTROFR because <strong>the house always wins -- until now.</strong> No dealer kickbacks. No advertiser relationships. No suits pulling strings behind the curtain. Just raw, unfiltered intelligence about your deal, handed to you before you sign your name to anything.<br/><br/>
               The dealership has lawyers, trainers, and <strong>ten thousand deals worth of experience</strong> working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk -- including you.<br/><br/>
               We studied the same playbooks. We know the scripts. <strong>Now you do too.</strong><br/><br/>
               And here's something else worth saying: <strong>a fair deal is good for everyone.</strong> Your salesperson is working long hours and holidays to feed their family -- they deserve your respect and your business if they treat you right. The greed lives at the top. CNTROFR targets that, not the people on the floor.<br/><br/>
-              Don't sign. Counter.
+              Don't sign. Counter.</>}
             </p>
-            <div className="mission-sig">-- The CNTROFR Team - Built For Buyers - Funded By None</div>
+            <div className="mission-sig">{lang==="es"?"-- El Equipo CNTROFR - Hecho Para Compradores - Sin Financiamiento de Nadie":"-- The CNTROFR Team - Built For Buyers - Funded By None"}</div>
           </div>
         </div>
+
 
         <div id="pricing" className="sec" style={{paddingTop:0}}>
           <div className="sec-eye">Pricing</div>
