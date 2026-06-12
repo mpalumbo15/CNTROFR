@@ -2,8 +2,17 @@
   "functions": {
     "api/claude.js": {
       "maxDuration": 90
+    },
+    "api/digest.js": {
+      "maxDuration": 60
     }
   },
+  "crons": [
+    {
+      "path": "/api/digest",
+      "schedule": "0 12 * * 1"
+    }
+  ],
   "redirects": [
     {
       "source": "/:path*",
