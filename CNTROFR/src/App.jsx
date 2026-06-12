@@ -446,6 +446,70 @@ async function saveToolRun(data) {
   } catch(e) {}
 }
 
+function AdminStats() {
+  const [stats, setStats] = useState(null);
+  const [err, setErr] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    (async () => {
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) { setErr("Supabase not configured"); setLoading(false); return; }
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/tool_runs?select=tool,timestamp`, {
+          headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}` }
+        });
+        const rows = await r.json();
+        if (!Array.isArray(rows)) { setErr("Unexpected response"); setLoading(false); return; }
+        const now = Date.now();
+        const dayMs = 86400000;
+        const byTool = {};
+        let last24h = 0, last7d = 0;
+        for (const row of rows) {
+          byTool[row.tool] = (byTool[row.tool] || 0) + 1;
+          const t = new Date(row.timestamp).getTime();
+          if (now - t <= dayMs) last24h++;
+          if (now - t <= dayMs * 7) last7d++;
+        }
+        setStats({ total: rows.length, byTool, last24h, last7d });
+      } catch(e) { setErr(e.message); }
+      setLoading(false);
+    })();
+  }, []);
+  return (
+    <div className="sec" style={{maxWidth:600}}>
+      <h2 className="sec-h2" style={{marginBottom:24}}>Tool Usage</h2>
+      {loading && <p style={{textAlign:"center",color:"var(--muted)"}}>Loading...</p>}
+      {err && <p style={{textAlign:"center",color:"var(--red)"}}>{err}</p>}
+      {stats && (
+        <div>
+          <div style={{display:"flex",gap:16,justifyContent:"center",marginBottom:32,flexWrap:"wrap"}}>
+            <div style={{background:"var(--bg2)",border:"2px solid var(--b1)",borderRadius:12,padding:"16px 24px",textAlign:"center"}}>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:32,color:"var(--y)"}}>{stats.total}</div>
+              <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Total Runs (All Time)</div>
+            </div>
+            <div style={{background:"var(--bg2)",border:"2px solid var(--b1)",borderRadius:12,padding:"16px 24px",textAlign:"center"}}>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:32,color:"var(--y)"}}>{stats.last24h}</div>
+              <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Last 24 Hours</div>
+            </div>
+            <div style={{background:"var(--bg2)",border:"2px solid var(--b1)",borderRadius:12,padding:"16px 24px",textAlign:"center"}}>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:32,color:"var(--y)"}}>{stats.last7d}</div>
+              <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Last 7 Days</div>
+            </div>
+          </div>
+          <div className="card"><div className="ch"><span className="clbl">By Tool</span></div><div className="cb">
+            {Object.entries(stats.byTool).sort((a,b)=>b[1]-a[1]).map(([tool,count])=>(
+              <div key={tool} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid var(--b1)",fontSize:13,fontWeight:700}}>
+                <span style={{color:"var(--text2)"}}>{tool}</span>
+                <span style={{color:"var(--y)"}}>{count}</span>
+              </div>
+            ))}
+          </div></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function parseAndFlagGaps(responseText) {
   if (!responseText) return;
   const lines = responseText.split("\n");
@@ -1285,27 +1349,37 @@ const FI = [
   {id:"ew",name:"Extended Warranty",desc:"3rd-party coverage after factory"},{id:"gap",name:"GAP Insurance",desc:"Covers gap if totaled & underwater"},{id:"tw",name:"Tire & Wheel",desc:"Road hazard protection"},{id:"ppf",name:"Paint Protection Film",desc:"Physical chip/scratch film"},{id:"cc",name:"Ceramic Coating",desc:"Chemical paint protection"},{id:"ip",name:"Interior Protection",desc:"Scotchgard-type treatment"},{id:"cl",name:"Credit Life/Disability",desc:"Loan paid if you die/disabled"},{id:"kr",name:"Key Replacement",desc:"Lost/broken smart key"},{id:"ws",name:"Windshield Protection",desc:"Glass repair/replace"},{id:"rs",name:"Roadside Assistance",desc:"Often duplicated by insurance"},{id:"pm",name:"Prepaid Maintenance",desc:"Oil changes rolled in"},
 ];
 function FIDecoder({ tier = "single" }) {
-  const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
+  const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [noPrice, setNoPrice] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
   const [warrantyBrand, setWB] = useState(""); const [drivingHabits, setDrivingHabits] = useState(""); const [ownershipLength, setOwnershipLength] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const toggle = id => setSel(s=>({...s,[id]:!s[id]}));
   const picked = FI.filter(p=>sel[p.id]);
   const run = async () => {
     setL(true); setR(null);
-    const list = picked.map(p=>`- ${p.name}: $${prices[p.id]||"unknown"}`).join("\n");
+    const priced = picked.filter(p=>!noPrice[p.id]);
+    const unpriced = picked.filter(p=>noPrice[p.id]);
+    const list = priced.map(p=>`- ${p.name}: $${prices[p.id]||"unknown"}`).join("\n");
+    const unpricedList = unpriced.map(p=>`- ${p.name}`).join("\n");
     const t = await ai(`Finance office product analyst. You are writing for a regular car buyer sitting across from a finance manager for the first time. Use plain, direct language. Never use industry terms without explaining them in the same sentence. Be direct and specific.
 Key facts: Finance managers are measured on how many products they sell per deal -- they will discount or bundle products to get a yes. If a finance manager tries to change your interest rate based on which products you buy, that is illegal unless your lender specifically requires it. Feeling pressured to decide immediately is a tactic, not a real deadline. The Magnuson-Moss Warranty Act protects buyers -- a manufacturer or dealership must prove a repair is not covered before denying a claim. If they cannot prove it, they must honor it. Know this law exists.
 2026 INTELLIGENCE UPDATE: F&I is now the single most important profit center as front-end vehicle margins shrink -- finance managers face more pressure to sell products than ever this summer. Daily cost framing is standard training -- every product will be presented as pennies per day. Always convert to total contract cost and call it out by name. Product bundling at a "discounted" rate is a tactic to get multiple yeses at once -- evaluate every product individually, never as a bundle. GAP insurance from your auto insurance company costs $3-5 per month versus $600-900 upfront at the dealer -- always mention this as your alternative. Extended warranties are service contracts, not manufacturer warranties -- third-party administrators control claims and may restrict which repair shops can be used and require pre-approval before any work begins. Pre-existing condition exclusions are the most common claim denial reason -- if a mechanical issue existed before purchase the contract will not cover it. Payment protection products (job loss, disability) are being pushed hard in 2026 due to economic anxiety -- exclusions are extensive and claims approval rates are low. Evaluate actual policy terms before considering. Finance managers will discount everything if pushed -- "I want to see that in writing" and "I need to think about it" always work.
 Vehicle: ${veh||"not specified"}${warrantyBrand?"\nWarranty provider: "+warrantyBrand:""}${drivingHabits?"\nHow they drive: "+drivingHabits:""}${ownershipLength?"\nHow long they plan to own it: "+ownershipLength:""}
-Products presented:\n${list}
-For EACH product:
+${priced.length?`Products with a quoted price -- analyze whether the price is fair:\n${list}`:""}
+${unpriced.length?`\nProducts the buyer wants info on BEFORE they get a quote (prep mode -- they have NOT been to the finance office yet):\n${unpricedList}\nFor these, instead of evaluating a quoted price, give: typical price range buyers see at dealerships nationally, typical dealer markup/profit margin on this product, whether it's generally worth buying at all, and what to watch for when it's presented.`:""}
+For EACH product WITH A QUOTED PRICE:
 ## [NAME] -- [WORTH IT / OVERPRICED / SKIP IT / DEPENDS ON YOUR SITUATION]
 - What the dealer paid for it vs what they are charging you
 - How often claims actually get approved vs denied (use current data)
 - The fine print that causes claims to be denied -- explain in plain terms
 - A cheaper way to get the same protection if one exists
 - Word-for-word script to decline or negotiate the price down
-## OVERALL FINANCE OFFICE STRATEGY -- Which to keep, which to cut, and how much you could save by removing the flagged ones.
+For EACH product WITHOUT A PRICE (prep mode):
+## [NAME] -- PREP GUIDE
+- Typical price range you'll see at dealerships (give a real dollar range)
+- Typical dealer markup / profit margin on this product
+- Generally worth buying or skip it -- and for whom
+- What to watch for and how to evaluate it when it's presented
+## OVERALL FINANCE OFFICE STRATEGY -- Which to keep, which to cut, and how much you could save by removing the flagged ones (priced products only).
 ## HOW THEY SELL IT -- Finance managers will discount everything if you push back. Explain that "I want to think about it" and "I need to see that in writing" always work.
 ## MAINTENANCE NOTE -- If the vehicle or driving habits suggest the buyer may be choosing the wrong product, flag it plainly.
 ## OPENING LINE -- The exact first words to say when sitting down in the finance office.
@@ -1366,7 +1440,15 @@ If any product or fee in this list is something you cannot fully evaluate or hav
               <div className="pc-chk">{sel[p.id]?"✓":""}</div>
               <div className="pc-name">{p.name}</div>
               <div className="pc-desc">{p.desc}</div>
-              {sel[p.id]&&<input className="pi" placeholder="$ quoted" value={prices[p.id]||""} onChange={e=>{e.stopPropagation();setP(pr=>({...pr,[p.id]:e.target.value}))}} onClick={e=>e.stopPropagation()} />}
+              {sel[p.id]&&(
+                <>
+                  {!noPrice[p.id]&&<input className="pi" placeholder="$ quoted" value={prices[p.id]||""} onChange={e=>{e.stopPropagation();setP(pr=>({...pr,[p.id]:e.target.value}))}} onClick={e=>e.stopPropagation()} />}
+                  <label style={{display:"flex",alignItems:"center",gap:6,marginTop:8,fontSize:11,color:"var(--text2)",fontWeight:700,cursor:"pointer"}} onClick={e=>e.stopPropagation()}>
+                    <input type="checkbox" checked={!!noPrice[p.id]} onChange={e=>{e.stopPropagation();setNoPrice(np=>({...np,[p.id]:e.target.checked}));if(e.target.checked)setP(pr=>({...pr,[p.id]:""}));}} onClick={e=>e.stopPropagation()} style={{cursor:"pointer"}} />
+                    I want this coverage but don't have a price yet
+                  </label>
+                </>
+              )}
             </div>
           ))}</div>
           <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Decoding...":`→ Decode ${picked.length} Product${picked.length!==1?"s":""}`}</button>
@@ -1657,15 +1739,15 @@ const FAQS = [
 
 const TOP_FAQS = 4;
 
-function FAQ() {
+function FAQ({ lang = "en" }) {
   const [open, setOpen] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? FAQS : FAQS.slice(0, TOP_FAQS);
   return (
     <div className="sec">
-      <div className="sec-eye">Got Questions</div>
-      <h2 className="sec-h2">Frequently Asked</h2>
-      <p className="sec-sub">Everything you need to know before you buy.</p>
+      <div className="sec-eye">{lang==="es"?"Tienes Preguntas":"Got Questions"}</div>
+      <h2 className="sec-h2">{lang==="es"?"Preguntas Frecuentes":"Frequently Asked"}</h2>
+      <p className="sec-sub">{lang==="es"?"Todo lo que necesitas saber antes de comprar.":"Everything you need to know before you buy."}</p>
       <div className="faq-list">
         {visible.map((f,i)=>(
           <div key={i} className={`faq-item ${open===i?"open":""}`}>
@@ -1685,7 +1767,7 @@ function FAQ() {
             onMouseOver={e=>{e.target.style.borderColor="var(--y)";e.target.style.color="var(--y)";}}
             onMouseOut={e=>{e.target.style.borderColor="var(--b1)";e.target.style.color="var(--muted)";}}
           >
-            See All Questions ({FAQS.length - TOP_FAQS} more) ↓
+            {lang==="es"?`Ver Todas las Preguntas (${FAQS.length - TOP_FAQS} más) ↓`:`See All Questions (${FAQS.length - TOP_FAQS} more) ↓`}
           </button>
         </div>
       )}
@@ -1697,7 +1779,7 @@ function FAQ() {
             onMouseOver={e=>{e.target.style.borderColor="var(--y)";e.target.style.color="var(--y)";}}
             onMouseOut={e=>{e.target.style.borderColor="var(--b1)";e.target.style.color="var(--muted)";}}
           >
-            Show Less ↑
+            {lang==="es"?"Mostrar Menos ↑":"Show Less ↑"}
           </button>
         </div>
       )}
@@ -1890,7 +1972,7 @@ const TABS = [
 ];
 
 export default function App() {
-  const [view,setView]=useState("home"); // home | tools | contact | tos | privacy | mission
+  const [view,setView]=useState(()=>window.location.hash==="#admin"?"admin":"home"); // home | tools | contact | tos | privacy | mission | admin
   const [menuOpen,setMenuOpen]=useState(false);
   const [tab,setTab]=useState("deal");
   const [modal,setModal]=useState(null);
@@ -2022,47 +2104,47 @@ export default function App() {
 
 
         <div id="pricing" className="sec" style={{paddingTop:0}}>
-          <div className="sec-eye">Pricing</div>
-          <h2 className="sec-h2">Simple. Transparent. Yours.</h2>
-          <p className="sec-sub">Pay once. No account. No subscription. Instant access.</p>
+          <div className="sec-eye">{lang==="es"?"Precios":"Pricing"}</div>
+          <h2 className="sec-h2">{lang==="es"?"Simple. Transparente. Tuyo.":"Simple. Transparent. Yours."}</h2>
+          <p className="sec-sub">{lang==="es"?"Pago único. Sin cuenta. Sin suscripción. Acceso instantáneo.":"Pay once. No account. No subscription. Instant access."}</p>
           <div className="pgrid">
             {PLANS.map(p=>(
               <div key={p.id} className={`pcard ${p.hot?"hot":""}`}>
-                {p.hot&&<div className="hot-lbl">Most Popular</div>}
+                {p.hot&&<div className="hot-lbl">{lang==="es"?"Más Popular":"Most Popular"}</div>}
                 <div className="pname">{p.name}</div>
-                <div className="pprice"><sup>$</sup>{p.price}<sub> one-time</sub></div>
+                <div className="pprice"><sup>$</sup>{p.price}<sub> {lang==="es"?"pago único":"one-time"}</sub></div>
                 <div className="pdesc">{p.desc}</div>
                 <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
-                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?"Unlock Pro -- $49":p.id==="guide"?"Negotiation Guide -- $20":p.id==="firsttime"?"First Time Buyer -- $25":"Single Report -- $20"}</button>
+                <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?(lang==="es"?"Desbloquea Pro -- $49":"Unlock Pro -- $49"):p.id==="guide"?(lang==="es"?"Guía de Negociación -- $20":"Negotiation Guide -- $20"):p.id==="firsttime"?(lang==="es"?"Primer Comprador -- $25":"First Time Buyer -- $25"):(lang==="es"?"Reporte Individual -- $20":"Single Report -- $20")}</button>
               </div>
             ))}
           </div>
         </div>
         <div className="sec" style={{paddingTop:0}}>
-          <div className="sec-eye">Why CNTROFR Saves You More Than Money</div>
-          <h2 className="sec-h2">The Average Car Deal Takes <span style={{color:"var(--red)"}}>14+ Hours.</span></h2>
-          <p className="sec-sub">Research, visits, negotiation, F&I office, paperwork -- most buyers go in blind and pay for it.</p>
+          <div className="sec-eye">{lang==="es"?"Por Qué CNTROFR Te Ahorra Más Que Dinero":"Why CNTROFR Saves You More Than Money"}</div>
+          <h2 className="sec-h2">{lang==="es"?<>La Compra Promedio de Auto Toma <span style={{color:"var(--red)"}}>14+ Horas.</span></>:<>The Average Car Deal Takes <span style={{color:"var(--red)"}}>14+ Hours.</span></>}</h2>
+          <p className="sec-sub">{lang==="es"?"Investigación, visitas, negociación, oficina F&I, papeleo -- la mayoría de los compradores entra a ciegas y lo paga.":"Research, visits, negotiation, F&I office, paperwork -- most buyers go in blind and pay for it."}</p>
           <div className="timesave">
             <div className="tsgrid">
               <div className="ts-card bad">
                 <div className="ts-num">14h</div>
-                <div className="ts-label">Average Time Spent Car Shopping</div>
-                <div className="ts-desc">Multiple dealer visits, hours of online research, and still walking in without knowing what the dealer knows about your deal.</div>
+                <div className="ts-label">{lang==="es"?"Tiempo Promedio Comprando Auto":"Average Time Spent Car Shopping"}</div>
+                <div className="ts-desc">{lang==="es"?"Múltiples visitas al concesionario, horas de investigación en línea, y aún así entras sin saber lo que el concesionario sabe sobre tu oferta.":"Multiple dealer visits, hours of online research, and still walking in without knowing what the dealer knows about your deal."}</div>
               </div>
               <div className="ts-card bad">
                 <div className="ts-num">$3,200</div>
-                <div className="ts-label">Average Overpayment Per Deal</div>
-                <div className="ts-desc">Between inflated vehicle price, lowball trade-in, mystery fees, and F&I markups -- most buyers leave thousands on the table.</div>
+                <div className="ts-label">{lang==="es"?"Sobrepago Promedio Por Oferta":"Average Overpayment Per Deal"}</div>
+                <div className="ts-desc">{lang==="es"?"Entre precio inflado del vehículo, intercambio subvalorado, tarifas misteriosas y sobreprecios de F&I -- la mayoría de los compradores deja miles sobre la mesa.":"Between inflated vehicle price, lowball trade-in, mystery fees, and F&I markups -- most buyers leave thousands on the table."}</div>
               </div>
               <div className="ts-card good">
                 <div className="ts-num">~10m</div>
-                <div className="ts-label">Time to Run a Full CNTROFR Analysis</div>
-                <div className="ts-desc">Enter your deal. Get your verdict, your counter, and your scripts. Walk back in knowing what they know.</div>
+                <div className="ts-label">{lang==="es"?"Tiempo Para Un Análisis Completo de CNTROFR":"Time to Run a Full CNTROFR Analysis"}</div>
+                <div className="ts-desc">{lang==="es"?"Ingresa tu oferta. Obtén tu veredicto, tu contraoferta y tus guiones. Regresa sabiendo lo que ellos saben.":"Enter your deal. Get your verdict, your counter, and your scripts. Walk back in knowing what they know."}</div>
               </div>
               <div className="ts-card good">
                 <div className="ts-num">$49</div>
-                <div className="ts-label">Cost of Pro Access vs. Thousands Saved</div>
-                <div className="ts-desc">Instead of spending hours Googling things you couldn't possibly know to prepare for -- let us hand it to you in minutes.</div>
+                <div className="ts-label">{lang==="es"?"Costo de Acceso Pro vs. Miles Ahorrados":"Cost of Pro Access vs. Thousands Saved"}</div>
+                <div className="ts-desc">{lang==="es"?"En lugar de pasar horas buscando en Google cosas que no podrías saber para prepararte -- déjanos entregártelo en minutos.":"Instead of spending hours Googling things you couldn't possibly know to prepare for -- let us hand it to you in minutes."}</div>
               </div>
             </div>
           </div>
@@ -2070,33 +2152,36 @@ export default function App() {
 
         <div className="sec" style={{paddingTop:0}}>
           <div className="equitable">
-            <div className="eq-quote">"A Great Deal Is Good For Both People At The Table."</div>
+            <div className="eq-quote">{lang==="es"?'"Un Gran Trato Es Bueno Para Las Dos Personas En La Mesa."':'"A Great Deal Is Good For Both People At The Table."'}</div>
             <p className="eq-body">
-              CNTROFR exists to expose greed -- not to burn down the industry. <strong>Lots of people love cars. Lots of salespeople love selling them.</strong> That relationship can and should be a good one.<br/><br/>
+              {lang==="es"?<>CNTROFR existe para exponer la codicia -- no para destruir la industria. <strong>Mucha gente ama los autos. Muchos vendedores aman venderlos.</strong> Esa relación puede y debe ser buena.<br/><br/>
+              La presión de ganancias que hace miserable la compra de autos no viene del piso de ventas. Viene de estructuras de propiedad y gerencia construidas para extraer el máximo margen de cada oferta. Tu vendedor a menudo no ve nada de eso.<br/><br/>
+              <strong>Si tuviste una gran experiencia -- dilo.</strong> Déjale a tu vendedor una reseña de cinco estrellas. Menciónalo por nombre. Esa reseña alimenta a su familia y construye su carrera. La codicia en la cima no puede quitarles eso.<br/><br/>
+              El trabajo de CNTROFR es asegurarse de que no estés pagando de más. Tu trabajo -- si la experiencia fue buena -- es asegurarte de que las personas correctas reciban el crédito.</>:<>CNTROFR exists to expose greed -- not to burn down the industry. <strong>Lots of people love cars. Lots of salespeople love selling them.</strong> That relationship can and should be a good one.<br/><br/>
               The profit pressure that makes car buying miserable doesn't come from the floor. It comes from ownership and management structures built to extract maximum margin from every deal. Your salesperson often sees none of it.<br/><br/>
               <strong>If you had a great experience -- say so.</strong> Leave your salesperson a five-star review. Mention them by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them.<br/><br/>
-              CNTROFR's job is to make sure you're not overpaying. Your job -- if the experience was good -- is to make sure the right people get the credit.
+              CNTROFR's job is to make sure you're not overpaying. Your job -- if the experience was good -- is to make sure the right people get the credit.</>}
             </p>
-            <div className="eq-cta"> Had a great experience? Leave your salesperson a review on Google, DealerRater, and Cars.com. It costs you nothing and means everything to them.</div>
+            <div className="eq-cta">{lang==="es"?" ¿Tuviste una gran experiencia? Déjale a tu vendedor una reseña en Google, DealerRater y Cars.com. No te cuesta nada y significa todo para ellos.":" Had a great experience? Leave your salesperson a review on Google, DealerRater, and Cars.com. It costs you nothing and means everything to them."}</div>
           </div>
         </div>
 
-        <div id="faq"><FAQ /></div>
+        <div id="faq"><FAQ lang={lang} /></div>
         <div className="footer">
           <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
-          <div className="footer-slogan">Don't Sign. Counter.</div>
+          <div className="footer-slogan">{lang==="es"?"No Firmes. Contraataca.":"Don't Sign. Counter."}</div>
           <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>
             <div className="powered-by">
               <span>Powered by</span>
               <span className="powered-by-logo">Claude AI by Anthropic</span>
             </div>
           </div>
-          <p>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+          <p>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
           <div className="footer-links">
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
-            <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
-            <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
-            <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
           </div>
           <div style={{marginTop:16,fontSize:13,color:"var(--text2)",fontWeight:800,letterSpacing:.3}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
           <div style={{marginTop:8,fontSize:11,color:"var(--muted)",fontWeight:700,letterSpacing:.5}}>🏔️ Developed in Colorado. Built for buyers everywhere.</div>
@@ -2108,13 +2193,13 @@ export default function App() {
         <Contact />
         <div className="footer">
           <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
-          <div className="footer-slogan">Don't Sign. Counter.</div>
-          <p>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+          <div className="footer-slogan">{lang==="es"?"No Firmes. Contraataca.":"Don't Sign. Counter."}</div>
+          <p>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
           <div className="footer-links">
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
-            <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
-            <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
-            <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
           </div>
         </div>
       </>}
@@ -2137,12 +2222,12 @@ export default function App() {
           {canUse(tab)?<Active ftb={access.includes("ftb")} paid={access.length>0} tier={access.includes("fee")?"pro":access.includes("ftb")?"ftb":access.includes("guide")&&access.length===1?"guide":"single"} onBuy={()=>buy(PLANS[2])} />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro -- $49</button></div>}
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
             <div className="footer-links">
               <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
             </div>
           </div>
         </div>
@@ -2156,12 +2241,12 @@ export default function App() {
           <PrivacyPolicy />
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
             <div className="footer-links">
               <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
             </div>
           </div>
         </>
@@ -2174,12 +2259,12 @@ export default function App() {
           <TermsOfService />
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
             <div className="footer-links">
               <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
             </div>
           </div>
         </>
@@ -2192,14 +2277,22 @@ export default function App() {
           <MissionPage />
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
-            <p style={{fontSize:11,color:"var(--muted)"}}>CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice.</p>
+            <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
             <div className="footer-links">
               <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
-              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
             </div>
           </div>
+        </>
+      )}
+      {view==="admin"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0);window.history.replaceState(null,"","/");}}>← Back to Home</button>
+          </div>
+          <AdminStats />
         </>
       )}
       {modal&&<PayModal plan={modal} onClose={()=>setModal(null)} onSuccess={onPaid} />}
