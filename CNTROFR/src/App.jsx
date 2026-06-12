@@ -1881,13 +1881,13 @@ const BETA_CODE = "CNTROFR-BETA";
 const BETA_ACTIVE = true;
 
 const PLANS = [
-  {id:"firsttime",name:"First Time Buyer",price:25,desc:"Your first car deal doesn't have to be your worst one.",features:["5-point dealer prep guide","What dealers assume you already know","Hidden costs that hit after you sign","Co-signer vs. first-time buyer programs","Full Deal Analyzer access","30 days access. No account. No login. Ever."],btn:"out",unlocks:["deal","ftb"]},
-  {id:"single",name:"Single Report",price:20,desc:"Every tool. One deal. One session.",features:["All 5 tools unlocked","Deal Analyzer -- full breakdown","Fee Comparison, F&I Decoder, Add-On Fighter","Counter Guide included","One session -- close the tab, access ends","No account. No login. Ever."],btn:"out",unlocks:["deal","fee","review","fi","addons","guide"]},
-  {id:"pro",name:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses","Working multiple deals? This is for you."],btn:"fill",unlocks:["deal","fee","review","fi","addons","guide"]},
-  {id:"guide",name:"Negotiation Guide & Counter Scripts",price:20,desc:"Know the game before you play it. Built from the dealer side, written for the buyer.",features:["How dealer profit actually works","Negotiation strategy from offer to close","Finance office playbook -- exposed","Add-on and upsell counter scripts","Trade-in positioning","Printable cheat sheet"],btn:"out",unlocks:["guide"]},
+  {id:"firsttime",name:"First Time Buyer",nameEs:"Primer Comprador",price:25,desc:"Your first car deal doesn't have to be your worst one.",descEs:"Tu primera compra de auto no tiene que ser la peor.",features:["5-point dealer prep guide","What dealers assume you already know","Hidden costs that hit after you sign","Co-signer vs. first-time buyer programs","Full Deal Analyzer access","30 days access. No account. No login. Ever."],featuresEs:["Guía de preparación de 5 puntos","Lo que los concesionarios asumen que ya sabes","Costos ocultos que aparecen después de firmar","Co-firmante vs. programas para primeros compradores","Acceso completo al Analizador de Ofertas","30 días de acceso. Sin cuenta. Sin inicio de sesión. Nunca."],btn:"out",unlocks:["deal","ftb"]},
+  {id:"single",name:"Single Report",nameEs:"Reporte Individual",price:20,desc:"Every tool. One deal. One session.",descEs:"Todas las herramientas. Una oferta. Una sesión.",features:["All 5 tools unlocked","Deal Analyzer -- full breakdown","Fee Comparison, F&I Decoder, Add-On Fighter","Counter Guide included","One session -- close the tab, access ends","No account. No login. Ever."],featuresEs:["Las 5 herramientas desbloqueadas","Analizador de Ofertas -- desglose completo","Comparación de Tarifas, Decodificador F&I, Luchador de Extras","Guía de Contraoferta incluida","Una sesión -- cierra la pestaña, el acceso termina","Sin cuenta. Sin inicio de sesión. Nunca."],btn:"out",unlocks:["deal","fee","review","fi","addons","guide"]},
+  {id:"pro",name:"Pro Bundle",nameEs:"Pro Bundle",price:49,hot:true,desc:"Every tool you need before and during the deal.",descEs:"Todas las herramientas que necesitas antes y durante la oferta.",features:["All 5 tools unlocked","Fee Comparison with live data","Review Purity audit","F&I Decoder + removal scripts","Add-On Fighter with counter scripts","Valid 7 days, unlimited uses","Working multiple deals? This is for you."],featuresEs:["Las 5 herramientas desbloqueadas","Comparación de Tarifas con datos en vivo","Auditoría de Pureza de Reseñas","Decodificador F&I + guiones para eliminar extras","Luchador de Extras con guiones de contraataque","Válido 7 días, usos ilimitados","¿Trabajando varias ofertas? Esto es para ti."],btn:"fill",unlocks:["deal","fee","review","fi","addons","guide"]},
+  {id:"guide",name:"Negotiation Guide & Counter Scripts",nameEs:"Guía de Negociación y Guiones de Contraoferta",price:20,desc:"Know the game before you play it. Built from the dealer side, written for the buyer.",descEs:"Conoce el juego antes de jugarlo. Creado desde el lado del concesionario, escrito para el comprador.",features:["How dealer profit actually works","Negotiation strategy from offer to close","Finance office playbook -- exposed","Add-on and upsell counter scripts","Trade-in positioning","Printable cheat sheet"],featuresEs:["Cómo funciona realmente la ganancia del concesionario","Estrategia de negociación desde la oferta hasta el cierre","El manual de la oficina de financiamiento -- expuesto","Guiones de contraataque para extras y ventas adicionales","Posicionamiento de intercambio","Hoja de referencia para imprimir"],btn:"out",unlocks:["guide"]},
 ];
 
-function PayModal({plan,onClose,onSuccess}) {
+function PayModal({plan,onClose,onSuccess,lang="en"}) {
   const [busy,setBusy]=useState(false);
   const [promoOpen,setPromoOpen]=useState(false);const [promoCode,setPromoCode]=useState("");const [promoMsg,setPromoMsg]=useState("");
   const [error,setError]=useState("");
@@ -1895,7 +1895,7 @@ function PayModal({plan,onClose,onSuccess}) {
   const applyPromo = async () => {
     const code = promoCode.trim().toUpperCase();
     if (BETA_ACTIVE && code === BETA_CODE) { onSuccess(plan); return; }
-    setPromoMsg("Checking...");
+    setPromoMsg(lang==="es"?"Verificando...":"Checking...");
     try {
       const r = await fetch("https://cntrofr.com/api/redeem", {
         method: "POST",
@@ -1904,8 +1904,8 @@ function PayModal({plan,onClose,onSuccess}) {
       });
       const d = await r.json();
       if (d.success) { onSuccess({ ...plan, unlocks: d.unlocks }); }
-      else { setPromoMsg(d.error || "Code not recognized or not yet active."); }
-    } catch(e) { setPromoMsg("Connection error. Please try again."); }
+      else { setPromoMsg(d.error || (lang==="es"?"Código no reconocido o aún no activo.":"Code not recognized or not yet active.")); }
+    } catch(e) { setPromoMsg(lang==="es"?"Error de conexión. Intenta de nuevo.":"Connection error. Please try again."); }
   };
 
   const pay = async () => {
@@ -1920,11 +1920,11 @@ function PayModal({plan,onClose,onSuccess}) {
       if (d.url) {
         window.location.href = d.url;
       } else {
-        setError(d.error || "Something went wrong. Please try again.");
+        setError(d.error || (lang==="es"?"Algo salió mal. Intenta de nuevo.":"Something went wrong. Please try again."));
         setBusy(false);
       }
     } catch(e) {
-      setError("Connection error. Please try again.");
+      setError(lang==="es"?"Error de conexión. Intenta de nuevo.":"Connection error. Please try again.");
       setBusy(false);
     }
   };
@@ -1932,29 +1932,29 @@ function PayModal({plan,onClose,onSuccess}) {
   return (
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="mbox">
-        <div className="mtop"><h3>Complete Purchase</h3><button className="mx" onClick={onClose}>×</button></div>
+        <div className="mtop"><h3>{lang==="es"?"Completar Compra":"Complete Purchase"}</h3><button className="mx" onClick={onClose}>×</button></div>
         <div className="mbody">
           <div className="order-sum">
-            <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Total Due</span><span className="oprice">${plan.price}</span></div>
-            <div className="oname">CNTROFR -- {plan.name}</div>
+            <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>{lang==="es"?"Total a Pagar":"Total Due"}</span><span className="oprice">${plan.price}</span></div>
+            <div className="oname">CNTROFR -- {lang==="es"?(plan.nameEs||plan.name):plan.name}</div>
           </div>
           <div style={{marginBottom:16}}>
-            <div style={{fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)",marginBottom:8}}>Already have an access code?</div>
+            <div style={{fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)",marginBottom:8}}>{lang==="es"?"¿Ya tienes un código de acceso?":"Already have an access code?"}</div>
             <div style={{display:"flex",gap:8}}>
-              <input value={promoCode} onChange={e=>setPromoCode(e.target.value)} placeholder="ENTER YOUR CODE" style={{flex:1,background:"var(--bg)",border:"2px solid var(--b2)",color:"var(--text)",fontFamily:"JetBrains Mono",fontSize:15,fontWeight:700,padding:"12px 16px",borderRadius:8,outline:"none",textTransform:"uppercase",letterSpacing:2}} />
-              <button onClick={applyPromo} style={{background:"var(--y)",color:"#111",border:"none",padding:"12px 22px",fontFamily:"Nunito",fontSize:13,fontWeight:900,cursor:"pointer",borderRadius:8,whiteSpace:"nowrap"}}>Apply</button>
+              <input value={promoCode} onChange={e=>setPromoCode(e.target.value)} placeholder={lang==="es"?"INGRESA TU CÓDIGO":"ENTER YOUR CODE"} style={{flex:1,background:"var(--bg)",border:"2px solid var(--b2)",color:"var(--text)",fontFamily:"JetBrains Mono",fontSize:15,fontWeight:700,padding:"12px 16px",borderRadius:8,outline:"none",textTransform:"uppercase",letterSpacing:2}} />
+              <button onClick={applyPromo} style={{background:"var(--y)",color:"#111",border:"none",padding:"12px 22px",fontFamily:"Nunito",fontSize:13,fontWeight:900,cursor:"pointer",borderRadius:8,whiteSpace:"nowrap"}}>{lang==="es"?"Aplicar":"Apply"}</button>
             </div>
-            {promoMsg&&<div style={{fontSize:12,fontWeight:800,marginTop:8,color:promoMsg==="Checking..."?"var(--muted)":"var(--red)"}}>{promoMsg}</div>}
-            <div style={{fontSize:10,color:"var(--muted)",marginTop:6,fontWeight:700}}>Check your email after purchase — code arrives within 2 minutes. Check spam if you don't see it.</div>
+            {promoMsg&&<div style={{fontSize:12,fontWeight:800,marginTop:8,color:(promoMsg==="Checking..."||promoMsg==="Verificando...")?"var(--muted)":"var(--red)"}}>{promoMsg}</div>}
+            <div style={{fontSize:10,color:"var(--muted)",marginTop:6,fontWeight:700}}>{lang==="es"?"Revisa tu correo después de la compra — el código llega en 2 minutos. Revisa spam si no lo ves.":"Check your email after purchase — code arrives within 2 minutes. Check spam if you don't see it."}</div>
           </div>
           <div style={{height:1,background:"var(--b1)",margin:"4px 0 16px"}} />
           {error&&<div style={{background:"rgba(255,68,68,.1)",border:"1px solid rgba(255,68,68,.3)",borderRadius:8,padding:"10px 14px",fontSize:12,color:"var(--red)",fontWeight:700,marginBottom:12}}>{error}</div>}
           <button className="paybtn" onClick={pay} disabled={busy}>
-            {busy ? "Redirecting to Stripe..." : `Pay $${plan.price} — Secure Checkout`}
+            {busy ? (lang==="es"?"Redirigiendo a Stripe...":"Redirecting to Stripe...") : (lang==="es"?`Pagar $${plan.price} — Pago Seguro`:`Pay $${plan.price} — Secure Checkout`)}
           </button>
-          <div className="secnote"><span>🔒</span> Secured by Stripe — No account required — Instant access code via email</div>
+          <div className="secnote"><span>🔒</span> {lang==="es"?"Protegido por Stripe — No requiere cuenta — Código de acceso instantáneo por correo":"Secured by Stripe — No account required — Instant access code via email"}</div>
           <div style={{fontSize:10,color:"var(--muted)",textAlign:"center",marginTop:8,fontWeight:600,lineHeight:1.6}}>
-            CNTROFR will never contact you asking for personal information or payment details. Check spam if your code doesn't arrive within 2 minutes.
+            {lang==="es"?"CNTROFR nunca te pedirá información personal o detalles de pago. Revisa spam si tu código no llega en 2 minutos.":"CNTROFR will never contact you asking for personal information or payment details. Check spam if your code doesn't arrive within 2 minutes."}
           </div>
         </div>
       </div>
@@ -2111,10 +2111,10 @@ export default function App() {
             {PLANS.map(p=>(
               <div key={p.id} className={`pcard ${p.hot?"hot":""}`}>
                 {p.hot&&<div className="hot-lbl">{lang==="es"?"Más Popular":"Most Popular"}</div>}
-                <div className="pname">{p.name}</div>
+                <div className="pname">{lang==="es"?p.nameEs:p.name}</div>
                 <div className="pprice"><sup>$</sup>{p.price}<sub> {lang==="es"?"pago único":"one-time"}</sub></div>
-                <div className="pdesc">{p.desc}</div>
-                <ul className="pfeats">{p.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
+                <div className="pdesc">{lang==="es"?p.descEs:p.desc}</div>
+                <ul className="pfeats">{(lang==="es"?p.featuresEs:p.features).map((f,i)=><li key={i}>{f}</li>)}</ul>
                 <button className={`pbtn ${p.hot?"fill":"out"}`} onClick={()=>buy(p)}>{p.hot?(lang==="es"?"Desbloquea Pro -- $49":"Unlock Pro -- $49"):p.id==="guide"?(lang==="es"?"Guía de Negociación -- $20":"Negotiation Guide -- $20"):p.id==="firsttime"?(lang==="es"?"Primer Comprador -- $25":"First Time Buyer -- $25"):(lang==="es"?"Reporte Individual -- $20":"Single Report -- $20")}</button>
               </div>
             ))}
@@ -2295,7 +2295,7 @@ export default function App() {
           <AdminStats />
         </>
       )}
-      {modal&&<PayModal plan={modal} onClose={()=>setModal(null)} onSuccess={onPaid} />}
+      {modal&&<PayModal plan={modal} onClose={()=>setModal(null)} onSuccess={onPaid} lang={lang} />}
       {sessionWarning&&(
         <div className="session-warn-overlay">
           <div className="session-warn-box">
