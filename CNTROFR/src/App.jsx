@@ -18,6 +18,7 @@ const S = `
   .hdr-plate::before { left: 3px; } .hdr-plate::after { right: 3px; }
   .hdr-tagline { font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
   .hdr-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .lang-toggle { padding: 7px 14px; font-family: 'Bebas Neue'; letter-spacing: 2px; font-size: 13px; min-width: 44px; }
   .hbtn { background: none; border: 2px solid var(--b2); color: var(--text2); padding: 7px 18px; font-family: Nunito; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 8px; transition: all .2s; }
   .hbtn:hover { border-color: var(--y); color: var(--y); }
   .hbtn-y { background: var(--y); color: #111; border: none; padding: 8px 22px; font-family: Nunito; font-size: 12px; font-weight: 900; cursor: pointer; border-radius: 8px; transition: background .2s; box-shadow: 0 2px 12px rgba(255,214,0,.3); }
@@ -408,6 +409,10 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const HCAPTCHA_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001";
 
+// Global language flag (read by ai() so every tool's AI responses honor it without prop drilling)
+let CURRENT_LANG = "en";
+export function setGlobalLang(l) { CURRENT_LANG = l; }
+
 async function saveDeal(data) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   try {
@@ -493,7 +498,10 @@ async function parseStream(response, onChunk = null) {
 
 async function ai(prompt, web = false, onChunk = null) {
   try {
-    const body = { model: "claude-sonnet-4-5", max_tokens: 2000, stream: true, messages: [{ role: "user", content: prompt }] };
+    const finalPrompt = CURRENT_LANG === "es"
+      ? `${prompt}\n\nIMPORTANT: Respond entirely in Spanish (Español). Translate all headers, labels, and analysis into natural, conversational Spanish suitable for a Spanish-speaking car buyer in the US. Keep dollar amounts and proper nouns (brand/model names) as-is.`
+      : prompt;
+    const body = { model: "claude-sonnet-4-5", max_tokens: 2000, stream: true, messages: [{ role: "user", content: finalPrompt }] };
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
 
     const controller = new AbortController();
@@ -528,7 +536,7 @@ async function ai(prompt, web = false, onChunk = null) {
         stream: true,
         tools: [{ type: "web_search_20250305", name: "web_search" }],
         messages: [
-          { role: "user", content: prompt },
+          { role: "user", content: finalPrompt },
           { role: "assistant", content: assistantContent },
           { role: "user", content: toolResults }
         ]
@@ -1888,6 +1896,8 @@ export default function App() {
   const [modal,setModal]=useState(null);
   const [access,setAccess]=useState([]);
   const [sessionWarning,setSessionWarning]=useState(false);
+  const [lang,setLang]=useState("en");
+  const toggleLang=()=>{const next=lang==="en"?"es":"en";setLang(next);setGlobalLang(next);};
   const buy=plan=>setModal(plan);
   const onPaid=plan=>{setModal(null);setAccess(plan.unlocks||[]);if(plan.id==="single"){setSessionWarning(true);}else{const validTab=(plan.unlocks||[]).find(id=>TABS.find(t=>t.id===id));if(validTab){setView("tools");setTab(validTab);}else if((plan.unlocks||[]).includes("ftb")){setView("tools");setTab("deal");}}};
   const canUse=id=>TABS.find(t=>t.id===id)?.free||access.includes(id)||false;
@@ -1904,21 +1914,27 @@ export default function App() {
           <img src="/cntrofrplate.svg" alt="CNTROFR" style={{height:"40px",width:"auto",display:"block"}} />
           <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
         </div>
+        <div className="hdr-right">
+          <button className="hbtn lang-toggle" onClick={toggleLang} aria-label="Toggle language" title={lang==="en"?"Switch to Spanish":"Switch to English"}>
+            {lang==="en"?"ES":"EN"}
+          </button>
+        </div>
       </div>
       {menuOpen && (
         <div className="burger-menu">
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);window.scrollTo(0,0);}}>🏠 Home</button>
-          <button className="bmenu-item" onClick={()=>{setView("tools");setTab("deal");setMenuOpen(false);}}> Free Deal Analyzer</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);window.scrollTo(0,0);}}>🏠 {lang==="es"?"Inicio":"Home"}</button>
+          <button className="bmenu-item" onClick={()=>{setView("tools");setTab("deal");setMenuOpen(false);}}> {lang==="es"?"Analizador Gratis":"Free Deal Analyzer"}</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 All Tools</button>
-          <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>🎯 Mission</button>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 Pricing</button>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#faq")?.scrollIntoView({behavior:"smooth"}),100);}}>? FAQ</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 {lang==="es"?"Todas las Herramientas":"All Tools"}</button>
+          <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>🎯 {lang==="es"?"Misión":"Mission"}</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 {lang==="es"?"Precios":"Pricing"}</button>
+          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#faq")?.scrollIntoView({behavior:"smooth"}),100);}}>? {lang==="es"?"Preguntas Frecuentes":"FAQ"}</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}> Contact</button>
+          <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}> {lang==="es"?"Contacto":"Contact"}</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>Unlock Pro Bundle -- $49</button>
+          <button className="bmenu-item highlight" onClick={()=>{buy(PLANS[2]);setMenuOpen(false);}}>{lang==="es"?"Desbloquea Pro Bundle -- $49":"Unlock Pro Bundle -- $49"}</button>
         </div>
+
       )}
 
       {view==="home"&&<>
@@ -1929,28 +1945,28 @@ export default function App() {
           <div className="hero-center-plate">
             <img src="/cntrofrplate.svg" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
           </div>
-          <h2 className="hero-h1">The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</h2>
-          <div className="hero-tagline">Don't Sign. Counter.</div>
-          <p className="hero-sub">CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers.</p>
+          <h2 className="hero-h1">{lang==="es"?<>El Concesionario Ha Hecho<br/>Esto <span className="y">10,000 Veces.</span><br/>Tú No.</>:<>The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</>}</h2>
+          <div className="hero-tagline">{lang==="es"?"No Firmes. Contraataca.":"Don't Sign. Counter."}</div>
+          <p className="hero-sub">{lang==="es"?"CNTROFR le da a cada comprador de auto la información privilegiada que los concesionarios cuentan con que no tengas. Sin cuenta. Sin inicio de sesión. Solo respuestas.":"CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers."}</p>
           <div className="hero-btns">
-            <button className="btn-lg" onClick={()=>buy(PLANS[2])}>Unlock Pro -- $49</button>
-            <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>Try Free Deal Analyzer</button>
+            <button className="btn-lg" onClick={()=>buy(PLANS[2])}>{lang==="es"?"Desbloquea Pro -- $49":"Unlock Pro -- $49"}</button>
+            <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>{lang==="es"?"Prueba el Analizador Gratis":"Try Free Deal Analyzer"}</button>
           </div>
           <div className="stats">
-            <div className="stat"><div className="stat-n">$2,800</div><div className="stat-l">Avg dealer markup exposed</div></div>
-            <div className="stat"><div className="stat-n">5 tools</div><div className="stat-l">One price, full arsenal</div></div>
-            <div className="stat"><div className="stat-n">$0</div><div className="stat-l">Dealer kickbacks. Ever.</div></div>
+            <div className="stat"><div className="stat-n">$2,800</div><div className="stat-l">{lang==="es"?"Sobreprecio promedio expuesto":"Avg dealer markup exposed"}</div></div>
+            <div className="stat"><div className="stat-n">{lang==="es"?"5 herramientas":"5 tools"}</div><div className="stat-l">{lang==="es"?"Un precio, arsenal completo":"One price, full arsenal"}</div></div>
+            <div className="stat"><div className="stat-n">$0</div><div className="stat-l">{lang==="es"?"Comisiones de concesionarios. Nunca.":"Dealer kickbacks. Ever."}</div></div>
           </div>
         </div>
-        <div id="tools" className="alert"><p>⚠ The FTC rule protecting buyers from hidden dealer fees was <strong>sued and killed by the dealer lobby in 2025.</strong> Dealers can now legally hide fees. You need CNTROFR more than ever.</p></div>
+        <div id="tools" className="alert"><p>{lang==="es"?<>⚠ La regla de la FTC que protegía a los compradores de tarifas ocultas fue <strong>demandada y eliminada por el lobby de concesionarios en 2025.</strong> Los concesionarios ahora pueden ocultar tarifas legalmente. Necesitas CNTROFR más que nunca.</>:<>⚠ The FTC rule protecting buyers from hidden dealer fees was <strong>sued and killed by the dealer lobby in 2025.</strong> Dealers can now legally hide fees. You need CNTROFR more than ever.</>}</p></div>
         <div id="how" className="sec">
-          <div className="sec-eye">How It Works</div>
-          <h2 className="sec-h2">Three Steps to Your Counter</h2>
-          <p className="sec-sub">No account. No waiting. Enter your deal and get your counteroffer.</p>
+          <div className="sec-eye">{lang==="es"?"Cómo Funciona":"How It Works"}</div>
+          <h2 className="sec-h2">{lang==="es"?"Tres Pasos Hacia Tu Contraoferta":"Three Steps to Your Counter"}</h2>
+          <p className="sec-sub">{lang==="es"?"Sin cuenta. Sin esperas. Ingresa tu oferta y obtén tu contraoferta.":"No account. No waiting. Enter your deal and get your counteroffer."}</p>
           <div className="steps">
-            <div className="step"><div className="step-num">01</div><div className="step-title">Enter Your Deal Numbers</div><div className="step-desc">Price, trade-in, fees, and add-ons. Takes 2 minutes.</div></div>
-            <div className="step"><div className="step-num">02</div><div className="step-title">AI Analyzes From the Inside</div><div className="step-desc">Built on real dealer knowledge -- the stuff they count on you not knowing.</div></div>
-            <div className="step"><div className="step-num">03</div><div className="step-title">Get Your Counter</div><div className="step-desc">Walk back in with a verdict, specific numbers, and word-for-word scripts.</div></div>
+            <div className="step"><div className="step-num">01</div><div className="step-title">{lang==="es"?"Ingresa los Números de tu Oferta":"Enter Your Deal Numbers"}</div><div className="step-desc">{lang==="es"?"Precio, intercambio, tarifas y extras. Toma 2 minutos.":"Price, trade-in, fees, and add-ons. Takes 2 minutes."}</div></div>
+            <div className="step"><div className="step-num">02</div><div className="step-title">{lang==="es"?"La IA Analiza Desde Adentro":"AI Analyzes From the Inside"}</div><div className="step-desc">{lang==="es"?"Basado en conocimiento real de concesionarios -- lo que cuentan con que no sepas.":"Built on real dealer knowledge -- the stuff they count on you not knowing."}</div></div>
+            <div className="step"><div className="step-num">03</div><div className="step-title">{lang==="es"?"Obtén Tu Contraoferta":"Get Your Counter"}</div><div className="step-desc">{lang==="es"?"Regresa con un veredicto, números específicos y guiones palabra por palabra.":"Walk back in with a verdict, specific numbers, and word-for-word scripts."}</div></div>
           </div>
         </div>
         <div className="sec" style={{paddingTop:0}}>
