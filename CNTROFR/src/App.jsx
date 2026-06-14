@@ -1971,10 +1971,53 @@ const TABS = [
   {id:"guide",label:"Counter Guide",free:false,component:CounterGuide},
 ];
 
+// Maps URL paths <-> view state. /tools also encodes the active tab as a sub-path.
+const PATH_TO_VIEW = {
+  "/": "home",
+  "/mission": "mission",
+  "/contact": "contact",
+  "/privacy": "privacy",
+  "/terms": "tos",
+  "/tools": "tools",
+};
+const VIEW_TO_PATH = {
+  home: "/",
+  mission: "/mission",
+  contact: "/contact",
+  privacy: "/privacy",
+  tos: "/terms",
+  tools: "/tools",
+  admin: "/", // admin stays hidden, never reflected in URL
+};
+const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review-purity", fi:"fi-decoder", addons:"add-on-fighter", guide:"counter-guide" };
+const SLUG_TO_TAB = Object.fromEntries(Object.entries(TAB_TO_SLUG).map(([k,v])=>[v,k]));
+
+const PAGE_META = {
+  home: { title:"CNTROFR -- AI Car Deal Analyzer & Counter Offer Tool", desc:"Get an instant AI-powered analysis of your car deal. Fee breakdowns, F&I decoding, dealer reviews, and word-for-word counter scripts. No account needed." },
+  tools: { title:"Free Deal Analyzer & Tools -- CNTROFR", desc:"Run your deal through CNTROFR's AI tools -- Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter." },
+  mission: { title:"Our Mission -- CNTROFR", desc:"CNTROFR was built by an automotive insider to give car buyers the same playbook dealers use. Zero dealer kickbacks. Ever." },
+  contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
+  privacy: { title:"Privacy Policy -- CNTROFR", desc:"CNTROFR's privacy policy. We never sell your data or refer you to dealers." },
+  tos: { title:"Terms of Use -- CNTROFR", desc:"Terms of use for CNTROFR's car deal analysis tools." },
+  admin: { title:"CNTROFR", desc:"" },
+};
+
+function pathToInitialState() {
+  if (window.location.hash === "#admin") return { view: "admin", tab: "deal" };
+  const path = window.location.pathname;
+  if (path.startsWith("/tools")) {
+    const slug = path.split("/")[2];
+    const tab = SLUG_TO_TAB[slug] || "deal";
+    return { view: "tools", tab };
+  }
+  const view = PATH_TO_VIEW[path] || "home";
+  return { view, tab: "deal" };
+}
+
 export default function App() {
-  const [view,setView]=useState(()=>window.location.hash==="#admin"?"admin":"home"); // home | tools | contact | tos | privacy | mission | admin
+  const [view,setView]=useState(()=>pathToInitialState().view); // home | tools | contact | tos | privacy | mission | admin
   const [menuOpen,setMenuOpen]=useState(false);
-  const [tab,setTab]=useState("deal");
+  const [tab,setTab]=useState(()=>pathToInitialState().tab);
   const [modal,setModal]=useState(null);
   const [access,setAccess]=useState([]);
   const [sessionWarning,setSessionWarning]=useState(false);
@@ -1984,6 +2027,41 @@ export default function App() {
   const onPaid=plan=>{setModal(null);setAccess(plan.unlocks||[]);if(plan.id==="single"){setSessionWarning(true);}else{const validTab=(plan.unlocks||[]).find(id=>TABS.find(t=>t.id===id));if(validTab){setView("tools");setTab(validTab);}else if((plan.unlocks||[]).includes("ftb")){setView("tools");setTab("deal");}}};
   const canUse=id=>TABS.find(t=>t.id===id)?.free||access.includes(id)||false;
   const Active=TABS.find(t=>t.id===tab)?.component||DealAnalyzer;
+
+  // Keep the URL, document title, and meta description in sync with the current view (and tab, when on /tools).
+  // This runs on every view/tab change but does NOT trigger navigation -- it's one-directional (state -> URL).
+  useEffect(() => {
+    if (view === "admin") return; // admin route stays hidden, never written to the address bar
+    let path = VIEW_TO_PATH[view] || "/";
+    if (view === "tools") {
+      const slug = TAB_TO_SLUG[tab] || "deal-analyzer";
+      path = `/tools/${slug}`;
+    }
+    if (window.location.pathname !== path) {
+      window.history.pushState(null, "", path);
+    }
+    const meta = PAGE_META[view] || PAGE_META.home;
+    document.title = meta.title;
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute("content", meta.desc);
+  }, [view, tab]);
+
+  // Handle browser back/forward buttons -- read the new URL and update state to match.
+  useEffect(() => {
+    const onPop = () => {
+      const next = pathToInitialState();
+      setView(next.view);
+      setTab(next.tab);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   return (
     <>
       <style>{S}</style>
