@@ -57,6 +57,19 @@ const S = `
   .stats { display: flex; justify-content: center; gap: 48px; margin-top: 56px; padding-top: 36px; border-top: 1px solid var(--b1); flex-wrap: wrap; }
   .stat-n { font-family: 'Bebas Neue'; font-size: 40px; color: var(--y); letter-spacing: 1px; }
   .stat-l { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; letter-spacing: .5px; }
+  /* == SAVINGS CALLOUT & BREAKDOWN == */
+  .savings-callout { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,214,0,.08); border: 1px solid rgba(255,214,0,.3); border-radius: 100px; padding: 10px 22px; margin-bottom: 18px; font-family: Nunito; font-weight: 800; font-size: clamp(12px, 2.6vw, 15px); color: var(--text2); }
+  .savings-callout .sc-icon { font-size: 18px; }
+  .savings-callout .y { color: var(--y); font-family: 'Bebas Neue'; font-size: clamp(15px, 3.2vw, 19px); letter-spacing: .5px; }
+  .savings-breakdown { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--b1); }
+  .sb-grid { display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .sb-item { background: var(--bg2); border: 1px solid var(--b1); border-radius: 12px; padding: 12px 18px; min-width: 110px; text-align: center; }
+  .sb-amt { font-family: 'Bebas Neue'; font-size: 26px; color: var(--text); letter-spacing: .5px; }
+  .sb-label { font-size: 10px; color: var(--muted); font-weight: 700; margin-top: 2px; letter-spacing: .5px; text-transform: uppercase; }
+  .sb-plus { font-family: 'Bebas Neue'; font-size: 20px; color: var(--muted); }
+  .sb-total { text-align: center; margin-top: 22px; font-family: 'Bebas Neue'; font-size: clamp(18px, 4vw, 28px); letter-spacing: 2px; color: var(--text2); }
+  .sb-total .y { color: var(--y); }
+  @media (max-width: 640px) { .sb-plus { display: none; } .sb-grid { gap: 10px; } .sb-item { flex: 1 1 calc(50% - 10px); min-width: 0; } }
   /* == SEVERITY / WARNING STYLES == */
   .severity-wrap { margin-top: 10px; animation: fadeIn .3s ease; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
@@ -2105,12 +2118,28 @@ export default function App() {
           <div className="hero-center-plate">
             <img src="/cntrofrplate.svg" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
           </div>
+          <div className="savings-callout">
+            <span className="sc-icon">💰</span>
+            <span className="sc-text">{lang==="es"?<>Los compradores encuentran hasta <span className="y">$8,300</span> escondidos en su oferta.</>:<>Buyers find up to <span className="y">$8,300</span> hiding in their deal.</>}</span>
+          </div>
           <h2 className="hero-h1">{lang==="es"?<>El Concesionario Ha Hecho<br/>Esto <span className="y">10,000 Veces.</span><br/>Tú No.</>:<>The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</>}</h2>
           <div className="hero-tagline">{lang==="es"?"No Firmes. Contraataca.":"Don't Sign. Counter."}</div>
           <p className="hero-sub">{lang==="es"?"CNTROFR le da a cada comprador de auto la información privilegiada que los concesionarios cuentan con que no tengas. Sin cuenta. Sin inicio de sesión. Solo respuestas.":"CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers."}</p>
           <div className="hero-btns">
             <button className="btn-lg" onClick={()=>buy(PLANS[2])}>{lang==="es"?"Desbloquea Pro -- $49":"Unlock Pro -- $49"}</button>
             <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>{lang==="es"?"Prueba el Analizador Gratis":"Try Free Deal Analyzer"}</button>
+          </div>
+          <div className="savings-breakdown">
+            <div className="sb-grid">
+              <div className="sb-item"><div className="sb-amt">$2,000</div><div className="sb-label">{lang==="es"?"Precio Inflado":"Inflated Price"}</div></div>
+              <div className="sb-plus">+</div>
+              <div className="sb-item"><div className="sb-amt">$1,500</div><div className="sb-label">{lang==="es"?"Extras No Deseados":"Unwanted Add-Ons"}</div></div>
+              <div className="sb-plus">+</div>
+              <div className="sb-item"><div className="sb-amt">$800</div><div className="sb-label">{lang==="es"?"Tarifas del Concesionario":"Doc & Dealer Fees"}</div></div>
+              <div className="sb-plus">+</div>
+              <div className="sb-item"><div className="sb-amt">$4,000</div><div className="sb-label">{lang==="es"?"Sobreprecios F&I":"F&I Markups"}</div></div>
+            </div>
+            <div className="sb-total">{lang==="es"?<>HASTA <span className="y">$8,300</span> SOBRE LA MESA</>:<>UP TO <span className="y">$8,300</span> ON THE TABLE</>}</div>
           </div>
           <div className="stats">
             <div className="stat"><div className="stat-n">$2,800</div><div className="stat-l">{lang==="es"?"Sobreprecio promedio expuesto":"Avg dealer markup exposed"}</div></div>
