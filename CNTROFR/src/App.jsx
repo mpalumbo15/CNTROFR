@@ -1737,6 +1737,7 @@ function TermsOfService() {
 const FAQS = [
   {q:"Does CNTROFR sell my information or refer me to dealers?",a:"Never. CNTROFR takes zero money from dealers, lenders, manufacturers, or advertising networks. We do not generate leads, sell your contact information, or refer you to any dealership. The moment we do that, the platform is worthless -- our entire value is that we work for you, not for them. Our only revenue comes from direct purchases by buyers like you."},
   {q:"Do you hate car salespeople?",a:"Definitely not. Your salesperson is just that -- a person. If you like their vibe and they listen to your needs, stick with them and let them earn your business. In most cases, the overcharges and the greed don't go to the salesperson. That money goes to the folks in the suits, not the ones working long hours and holidays to move metal."},
+  {q:"What does a good deal actually look like?",a:"A great deal is good for both people at the table. CNTROFR exists to expose greed -- not to burn down the industry. Lots of people love cars. Lots of salespeople love selling them. That relationship can and should be a good one. The profit pressure that makes car buying miserable doesn't come from the floor -- it comes from ownership and management structures built to extract maximum margin from every deal. Your salesperson often sees none of it. If you walked out feeling respected, paid a fair price, and weren't loaded up with junk you didn't ask for -- that's a good deal. And if your salesperson made it happen, leave them a five-star review by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them."},
   {q:"Why no subscription or app?",a:"Simple -- use us when you need us. CNTROFR is built for the moment you're ready to make a large auto purchase, not something that needs to live on your phone year-round. You're not always car shopping, and you shouldn't be. Pay once, get what you need, go enjoy your new ride."},
   {q:"How do you protect my personal information?",a:"We keep it minimal by design. While some information is necessary for payment processing, we'd rather not hold onto your personal data at all. CNTROFR exists to keep your money with you -- not to collect, sell, or monetize your information in any way."},
   {q:"Does CNTROFR work for used cars too?",a:"Absolutely. Whether you're buying new off the lot or used from a dealer, the same tactics apply. Inflated prices, lowball trade-ins, junk add-ons, and mystery fees don't discriminate -- and neither do our tools. One firm piece of advice though: we do not recommend 'Buy Here, Pay Here' lots under any circumstances. If a dealership doesn't have established relationships with outside banks and lenders, something is off. Reputable dealers work with real financial institutions. If they're financing everything in-house, that's a red flag worth walking away from before you ever get to the numbers."},
@@ -2242,8 +2243,8 @@ export default function App() {
               </div>
               <div className="ts-card bad">
                 <div className="ts-num">$3,200</div>
-                <div className="ts-label">{lang==="es"?"Sobrepago Promedio Por Oferta":"Average Overpayment Per Deal"}</div>
-                <div className="ts-desc">{lang==="es"?"Entre precio inflado del vehículo, intercambio subvalorado, tarifas misteriosas y sobreprecios de F&I -- la mayoría de los compradores deja miles sobre la mesa.":"Between inflated vehicle price, lowball trade-in, mystery fees, and F&I markups -- most buyers leave thousands on the table."}</div>
+                <div className="ts-label">{lang==="es"?"Sobrepago Promedio Por Oferta":"Avg Buyer Overpayment Per Deal"}</div>
+                <div className="ts-desc">{lang==="es"?"Entre precio inflado del vehículo, intercambio subvalorado, tarifas misteriosas y sobreprecios de F&I -- la mayoría de los compradores deja miles sobre la mesa. Los peores casos llegan hasta $8,300.":"Between inflated vehicle price, lowball trade-in, mystery fees, and F&I markups -- most buyers leave thousands on the table. Worst cases hit $8,300."}</div>
               </div>
               <div className="ts-card good">
                 <div className="ts-num">~10m</div>
@@ -2259,21 +2260,6 @@ export default function App() {
           </div>
         </div>
 
-        <div className="sec" style={{paddingTop:0}}>
-          <div className="equitable">
-            <div className="eq-quote">{lang==="es"?'"Un Gran Trato Es Bueno Para Las Dos Personas En La Mesa."':'"A Great Deal Is Good For Both People At The Table."'}</div>
-            <p className="eq-body">
-              {lang==="es"?<>CNTROFR existe para exponer la codicia -- no para destruir la industria. <strong>Mucha gente ama los autos. Muchos vendedores aman venderlos.</strong> Esa relación puede y debe ser buena.<br/><br/>
-              La presión de ganancias que hace miserable la compra de autos no viene del piso de ventas. Viene de estructuras de propiedad y gerencia construidas para extraer el máximo margen de cada oferta. Tu vendedor a menudo no ve nada de eso.<br/><br/>
-              <strong>Si tuviste una gran experiencia -- dilo.</strong> Déjale a tu vendedor una reseña de cinco estrellas. Menciónalo por nombre. Esa reseña alimenta a su familia y construye su carrera. La codicia en la cima no puede quitarles eso.<br/><br/>
-              El trabajo de CNTROFR es asegurarse de que no estés pagando de más. Tu trabajo -- si la experiencia fue buena -- es asegurarte de que las personas correctas reciban el crédito.</>:<>CNTROFR exists to expose greed -- not to burn down the industry. <strong>Lots of people love cars. Lots of salespeople love selling them.</strong> That relationship can and should be a good one.<br/><br/>
-              The profit pressure that makes car buying miserable doesn't come from the floor. It comes from ownership and management structures built to extract maximum margin from every deal. Your salesperson often sees none of it.<br/><br/>
-              <strong>If you had a great experience -- say so.</strong> Leave your salesperson a five-star review. Mention them by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them.<br/><br/>
-              CNTROFR's job is to make sure you're not overpaying. Your job -- if the experience was good -- is to make sure the right people get the credit.</>}
-            </p>
-            <div className="eq-cta">{lang==="es"?" ¿Tuviste una gran experiencia? Déjale a tu vendedor una reseña en Google, DealerRater y Cars.com. No te cuesta nada y significa todo para ellos.":" Had a great experience? Leave your salesperson a review on Google, DealerRater, and Cars.com. It costs you nothing and means everything to them."}</div>
-          </div>
-        </div>
 
         <div id="faq" className="sec" style={{paddingTop:0,paddingBottom:48,textAlign:"center"}}>
           <div className="sec-eye">{lang==="es"?"Tienes Preguntas":"Got Questions"}</div>
