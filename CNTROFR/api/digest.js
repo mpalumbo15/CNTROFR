@@ -23,7 +23,7 @@ Format as clean markdown with the headers above. Be specific -- cite numbers, da
 
 async function getDigest() {
   const body = {
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 2000,
     messages: [{ role: "user", content: DIGEST_PROMPT }],
     tools: [{ type: "web_search_20250305", name: "web_search" }],
