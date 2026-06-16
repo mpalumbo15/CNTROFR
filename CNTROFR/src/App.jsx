@@ -2009,12 +2009,13 @@ const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review
 const SLUG_TO_TAB = Object.fromEntries(Object.entries(TAB_TO_SLUG).map(([k,v])=>[v,k]));
 
 const PAGE_META = {
-  home: { title:"CNTROFR -- AI Car Deal Analyzer & Counter Offer Tool", desc:"Get an instant AI-powered analysis of your car deal. Fee breakdowns, F&I decoding, dealer reviews, and word-for-word counter scripts. No account needed." },
+  home: { title:"CNTROFR -- AI Car Deal Analyzer & Pocket Consultant", desc:"Your pocket consultant for car buying. AI-powered deal analysis, fee breakdowns, F&I decoding, dealer review audits, and word-for-word counter scripts. No account needed." },
   tools: { title:"Free Deal Analyzer & Tools -- CNTROFR", desc:"Run your deal through CNTROFR's AI tools -- Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter." },
   mission: { title:"Our Mission -- CNTROFR", desc:"CNTROFR was built by an automotive insider to give car buyers the same playbook dealers use. Zero dealer kickbacks. Ever." },
   contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
   privacy: { title:"Privacy Policy -- CNTROFR", desc:"CNTROFR's privacy policy. We never sell your data or refer you to dealers." },
   tos: { title:"Terms of Use -- CNTROFR", desc:"Terms of use for CNTROFR's car deal analysis tools." },
+  faq: { title:"FAQ & Resources -- CNTROFR", desc:"Everything you need to know about car buying, dealer tactics, and how CNTROFR works as your pocket consultant." },
   admin: { title:"CNTROFR", desc:"" },
 };
 
@@ -2121,13 +2122,14 @@ export default function App() {
           <div className="hero-center-plate">
             <img src="/cntrofrplate.svg" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
           </div>
+          <div className="sec-eye" style={{marginBottom:14}}>{lang==="es"?"TU CONSULTOR DE BOLSILLO":"YOUR POCKET CONSULTANT"}</div>
           <div className="savings-callout">
             <span className="sc-icon">💰</span>
             <span className="sc-text">{lang==="es"?<>Los compradores encuentran hasta <span className="y">$8,300</span> escondidos en su oferta.</>:<>Buyers find up to <span className="y">$8,300</span> hiding in their deal.</>}</span>
           </div>
           <h2 className="hero-h1">{lang==="es"?<>El Concesionario Ha Hecho<br/>Esto <span className="y">10,000 Veces.</span><br/>Tú No.</>:<>The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</>}</h2>
           <div className="hero-tagline">{lang==="es"?"No Firmes. Contraataca.":"Don't Sign. Counter."}</div>
-          <p className="hero-sub">{lang==="es"?"CNTROFR le da a cada comprador de auto la información privilegiada que los concesionarios cuentan con que no tengas. Sin cuenta. Sin inicio de sesión. Solo respuestas.":"CNTROFR gives every car buyer the insider knowledge dealers count on you not having. No account. No login. Just answers."}</p>
+          <p className="hero-sub">{lang==="es"?"CNTROFR es el consultor de bolsillo que los compradores de autos siempre quisieron -- inteligencia privilegiada del concesionario, entregada antes de que firmes cualquier cosa. Sin cuenta. Sin inicio de sesión. Solo respuestas.":"CNTROFR is the pocket consultant every car buyer deserves -- insider dealer intelligence delivered before you sign anything. No account. No login. Just answers."}</p>
           <div className="hero-btns">
             <button className="btn-lg" onClick={()=>buy(PLANS[2])}>{lang==="es"?"Desbloquea Pro -- $49":"Unlock Pro -- $49"}</button>
             <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>{lang==="es"?"Prueba el Analizador Gratis":"Try Free Deal Analyzer"}</button>
