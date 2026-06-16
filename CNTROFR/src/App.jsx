@@ -578,7 +578,7 @@ async function ai(prompt, web = false, onChunk = null) {
     const finalPrompt = CURRENT_LANG === "es"
       ? `${prompt}\n\nIMPORTANT: Respond entirely in Spanish (Español). Translate all headers, labels, and analysis into natural, conversational Spanish suitable for a Spanish-speaking car buyer in the US. Keep dollar amounts and proper nouns (brand/model names) as-is.`
       : prompt;
-    const body = { model: "claude-sonnet-4-5", max_tokens: 2000, stream: true, messages: [{ role: "user", content: finalPrompt }] };
+    const body = { model: "claude-sonnet-4-6", max_tokens: 2000, stream: true, messages: [{ role: "user", content: finalPrompt }] };
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
 
     const controller = new AbortController();
@@ -608,7 +608,7 @@ async function ai(prompt, web = false, onChunk = null) {
           : { type: "text", text: b.text }
       );
       const body2 = {
-        model: "claude-sonnet-4-5",
+        model: "claude-sonnet-4-6",
         max_tokens: 2000,
         stream: true,
         tools: [{ type: "web_search_20250305", name: "web_search" }],
@@ -1156,7 +1156,7 @@ function ReviewPurity() {
   const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState(""); const [eV, setEV] = useState(""); const [kV, setKV] = useState("");
   const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false);
   const [cooldownER, setCoolER] = useState(0); const [cooldownKR, setCoolKR] = useState(0);
-  const startCooldown = (setter, seconds=20) => {
+  const startCooldown = (setter, seconds=8) => {
     setter(seconds);
     const tick = setInterval(() => {
       setter(prev => { if (prev <= 1) { clearInterval(tick); return 0; } return prev - 1; });
@@ -1992,12 +1992,14 @@ const PATH_TO_VIEW = {
   "/privacy": "privacy",
   "/terms": "tos",
   "/tools": "tools",
+  "/faq": "faq",
 };
 const VIEW_TO_PATH = {
   home: "/",
   mission: "/mission",
   contact: "/contact",
   privacy: "/privacy",
+  faq: "/faq",
   tos: "/terms",
   tools: "/tools",
   admin: "/", // admin stays hidden, never reflected in URL
@@ -2101,7 +2103,7 @@ export default function App() {
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 {lang==="es"?"Todas las Herramientas":"All Tools"}</button>
           <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>🎯 {lang==="es"?"Misión":"Mission"}</button>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 {lang==="es"?"Precios":"Pricing"}</button>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#faq")?.scrollIntoView({behavior:"smooth"}),100);}}>? {lang==="es"?"Preguntas Frecuentes":"FAQ"}</button>
+          <button className="bmenu-item" onClick={()=>{setView("faq");setMenuOpen(false);window.scrollTo(0,0);}}>? {lang==="es"?"Preguntas Frecuentes":"FAQ & Resources"}</button>
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("contact");setMenuOpen(false);window.scrollTo(0,0);}}> {lang==="es"?"Contacto":"Contact"}</button>
           <div className="bmenu-divider"/>
@@ -2142,7 +2144,7 @@ export default function App() {
             <div className="sb-total">{lang==="es"?<>HASTA <span className="y">$8,300</span> SOBRE LA MESA</>:<>UP TO <span className="y">$8,300</span> ON THE TABLE</>}</div>
           </div>
           <div className="stats">
-            <div className="stat"><div className="stat-n">$2,800</div><div className="stat-l">{lang==="es"?"Sobreprecio promedio expuesto":"Avg dealer markup exposed"}</div></div>
+            <div className="stat"><div className="stat-n">$8,300</div><div className="stat-l">{lang==="es"?"Máximo en sobrecargos expuestos":"Max in hidden overcharges"}</div></div>
             <div className="stat"><div className="stat-n">{lang==="es"?"5 herramientas":"5 tools"}</div><div className="stat-l">{lang==="es"?"Un precio, arsenal completo":"One price, full arsenal"}</div></div>
             <div className="stat"><div className="stat-n">$0</div><div className="stat-l">{lang==="es"?"Comisiones de concesionarios. Nunca.":"Dealer kickbacks. Ever."}</div></div>
           </div>
@@ -2273,7 +2275,12 @@ export default function App() {
           </div>
         </div>
 
-        <div id="faq"><FAQ lang={lang} /></div>
+        <div id="faq" className="sec" style={{paddingTop:0,paddingBottom:48,textAlign:"center"}}>
+          <div className="sec-eye">{lang==="es"?"Tienes Preguntas":"Got Questions"}</div>
+          <h2 className="sec-h2">{lang==="es"?"Preguntas Frecuentes":"Frequently Asked"}</h2>
+          <p className="sec-sub" style={{marginBottom:28}}>{lang==="es"?"Todo lo que necesitas saber antes de comprar.":"Everything you need to know before you buy."}</p>
+          <button className="btn-lg-ghost" onClick={()=>{setView("faq");window.scrollTo(0,0);}}>{lang==="es"?"Ver Preguntas Frecuentes →":"See All FAQs & Resources →"}</button>
+        </div>
         <div className="footer">
           <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
           <div className="footer-slogan">{lang==="es"?"No Firmes. Contraataca.":"Don't Sign. Counter."}</div>
@@ -2287,6 +2294,7 @@ export default function App() {
           <div className="footer-links">
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("faq");window.scrollTo(0,0)}}>{lang==="es"?"Preguntas Frecuentes":"FAQ"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
           </div>
@@ -2382,6 +2390,24 @@ export default function App() {
             <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
           </div>
           <MissionPage />
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
+            <div className="footer-links">
+              <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+            </div>
+          </div>
+        </>
+      )}
+      {view==="faq"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+          </div>
+          <FAQ lang={lang} />
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
