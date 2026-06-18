@@ -967,7 +967,7 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
             <button className="hbtn-y" style={{padding:"13px 22px",fontSize:13,fontWeight:900,borderRadius:12}} onClick={onBuy}>⚡ Upgrade to Pro — $49</button>
             <div className="sticky-tooltip">
               <div style={{marginBottom:8,fontSize:12,fontWeight:900,color:"var(--y)"}}>📄 Snap your dealer quote. Get your counter in seconds.</div>
-              <strong>All 5 tools unlocked:</strong>
+              <strong>All 6 tools unlocked:</strong>
               <ul style={{margin:"6px 0 0",paddingLeft:16,lineHeight:1.8}}>
                 <li>Quote Scanner — upload your dealer quote</li>
                 <li>Deal Analyzer — full breakdown</li>
@@ -979,16 +979,6 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
               <div style={{marginTop:8,fontSize:10,color:"var(--y)",fontWeight:800}}>Valid 7 days · Unlimited uses · No account</div>
             </div>
           </div>
-        </div>
-      )}
-      {!paid && onBuy && (
-        <div style={{background:"rgba(255,214,0,.05)",border:"1px solid rgba(255,214,0,.25)",borderRadius:12,padding:"14px 16px",marginBottom:16,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-          <span style={{fontSize:24}}>📄</span>
-          <div style={{flex:1,minWidth:180}}>
-            <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:2}}>Got your dealer quote?</div>
-            <div style={{fontSize:12,color:"var(--text2)",fontWeight:700,lineHeight:1.5}}>Upload a photo or PDF and we'll scan it for you — skip the form entirely. <span style={{color:"var(--muted)"}}>Pro feature.</span></div>
-          </div>
-          <button className="hbtn-y" style={{padding:"9px 18px",fontSize:12,whiteSpace:"nowrap"}} onClick={onBuy}>Unlock Scanner — $49</button>
         </div>
       )}
       {submitted && (
@@ -1003,7 +993,19 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
         <p>Enter your numbers. Get your counter before you sign.</p>
       </div>
 
-      {/* ── Quote Scanner ─────────────────────────────────────────────── */}
+      {/* ── Quote Scanner teaser for free users ───────────────────────── */}
+      {!paid && onBuy && (
+        <div style={{background:"rgba(255,214,0,.05)",border:"1px solid rgba(255,214,0,.25)",borderRadius:12,padding:"14px 16px",marginBottom:16,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+          <span style={{fontSize:22}}>📄</span>
+          <div style={{flex:1,minWidth:180}}>
+            <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:2}}>Got your dealer quote?</div>
+            <div style={{fontSize:12,color:"var(--text2)",fontWeight:700,lineHeight:1.5}}>Upload a photo or PDF and we'll scan it for you — skip the form entirely. <span style={{color:"var(--muted)"}}>Pro feature.</span></div>
+          </div>
+          <button className="hbtn-y" style={{padding:"9px 18px",fontSize:12,whiteSpace:"nowrap"}} onClick={onBuy}>Unlock Scanner — $49</button>
+        </div>
+      )}
+
+      {/* ── Quote Scanner for paid users ──────────────────────────────── */}
       {scanEnabled && (
         <div style={{background:"rgba(255,214,0,.05)",border:`1px solid ${scanSuccess?"rgba(0,201,107,.3)":scanAttempts>=MAX_SCAN_ATTEMPTS?"rgba(168,164,200,.2)":"rgba(255,214,0,.2)"}`,borderRadius:12,padding:"14px 16px",marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
@@ -2338,7 +2340,7 @@ export default function App() {
           </div>
           <div className="stats">
             <div className="stat"><div className="stat-n">$8,300</div><div className="stat-l">{lang==="es"?"Máximo en sobrecargos expuestos":"Max in hidden overcharges"}</div></div>
-            <div className="stat"><div className="stat-n">{lang==="es"?"5 herramientas":"5 tools"}</div><div className="stat-l">{lang==="es"?"Un precio, arsenal completo":"One price, full arsenal"}</div></div>
+            <div className="stat"><div className="stat-n">{lang==="es"?"6 herramientas":"6 tools"}</div><div className="stat-l">{lang==="es"?"Un precio, arsenal completo":"One price, full arsenal"}</div></div>
             <div className="stat"><div className="stat-n">$0</div><div className="stat-l">{lang==="es"?"Comisiones de concesionarios. Nunca.":"Dealer kickbacks. Ever."}</div></div>
           </div>
         </div>
@@ -2355,11 +2357,11 @@ export default function App() {
         </div>
         <div className="sec" style={{paddingTop:0}}>
           <div className="sec-eye">{lang==="es"?"El Arsenal":"The Arsenal"}</div>
-          <h2 className="sec-h2">{lang==="es"?"Cinco Herramientas. Un Precio.":"Five Tools. One Price."}</h2>
+          <h2 className="sec-h2">{lang==="es"?"Seis Herramientas. Un Precio.":"Six Tools. One Price."}</h2>
           <p className="sec-sub">{lang==="es"?"Todo lo que necesitas desde que ves un auto hasta el segundo antes de firmar.":"Everything you need from the moment you see a car to the second before you sign."}</p>
           <div className="tgrid">
-            {(lang==="es"?[{id:"deal",icon:"🔍",name:"Analizador de Ofertas",desc:"Desglose completo de precio, intercambio y extras con un veredicto de PROCEDE / NEGOCIA / RETÍRATE.",free:true},{id:"fee",icon:"💰",name:"Comparación de Tarifas",desc:"¿Es justa esa tarifa de documentación para tu estado? Lo averiguamos con datos en vivo.",free:false},{id:"review",icon:"🔎",name:"Pureza de Reseñas",desc:"Conoce a quién le estás comprando. Reseñas reales, cultura laboral e historial de quejas -- para que tu dinero vaya a concesionarios que se lo merecen.",free:false},{id:"fi",icon:"🔓",name:"Decodificador F&I",desc:"Cada producto de la oficina de financiamiento decodificado -- costo del concesionario, valor real, guion de salida.",free:false},{id:"addons",icon:"🥊",name:"Luchador de Extras",desc:"Conocemos los guiones que usan los concesionarios. Aquí están los tuyos para contraatacar.",free:false}]:[{id:"deal",icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{id:"fee",icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{id:"review",icon:"🔎",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{id:"fi",icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{id:"addons",icon:"🥊",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}]).map((t,i)=>(
-              <div key={i} className="tc" style={{cursor:"pointer"}} onClick={()=>{if(canUse(t.id)){setView("tools");setTab(t.id);window.scrollTo(0,0);}else{buy(PLANS[2]);}}}>
+            {(lang==="es"?[{id:"scan",icon:"📄",name:"Escáner de Cotización",desc:"¿Tienes tu cotización del concesionario? Sube una foto o PDF y lo analizamos línea por línea al instante.",free:false},{id:"deal",icon:"🔍",name:"Analizador de Ofertas",desc:"Desglose completo de precio, intercambio y extras con un veredicto de PROCEDE / NEGOCIA / RETÍRATE.",free:true},{id:"fee",icon:"💰",name:"Comparación de Tarifas",desc:"¿Es justa esa tarifa de documentación para tu estado? Lo averiguamos con datos en vivo.",free:false},{id:"review",icon:"🔎",name:"Pureza de Reseñas",desc:"Conoce a quién le estás comprando. Reseñas reales, cultura laboral e historial de quejas -- para que tu dinero vaya a concesionarios que se lo merecen.",free:false},{id:"fi",icon:"🔓",name:"Decodificador F&I",desc:"Cada producto de la oficina de financiamiento decodificado -- costo del concesionario, valor real, guion de salida.",free:false},{id:"addons",icon:"🥊",name:"Luchador de Extras",desc:"Conocemos los guiones que usan los concesionarios. Aquí están los tuyos para contraatacar.",free:false}]:[{id:"scan",icon:"📄",name:"Quote Scanner",desc:"Got your dealer quote? Upload a photo or PDF and we'll scan it line by line — skip the form entirely.",free:false},{id:"deal",icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{id:"fee",icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{id:"review",icon:"🔎",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{id:"fi",icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{id:"addons",icon:"🥊",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}]).map((t,i)=>(
+              <div key={i} className="tc" style={{cursor:"pointer"}} onClick={()=>{if(t.id==="scan"||!canUse(t.id)){buy(PLANS[2]);}else{setView("tools");setTab(t.id);window.scrollTo(0,0);}}}>
                 <div className="tc-icon">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
                 <div className="tc-desc">{t.desc}</div>
@@ -2377,7 +2379,7 @@ export default function App() {
             <table className="vs-table">
               <thead><tr><th>{lang==="es"?"Función":"Feature"}</th><th className="us">CNTROFR ●</th><th>{lang==="es"?"Concierge Humano":"Human Concierge"}</th><th>CarEdge</th><th>TrueCar</th></tr></thead>
               <tbody>
-                {(lang==="es"?[["No requiere cuenta","✓","✗","✗ (requiere cuenta)","✗"],["Pago único, sin suscripción","✓","✗","✗ (mensual/anual)","✗ (financiado por concesionarios)"],["Resultados instantáneos","✓","✗ horas/días","Parcial","✗"],["Cero comisiones de concesionarios","✓","✓","✗ (conecta con concesionarios)","✗"],["Sin datos compartidos con concesionarios","✓","✗","✗","✗"],["Auditoría de reseñas de concesionarios","✓","✗","✗","✗"],["Guiones para eliminar extras","✓","✗","✗","✗"],["Decodificador de productos F&I","✓","✗","✗","✗"],["Comparación de tarifas estatales","✓","✗","✗","✗"],["Análisis del mercado local","✓","✗","Parcial","✗"],["Modo Oferta Final","✓","✗","✗","✗"],["Creado por experto de la industria","✓","Varía","✗","✗"],["Precio","$20-$49","$999+","$99-199/año","Gratis"]]:[["No login required","✓","✗","✗ (account required)","✗"],["Pay once, no subscription","✓","✗","✗ (monthly/annual)","✗ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","✗ (connects to dealers)","✗"],["No data shared with dealers","✓","✗","✗","✗"],["Dealer review audit","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Local market scan","✓","✗","Partial","✗"],["Final Offer mode","✓","✗","✗","✗"],["Built by industry insider","✓","Varies","✗","✗"],["Price","$20-$49","$999+","$99-199/yr","Free"]]).map(([feat,...vals],i)=>(
+                {(lang==="es"?[["Escáner de cotización (foto/PDF)","✓","✗","✗","✗"],["No requiere cuenta","✓","✗","✗ (requiere cuenta)","✗"],["Pago único, sin suscripción","✓","✗","✗ (mensual/anual)","✗ (financiado por concesionarios)"],["Resultados instantáneos","✓","✗ horas/días","Parcial","✗"],["Cero comisiones de concesionarios","✓","✓","✗ (conecta con concesionarios)","✗"],["Sin datos compartidos con concesionarios","✓","✗","✗","✗"],["Auditoría de reseñas de concesionarios","✓","✗","✗","✗"],["Guiones para eliminar extras","✓","✗","✗","✗"],["Decodificador de productos F&I","✓","✗","✗","✗"],["Comparación de tarifas estatales","✓","✗","✗","✗"],["Análisis del mercado local","✓","✗","Parcial","✗"],["Modo Oferta Final","✓","✗","✗","✗"],["Creado por experto de la industria","✓","Varía","✗","✗"],["Precio","$20-$49","$999+","$99-199/año","Gratis"]]:[["Quote scanner (photo/PDF upload)","✓","✗","✗","✗"],["No login required","✓","✗","✗ (account required)","✗"],["Pay once, no subscription","✓","✗","✗ (monthly/annual)","✗ (dealer-funded)"],["Instant results","✓","✗ hours/days","Partial","✗"],["Zero dealer kickbacks","✓","✓","✗ (connects to dealers)","✗"],["No data shared with dealers","✓","✗","✗","✗"],["Dealer review audit","✓","✗","✗","✗"],["Add-on removal scripts","✓","✗","✗","✗"],["F&I product decoder","✓","✗","✗","✗"],["State fee comparison","✓","✗","✗","✗"],["Local market scan","✓","✗","Partial","✗"],["Final Offer mode","✓","✗","✗","✗"],["Built by industry insider","✓","Varies","✗","✗"],["Price","$20-$49","$999+","$99-199/yr","Free"]]).map(([feat,...vals],i)=>(
                   <tr key={i} className={i===0?"hi":""}><td className="feat">{feat}</td>{vals.map((v,j)=><td key={j}>{v==="✓"?<span className="ck">✓</span>:v==="✗"?<span className="cx">--</span>:v}</td>)}</tr>
                 ))}
               </tbody>
