@@ -874,6 +874,7 @@ Rules:
       setScanLoading(false);
     }
   };
+  useEffect(() => {
     window.onHcVerify = token => setHcToken(token);
     window.onHcExpire = () => setHcToken("");
     if (!document.getElementById("hcaptcha-script")) {
