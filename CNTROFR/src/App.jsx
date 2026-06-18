@@ -748,7 +748,7 @@ function Loading({ msg, web }) {
   );
 }
 
-function DealAnalyzer({ ftb = false, paid = false, tier = "single", onBuy = null }) {
+function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }) {
   const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"", packages:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
   const [hcToken, setHcToken] = useState("");
@@ -994,7 +994,7 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
       </div>
 
       {/* ── Quote Scanner teaser for free users ───────────────────────── */}
-      {!paid && onBuy && (
+      {!scanEnabled && onBuy && (
         <div style={{background:"rgba(255,214,0,.05)",border:"1px solid rgba(255,214,0,.25)",borderRadius:12,padding:"14px 16px",marginBottom:16,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
           <span style={{fontSize:22}}>📄</span>
           <div style={{flex:1,minWidth:180}}>
