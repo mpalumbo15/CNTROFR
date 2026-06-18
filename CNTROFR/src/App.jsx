@@ -760,7 +760,7 @@ function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }
   const [scanLoading, setScanLoading] = useState(false);
   const [scanMsg, setScanMsg] = useState("");
   const [scanSuccess, setScanSuccess] = useState(false);
-  const scanEnabled = (tier === "pro" || tier === "single" || tier === "ftb") && !submitted;
+  const scanEnabled = (tier === "pro" || tier === "ftb") && !submitted;
   const MAX_SCAN_ATTEMPTS = 3;
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
 
