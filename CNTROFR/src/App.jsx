@@ -755,8 +755,125 @@ function DealAnalyzer({ ftb = false, paid = false, tier = "single", onBuy = null
   const [finalOffer, setFinalOffer] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const captchaRef = useRef(null);
+  // ── Quote Scanner state ──────────────────────────────────────────────────
+  const [scanAttempts, setScanAttempts] = useState(0);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [scanMsg, setScanMsg] = useState("");
+  const [scanSuccess, setScanSuccess] = useState(false);
+  const scanEnabled = (tier === "pro" || tier === "single" || tier === "ftb") && !submitted;
+  const MAX_SCAN_ATTEMPTS = 3;
   const s = k => e => setF(p => ({ ...p, [k]: e.target.value }));
-  useEffect(() => {
+
+  // ── Quote Scanner handler ────────────────────────────────────────────────
+  const handleScan = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setScanLoading(true);
+    setScanMsg("");
+    try {
+      const base64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(",")[1]);
+        r.onerror = () => rej(new Error("Read failed"));
+        r.readAsDataURL(file);
+      });
+      const isPdf = file.type === "application/pdf";
+      const mediaType = isPdf ? "application/pdf" : file.type || "image/jpeg";
+      const body = {
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{
+          role: "user",
+          content: [
+            isPdf
+              ? { type: "document", source: { type: "base64", media_type: mediaType, data: base64 } }
+              : { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+            { type: "text", text: `Extract the following fields from this dealer quote. Return ONLY a JSON object with these exact keys — no preamble, no markdown, no explanation:
+{
+  "year": "",
+  "vehicle": "",
+  "trim": "",
+  "msrp": "",
+  "offer": "",
+  "mileage": "",
+  "addons": "",
+  "notes": "",
+  "dealerName": "",
+  "dealerCity": "",
+  "dealerState": ""
+}
+Rules:
+- "vehicle" = Make and Model only (e.g. "Honda Accord")
+- "offer" = the asking/selling price in numbers only, no $ sign
+- "msrp" = sticker price if shown, numbers only
+- "mileage" = odometer reading if shown, numbers only
+- "addons" = comma-separated list of any add-on products, accessories, or dealer-installed items
+- "notes" = doc fee, dealer fee, or any other fees listed
+- If a field is not clearly visible, return an empty string for that field
+- Do NOT guess or infer values that are not explicitly shown` }
+          ]
+        }]
+      };
+      const resp = await fetch("/api/claude", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let raw = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        for (const line of chunk.split("\n")) {
+          if (line.startsWith("data: ")) {
+            try { const p = JSON.parse(line.slice(6)); if (p.type === "content_block_delta" && p.delta?.text) raw += p.delta.text; } catch {}
+          }
+        }
+      }
+      const clean = raw.replace(/```json|```/g, "").trim();
+      const extracted = JSON.parse(clean);
+      if (!extracted.vehicle && !extracted.offer) throw new Error("Could not extract deal data");
+      setF(prev => ({
+        ...prev,
+        year: extracted.year || prev.year,
+        vehicle: extracted.vehicle || prev.vehicle,
+        trim: extracted.trim || prev.trim,
+        msrp: extracted.msrp || prev.msrp,
+        offer: extracted.offer || prev.offer,
+        mileage: extracted.mileage || prev.mileage,
+        addons: extracted.addons || prev.addons,
+        notes: extracted.notes || prev.notes,
+        dealerName: extracted.dealerName || prev.dealerName,
+        dealerCity: extracted.dealerCity || prev.dealerCity,
+        dealerState: extracted.dealerState || prev.dealerState,
+      }));
+      setScanSuccess(true);
+      setScanMsg(ftb
+        ? "✓ Quote scanned! We filled in what we could find. Take a quick look below and correct anything that looks off — you know your deal better than anyone."
+        : "✓ Quote scanned and pre-filled. Review the fields below and correct anything before running your analysis."
+      );
+    } catch {
+      const next = scanAttempts + 1;
+      setScanAttempts(next);
+      if (next === 1) {
+        setScanMsg(ftb
+          ? "We couldn't quite read that one. No worries — try a flat, well-lit photo or an exported PDF from the dealer's email."
+          : "We couldn't read that clearly. Try a flat, well-lit photo or an exported PDF from the dealer's system."
+        );
+      } else if (next === 2) {
+        setScanMsg(ftb
+          ? "Still having a little trouble reading it. A PDF from the dealer's email or portal works best. Or you can fill in the fields below — it only takes a minute and we'll walk you through it! 👇"
+          : "Still having trouble? A PDF export from the dealer's email or portal works best. Or jump straight to manual entry below — it's just as fast."
+        );
+      } else {
+        setScanMsg(ftb
+          ? "No stress at all — filling in the fields below is actually the most accurate way to go, and we'll guide you through every step. You've got this! 👇"
+          : "Manual entry is the most accurate path — and it only takes 2 minutes. Fill in what you know below and we'll handle the rest."
+        );
+      }
+    } finally {
+      setScanLoading(false);
+    }
+  };
     window.onHcVerify = token => setHcToken(token);
     window.onHcExpire = () => setHcToken("");
     if (!document.getElementById("hcaptcha-script")) {
@@ -848,8 +965,10 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
           <div className="sticky-upgrade-wrap">
             <button className="hbtn-y" style={{padding:"13px 22px",fontSize:13,fontWeight:900,borderRadius:12}} onClick={onBuy}>⚡ Upgrade to Pro — $49</button>
             <div className="sticky-tooltip">
+              <div style={{marginBottom:8,fontSize:12,fontWeight:900,color:"var(--y)"}}>📄 Snap your dealer quote. Get your counter in seconds.</div>
               <strong>All 5 tools unlocked:</strong>
               <ul style={{margin:"6px 0 0",paddingLeft:16,lineHeight:1.8}}>
+                <li>Quote Scanner — upload your dealer quote</li>
                 <li>Deal Analyzer — full breakdown</li>
                 <li>Fee Comparison — live state data</li>
                 <li>Review Purity — dealer audit</li>
@@ -859,6 +978,16 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
               <div style={{marginTop:8,fontSize:10,color:"var(--y)",fontWeight:800}}>Valid 7 days · Unlimited uses · No account</div>
             </div>
           </div>
+        </div>
+      )}
+      {!paid && onBuy && (
+        <div style={{background:"rgba(255,214,0,.05)",border:"1px solid rgba(255,214,0,.25)",borderRadius:12,padding:"14px 16px",marginBottom:16,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+          <span style={{fontSize:24}}>📄</span>
+          <div style={{flex:1,minWidth:180}}>
+            <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:2}}>Got your dealer quote?</div>
+            <div style={{fontSize:12,color:"var(--text2)",fontWeight:700,lineHeight:1.5}}>Upload a photo or PDF and we'll scan it for you — skip the form entirely. <span style={{color:"var(--muted)"}}>Pro feature.</span></div>
+          </div>
+          <button className="hbtn-y" style={{padding:"9px 18px",fontSize:12,whiteSpace:"nowrap"}} onClick={onBuy}>Unlock Scanner — $49</button>
         </div>
       )}
       {submitted && (
@@ -872,6 +1001,66 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
         {ftb && <div className="ftb-box"><div className="ftb-title">🎓 First Time Buyer Mode Active</div><p className="ftb-body">Your results will include a full first-time buyer guide — down payment ratios, PTI basics, how to set up your loan payment online, and what to expect after you sign.</p></div>}
         <p>Enter your numbers. Get your counter before you sign.</p>
       </div>
+
+      {/* ── Quote Scanner ─────────────────────────────────────────────── */}
+      {scanEnabled && (
+        <div style={{background:"rgba(255,214,0,.05)",border:`1px solid ${scanSuccess?"rgba(0,201,107,.3)":scanAttempts>=MAX_SCAN_ATTEMPTS?"rgba(168,164,200,.2)":"rgba(255,214,0,.2)"}`,borderRadius:12,padding:"14px 16px",marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+            <span style={{fontSize:18}}>📄</span>
+            <div>
+              <div style={{fontSize:12,fontWeight:900,color:"var(--y)",letterSpacing:.5}}>QUOTE SCANNER</div>
+              <div style={{fontSize:11,color:"var(--text2)",fontWeight:700,lineHeight:1.5}}>
+                {ftb
+                  ? "Have your dealer quote? Upload a photo or PDF and we'll fill in the fields for you!"
+                  : "Have your dealer quote handy? Upload it and skip the form."}
+              </div>
+            </div>
+          </div>
+          <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,lineHeight:1.7,marginBottom:10,padding:"6px 10px",background:"rgba(255,255,255,.03)",borderRadius:8}}>
+            📸 <strong style={{color:"var(--text2)"}}>Best results:</strong> flat, well-lit photo or exported PDF from the dealer's email/portal. Handwritten notes or partial cuts may not scan correctly. <strong style={{color:"var(--text2)"}}>Manual entry is always the most accurate option.</strong>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+            <label style={{
+              display:"inline-flex",alignItems:"center",gap:6,
+              background: scanAttempts >= MAX_SCAN_ATTEMPTS && !scanSuccess ? "rgba(168,164,200,.1)" : "rgba(255,214,0,.12)",
+              border: `1px solid ${scanAttempts >= MAX_SCAN_ATTEMPTS && !scanSuccess ? "rgba(168,164,200,.2)" : "rgba(255,214,0,.3)"}`,
+              borderRadius:8,padding:"8px 16px",cursor: scanLoading || scanSuccess ? "not-allowed" : "pointer",
+              fontSize:12,fontWeight:900,
+              color: scanAttempts >= MAX_SCAN_ATTEMPTS && !scanSuccess ? "var(--muted)" : "var(--y)",
+              opacity: scanLoading || scanSuccess ? .6 : 1,
+              transition:"all .2s"
+            }}>
+              <input type="file" accept="image/*,application/pdf" style={{display:"none"}} onChange={handleScan} disabled={scanLoading || scanSuccess} />
+              {scanLoading ? "⏳ Scanning..." : scanSuccess ? "✓ Scanned" : scanAttempts >= MAX_SCAN_ATTEMPTS ? "📄 Try Again" : "📤 Upload Quote"}
+            </label>
+            {scanAttempts > 0 && !scanSuccess && (
+              <span style={{fontSize:10,color:"var(--muted)",fontWeight:700}}>{MAX_SCAN_ATTEMPTS - scanAttempts} attempt{MAX_SCAN_ATTEMPTS - scanAttempts !== 1 ? "s" : ""} remaining</span>
+            )}
+          </div>
+          {scanMsg && (
+            <div style={{
+              marginTop:10,fontSize:12,fontWeight:700,lineHeight:1.65,
+              color: scanSuccess ? "var(--green)" : scanAttempts >= MAX_SCAN_ATTEMPTS ? "var(--text2)" : "var(--text2)",
+              padding:"8px 12px",borderRadius:8,
+              background: scanSuccess ? "rgba(0,201,107,.07)" : "rgba(255,255,255,.03)",
+              border: scanSuccess ? "1px solid rgba(0,201,107,.2)" : "1px solid rgba(255,255,255,.06)"
+            }}>
+              {scanMsg}
+            </div>
+          )}
+          {scanAttempts >= MAX_SCAN_ATTEMPTS && !scanSuccess && (
+            <div style={{marginTop:8,fontSize:11,color:"var(--y)",fontWeight:800}}>
+              👇 {ftb ? "The fields below are ready for you — fill in what you see on your quote." : "The fields below are ready — fill in what you know."}
+            </div>
+          )}
+          {scanSuccess && (
+            <div style={{marginTop:8,fontSize:11,color:"var(--muted)",fontWeight:700}}>
+              💾 Tip: Screenshot your results before closing — your session data isn't stored anywhere.
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="disclaimer"><strong>Note:</strong> CNTROFR analyzes deal pricing, trade-in value, and add-on products only. We do not provide financing or credit advice. Consult a financial professional for loan decisions.</div>
       <div className="cond-toggle">
         <button className={`cond-btn ${condition==="new"?"active":""}`} onClick={()=>setCondition("new")}>
@@ -2322,7 +2511,7 @@ export default function App() {
               </button>
             ))}
           </div>
-          {canUse(tab)?<Active ftb={access.includes("ftb")} paid={access.length>0} tier={access.includes("fee")?"pro":access.includes("ftb")?"ftb":access.includes("guide")&&access.length===1?"guide":"single"} onBuy={()=>buy(PLANS[2])} />:<div className="upbox"><h3>Pro Feature</h3><p>Unlock {TABS.find(t=>t.id===tab)?.label} and all 4 other tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro -- $49</button></div>}
+          {canUse(tab)?<Active ftb={access.includes("ftb")} paid={access.length>0} tier={access.includes("fee")?"pro":access.includes("ftb")?"ftb":access.includes("guide")&&access.length===1?"guide":"single"} onBuy={()=>buy(PLANS[2])} />:<div className="upbox"><div style={{fontSize:32,marginBottom:8}}>📄</div><h3>Pro Feature</h3><p style={{marginBottom:8}}><strong style={{color:"var(--y)"}}>Snap your dealer quote. Get your counter in seconds.</strong></p><p>Unlock the Quote Scanner, {TABS.find(t=>t.id===tab)?.label}, and all 5 tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button></div>}
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
