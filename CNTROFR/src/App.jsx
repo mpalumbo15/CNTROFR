@@ -1805,7 +1805,7 @@ function PrivacyPolicy() {
   return (
     <div className="tos-wrap">
       <h1>Privacy Policy</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: May 29, 2026</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: June 19, 2026</div>
 
       <h2>Our Philosophy</h2>
       <p>CNTROFR was built to keep your money in your pocket -- and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
@@ -1815,11 +1815,13 @@ function PrivacyPolicy() {
       <ul>
         <li><strong>Payment processing</strong> -- handled entirely by Stripe. We never see or store your full card number, CVV, or billing details. Stripe handles all of that under their own PCI-compliant infrastructure.</li>
         <li><strong>Contact form submissions</strong> -- if you reach out to us, we receive your name, email, and message. We use this only to respond to you.</li>
-        <li><strong>Anonymous deal data</strong> -- when you run a Deal Analyzer, we log a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) to build market intelligence over time. This data is never linked to your identity, your payment, or any personal information. No name, no email, no device ID -- ever.</li>
+        <li><strong>Quote Scanner uploads</strong> -- if you use the Quote Scanner, the photo or PDF you upload is sent directly to the Anthropic Claude API to extract deal information (vehicle, price, fees, etc.) and pre-fill your form. The uploaded file itself is not stored by CNTROFR and is not saved to our servers or database. Only the data you review, confirm, and submit through the Deal Analyzer is treated the same as manually entered deal data, described below.</li>
+        <li><strong>Anonymous deal data</strong> -- when you run a Deal Analyzer (whether filled manually or pre-filled via Quote Scanner and reviewed by you), we log a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) to build market intelligence over time. This data is never linked to your identity, your payment, or any personal information. No name, no email, no device ID -- ever.</li>
         <li><strong>Access codes</strong> -- when a purchase is made, an access code is generated and stored to validate your session. No personal data is attached to the code.</li>
         <li><strong>Anonymous gap flags</strong> -- when our tools encounter a product, fee, or add-on they cannot fully evaluate, a brief anonymous description is logged for our internal review. This contains only the item name and a note -- no deal data, no personal information, and no connection to your session.</li>
       </ul>
-      <p>The deal information you enter into our tools is sent directly to the Anthropic Claude API to generate your analysis. Beyond the anonymous data points described above, <strong>we do not retain your full deal inputs, trade-in details, or add-on information on our servers.</strong></p>
+      <p>The deal information you enter into our tools is sent directly to the Anthropic Claude API to generate your analysis. Beyond the anonymous data points described above, <strong>we do not retain your full deal inputs, trade-in details, add-on information, or uploaded quote documents on our servers.</strong></p>
+      <p>A note on dealer quotes: dealer quote photos or PDFs sometimes contain your name, address, or other personal details printed by the dealership. We do not extract, store, or retain this information -- our Quote Scanner is designed to pull only vehicle and pricing fields, and the source file itself is discarded after processing.</p>
 
       <h2>What We Do NOT Collect</h2>
       <ul>
@@ -1866,7 +1868,7 @@ function TermsOfService() {
   return (
     <div className="tos-wrap">
       <h1>Terms of Service</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: May 29, 2026</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: June 19, 2026</div>
 
       <h2>1. About CNTROFR</h2>
       <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, decode F&I products, fight add-on markups, and prepare negotiation strategies.</p>
@@ -1881,9 +1883,10 @@ function TermsOfService() {
       <p>CNTROFR offers the following tools and packages, each with specific access levels:</p>
       <ul>
         <li><strong>Deal Analyzer</strong> -- free to all users. Analyzes vehicle price, trade-in, and add-ons with a GO / NEGOTIATE / WALK AWAY verdict.</li>
-        <li><strong>First Time Buyer Package</strong> -- paid access. Includes enhanced Deal Analyzer output with first-time buyer guidance covering down payment ratios, payment-to-income basics, online loan setup, and registration expectations.</li>
-        <li><strong>Single Report</strong> -- paid access. Unlocks all five tools for one browser session. Access is tied to the active browser session only. Closing or refreshing the tab ends access permanently. Users are presented with a pre-session warning confirming these terms before access is granted.</li>
-        <li><strong>Pro Bundle</strong> -- paid access. Unlocks all five tools: Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, Add-On Fighter, and Counter Guide. Valid for 7 days from purchase.</li>
+        <li><strong>Quote Scanner</strong> -- available with First Time Buyer, Single Report, and Pro Bundle access. Allows you to upload a photo or PDF of a dealer quote, which is analyzed to pre-fill Deal Analyzer fields. You are always shown the extracted information before submitting and are responsible for reviewing it for accuracy. Manual entry remains available at all times and is the most accurate option.</li>
+        <li><strong>First Time Buyer Package</strong> -- paid access. Includes enhanced Deal Analyzer output with first-time buyer guidance covering down payment ratios, payment-to-income basics, online loan setup, and registration expectations, plus Quote Scanner access.</li>
+        <li><strong>Single Report</strong> -- paid access. Unlocks all six tools for one browser session. Access is tied to the active browser session only. Closing or refreshing the tab ends access permanently. Users are presented with a pre-session warning confirming these terms before access is granted.</li>
+        <li><strong>Pro Bundle</strong> -- paid access. Unlocks all six tools: Quote Scanner, Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, Add-On Fighter, and Counter Guide. Valid for 7 days from purchase.</li>
         <li><strong>Counter Guide</strong> -- paid access. AI-generated insider guide covering dealer profit structures, F&I office tactics, add-on removal scripts, and trade-in maximization.</li>
       </ul>
       <p>The Deal Analyzer supports four vehicle conditions: New, Used, Certified Pre-Owned (CPO), and Custom Order. Custom Order mode shifts analysis to F&I products, add-ons, fees, and delivery -- reflecting that vehicle price leverage is limited once a factory order is placed.</p>
@@ -1891,7 +1894,9 @@ function TermsOfService() {
       <ul>
         <li>Use the platform for personal, non-commercial purposes only</li>
         <li>Provide accurate information to receive meaningful analysis</li>
+        <li>Only upload dealer quotes or documents that you have the right to share with us</li>
         <li>Understand that AI-generated analysis reflects general market knowledge, not guaranteed accuracy</li>
+        <li>Understand that Quote Scanner extraction may contain errors and that you are responsible for reviewing all pre-filled fields before submitting</li>
         <li>Not reproduce, resell, or redistribute our analysis output without written permission</li>
       </ul>
 
@@ -1905,7 +1910,7 @@ function TermsOfService() {
       <p>Our AI tools use current market data and are designed to reflect up-to-date dealer tactics, fee benchmarks, and pricing data. However, market conditions change rapidly. CNTROFR makes no warranty that any specific piece of analysis is accurate, complete, or applicable to your specific situation. Use our output as one informed input -- not the only one.</p>
 
       <h2>7. Privacy & Data</h2>
-      <p>We collect only what is necessary to process payments, deliver services, and improve our platform. When you use the Deal Analyzer, a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) may be logged to build market intelligence. This data is never linked to your identity or payment information. We do not sell, rent, or share your personal information with third parties, including automobile dealers, lenders, or advertisers. For full details, see our Privacy Policy.</p>
+      <p>We collect only what is necessary to process payments, deliver services, and improve our platform. When you use the Deal Analyzer, a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) may be logged to build market intelligence. This data is never linked to your identity or payment information. If you use the Quote Scanner, your uploaded photo or PDF is sent to the Anthropic Claude API for processing and is not stored by CNTROFR. We do not sell, rent, or share your personal information with third parties, including automobile dealers, lenders, or advertisers. For full details, see our Privacy Policy.</p>
       <p>Form submissions are protected by hCaptcha bot detection. hCaptcha processes limited technical data to verify you are human. No personal information is collected or shared as part of this process.</p>
 
       <h2>8. Intellectual Property</h2>
