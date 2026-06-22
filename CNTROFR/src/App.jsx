@@ -297,6 +297,7 @@ const S = `
   .cond-btn.active { background: var(--y); border-color: var(--y); color: #111; }
   .cond-btn.active-cpo { background: var(--blue); border-color: var(--blue); color: #fff; }
   .cond-btn.active-custom { background: var(--b2); border-color: var(--text2); color: var(--text); }
+  .cond-btn.active-buyout { background: #7C3AED; border-color: #9F67FF; color: #fff; }
   .hcaptcha-wrap { display: flex; justify-content: center; margin: 10px 0 4px; }
   .cond-tag { display: inline-block; font-size: 9px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px; border-radius: 100px; margin-left: 8px; }
   .cond-tag-new { background: rgba(0,201,107,.12); color: var(--green); border: 1px solid rgba(0,201,107,.25); }
@@ -911,15 +912,22 @@ Key facts: Dealers often sell below their stated cost through manufacturer bonus
 PRICING FORMAT RULE: Any price stated in counter scripts must always be written as "$X++" where the first + represents state taxes and the second + represents dealer fees. Example: "$22,800++" not "$22,800 out the door." This is because dealers cannot pay the buyer's taxes and must show fees as separate line items by law. Never write a flat out-the-door number without the ++ notation. Always explain to the buyer that ++ means taxes and fees are added on top.
 FACTORY PACKAGES RULE: If factory packages are listed, calculate their approximate MSRP value and factor that into the price analysis. A vehicle with $8,000 in factory packages has a different negotiation floor than a base model. Call out specifically which packages are adding the most value and whether the asking price reflects them fairly. For custom orders, packages are non-negotiable on the front end but should be used to establish the true value baseline for F&I and fee analysis.
 ${f.dealerName ? `Dealer: ${f.dealerName}${f.dealerCity ? ", "+f.dealerCity : ""}${f.dealerState ? " "+f.dealerState : ""}` : "Dealer: not specified"}
-${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":condition==="custom"?" (CUSTOM ORDER)":""} | ${condition==="new"||condition==="custom"?"Factory order -- no odometer":f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners && condition==="used" ? " | "+f.owners+" previous owner(s)" : ""}${condition==="new" ? " | Sticker price $"+(f.msrp||"n/a") : condition==="custom" ? "" : f.msrp ? " | Listed $"+f.msrp : ""} | Asking $${f.offer||"n/a"}${f.packages ? " | Factory packages: "+f.packages : ""}
+${f.year} ${f.vehicle}${f.trim ? " -- "+f.trim : ""} | ${condition.toUpperCase()}${condition==="cpo"?" (CPO)":condition==="custom"?" (CUSTOM ORDER)":condition==="buyout"?" (LEASE BUYOUT)":""} | ${condition==="new"||condition==="custom"?"Factory order -- no odometer":condition==="buyout"?"Lease buyout -- residual price $"+(f.offer||"n/a"):f.mileage?f.mileage+" mi":"Mileage n/a"}${f.owners && condition==="used" ? " | "+f.owners+" previous owner(s)" : ""}${condition==="new" ? " | Sticker price $"+(f.msrp||"n/a") : condition==="custom"||condition==="buyout" ? "" : f.msrp ? " | Listed $"+f.msrp : ""} | ${condition==="buyout"?"Residual (locked)":"Asking"} $${f.offer||"n/a"}${f.packages ? " | Factory packages: "+f.packages : ""}
 Trade-in value offered: $${f.tradeIn||"none"} | Amount still owed on trade: $${f.tradeOwed||"none"}
 Add-ons: ${f.addons||"none"} | Notes: ${f.notes||"none"}
 ${condition==="cpo"?"This is a Certified Pre-Owned vehicle -- verify what the manufacturer certification actually covers, mileage and age limits, what is excluded from coverage, and that a service manager has signed off on the inspection checklist.":""}
 ${condition==="custom"?"This is a custom factory order. The buyer has already committed to a specific vehicle configuration. Price leverage on the vehicle itself is limited -- the analysis should focus entirely on F&I products, add-ons, delivery protection, fees, and financing. Do not analyze the vehicle price as negotiable. Do focus on everything that happens after the vehicle price is locked.":""}
+${condition==="buyout"?`This is a LEASE BUYOUT. The residual price listed is contractually set in the original lease agreement -- it is NOT negotiable and should NOT be analyzed for fairness or market comparison. Do not suggest the buyer counter on price. Do not run a market scan. The analysis must focus EXCLUSIVELY on:
+1. F&I PRODUCTS -- Every product the finance office presents. Decode each one at dealer cost vs. retail. The buyer already knows this car -- extended warranties may actually make sense here if the vehicle is approaching end of manufacturer warranty. Explain why or why not specifically.
+2. FORCE ADDS -- Any dealer-installed add-ons, accessories, or packages the dealer claims are mandatory or already installed. These are almost always negotiable or removable. Call each one out directly.
+3. FEES -- Doc fee, dealer fee, acquisition fee (this should have been paid at lease signing -- if it appears again, flag it as potential double billing), any new fees that were not in the original lease agreement.
+4. FINANCING -- If the buyer is financing the buyout through the dealer, the interest rate markup is fully negotiable. Explain how to get pre-approved externally and use that as leverage.
+5. WHAT NOT TO DO -- Common mistakes lease buyout buyers make in the F&I office because they feel comfortable with the car and let their guard down.`:""}
+${condition==="buyout"?"VERDICT: For lease buyouts, skip the GO/NEGOTIATE/WALK verdict on price. Instead give a PROCEED / CAUTION / STOP verdict based solely on whether the F&I, fees, and add-ons are clean or predatory.":""}
 ## EXTREME WARNING -- Only if there are serious red flags. Leave this section out completely if the deal looks clean.
 ## OVERALL VERDICT -- GO, NEGOTIATE, or WALK AWAY. One sentence in plain English.
 ${f.dealerName ? `## DEALER INTEL -- If you recognize this dealer as part of a major corporate group (AutoNation, Lithia, Asbury, Penske, Sonic, Holman, or similar), briefly note it in one plain sentence and explain what corporate-owned dealerships typically means for the buyer's negotiating experience. If you do not recognize the dealer or cannot confirm the parent company, skip this section entirely.` : ""}
-${condition!=="custom" ? `## VEHICLE PRICE -- Is this price fair? How much room is left to negotiate? If mileage is high, explain how that affects the vehicle's value in plain terms.` : "## DELIVERY & FEES -- What fees are standard at delivery for a custom order and which are negotiable? Flag anything that should have been agreed to in writing before the order was placed."}
+${condition!=="custom" && condition!=="buyout" ? `## VEHICLE PRICE -- Is this price fair? How much room is left to negotiate? If mileage is high, explain how that affects the vehicle's value in plain terms.` : condition==="custom" ? "## DELIVERY & FEES -- What fees are standard at delivery for a custom order and which are negotiable? Flag anything that should have been agreed to in writing before the order was placed." : "## FORCE ADDS -- List every dealer-installed add-on or accessory the buyer is being charged for. Is each one mandatory or negotiable? What is the dealer's actual cost vs. what they are charging?"}
 ## TRADE-IN -- Is the trade-in offer fair or too low? If the buyer owes more than the car is worth, explain that clearly in plain language.
 ## ADD-ONS -- For each add-on: Worth It / Overpriced / Skip It. Explain why in one plain sentence.
 ## YOUR COUNTER -- 3-4 word-for-word scripts the buyer can say out loud. Make them specific dollar offers, not questions.
@@ -942,7 +950,7 @@ The dealer has stated this is their best price or the buyer is about to enter th
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
     parseAndFlagGaps(t);
     saveDeal({ make: f.vehicle?f.vehicle.split(" ")[0]:null, model: f.vehicle?f.vehicle.split(" ").slice(1).join(" "):null, year: f.year||null, condition, zip: f.zip||null, asking_price: f.offer?parseFloat(f.offer.replace(/,/g,"")):null, addons: f.addons||null, dealer_name: f.dealerName||null, dealer_city: f.dealerCity||null, dealer_state: f.dealerState||null });
-    if (f.zip && f.year && f.vehicle) {
+    if (f.zip && f.year && f.vehicle && condition !== "buyout") {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
       const mkt = await ai(`Car market pricing analyst. You are writing for a regular car buyer who wants to know if the price they are being quoted is fair compared to what other dealers are charging. Use plain language. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
@@ -1078,6 +1086,15 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
         <button className={`cond-btn ${condition==="custom"?"active-custom active":""}`} onClick={()=>setCondition("custom")}>
           🔧 Custom Order
         </button>
+        {(tier==="pro"||tier==="single") ? (
+          <button className={`cond-btn ${condition==="buyout"?"active active-buyout":""}`} onClick={()=>setCondition("buyout")}>
+            📋 Lease Buyout
+          </button>
+        ) : (
+          <button className="cond-btn" style={{opacity:.5,cursor:"pointer",position:"relative"}} onClick={onBuy}>
+            📋 Lease Buyout <span style={{fontSize:10,color:"var(--y)",fontWeight:900,display:"block"}}>Pro / Single</span>
+          </button>
+        )}
       </div>
       {condition==="custom" && (
         <div style={{background:"rgba(168,164,200,.06)",border:"1px solid rgba(168,164,200,.2)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:11,color:"var(--text2)",fontWeight:700,lineHeight:1.7}}>
@@ -1092,6 +1109,11 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
       {condition==="new" && (
         <div style={{background:"rgba(0,201,107,.06)",border:"1px solid rgba(0,201,107,.2)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:11,color:"#80E8B0",fontWeight:700,lineHeight:1.7}}>
           <strong style={{color:"var(--green)"}}>New vehicle:</strong> Mileage field not required. We'll focus on MSRP vs. market value, dealer markup above sticker, allocation games, and any mandatory add-ons the dealer is bundling.
+        </div>
+      )}
+      {condition==="buyout" && (
+        <div style={{background:"rgba(124,58,237,.08)",border:"1px solid rgba(159,103,255,.3)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:11,color:"#C4B0FF",fontWeight:700,lineHeight:1.7}}>
+          <strong style={{color:"#9F67FF"}}>Lease buyout mode:</strong> Your residual price is locked in your lease contract — the dealer cannot negotiate it. We'll skip price analysis entirely and focus on what IS negotiable: F&I products, add-ons, fees, and any force-adds the dealer is trying to sneak in. Enter your residual price in the "Dealer's Offer" field below.
         </div>
       )}
 
