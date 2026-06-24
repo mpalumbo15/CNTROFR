@@ -751,7 +751,7 @@ function Loading({ msg, web }) {
 
 function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }) {
   const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"", packages:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
-  const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState("");
+  const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState(""); const [finRate, setFR] = useState(null);
   const [hcToken, setHcToken] = useState("");
   const [finalOffer, setFinalOffer] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -932,6 +932,11 @@ ${condition!=="custom" && condition!=="buyout" ? `## VEHICLE PRICE -- Is this pr
 ## ADD-ONS -- For each add-on: Worth It / Overpriced / Skip It. Explain why in one plain sentence.
 ## YOUR COUNTER -- 3-4 word-for-word scripts the buyer can say out loud. Make them specific dollar offers, not questions.
 ## RED FLAGS -- Call out any dealer pressure tactics, illegal practices, unsupported claims, or anything that should only be agreed to in writing.
+${paid ? `## FINANCING INTELLIGENCE -- Based on current market rates for ${condition==="new"||condition==="custom"?"new":condition==="cpo"?"certified pre-owned":condition==="buyout"?"lease buyout":"used"} vehicles:
+- What credit tier does the dealer's quoted rate of ${f.offer?"(see deal terms)":"[not provided]"} suggest the buyer is being placed in?
+- Is the quoted rate above market average for any credit tier? If so, how much above and what is that costing the buyer monthly and over the loan term?
+- What should the buyer say if the dealer tries to change the rate after they've agreed on a price?
+- One sentence recommendation on external pre-approval.` : ""}
 ${ftb ? `## FIRST TIME BUYER GUIDE
 - DOWN PAYMENT -- What is a healthy down payment for this deal? What is the minimum to avoid immediately owing more than the car is worth? Explain in plain dollar terms.
 - MONTHLY PAYMENT REALITY CHECK -- Give a simple rule of thumb for what monthly payment range makes sense based on a responsible budget. No industry acronyms.
@@ -963,6 +968,43 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
       setM(mkt);
     }
     setL(false); setLM("");
+    // ── Live Financing Rate Intelligence ──────────────────────────────────
+    try {
+      setLM("Pulling live financing rates...");
+      const vehicle = `${f.year||""} ${f.vehicle||""}`.trim();
+      const isNew = condition==="new"||condition==="custom";
+      const isCPO = condition==="cpo";
+      const isBuyout = condition==="buyout";
+      const make = f.vehicle ? f.vehicle.split(" ")[0] : "";
+      const ratePrompt = `You are a live auto financing rate analyst. Search for current auto loan rates and manufacturer incentive programs. Return ONLY a JSON object, no markdown, no preamble.
+
+Search for:
+1. Current average auto loan APRs by credit tier for ${isNew?"new":isCPO?"certified pre-owned":"used"} vehicles (June 2026)
+2. ${isNew&&make?`Current ${make} manufacturer financing incentives and special APR programs for ${vehicle}`:""}
+3. ${isBuyout&&make?`${make} lease buyout financing policy -- does ${make} require buyout through their captive lender or allow outside financing?`:""}
+
+Return this exact JSON structure:
+{
+  "green": { "label": "Excellent Credit (750-850+)", "range": "X.X% - X.X%", "avg": "X.X%", "note": "one sentence tip" },
+  "yellow": { "label": "Good Credit (680-749)", "range": "X.X% - X.X%", "avg": "X.X%", "note": "one sentence tip" },
+  "red": { "label": "Fair/Building (580-679)", "range": "X.X% - X.X%", "avg": "X.X%", "note": "one sentence tip" },
+  "oem_rate": "${isNew&&make?`Current ${make} incentive rate if available, or null`:"null"}",
+  "oem_program": "${isNew&&make?`Brief description of current OEM program or null`:"null"}",
+  "buyout_restriction": "${isBuyout&&make?`true if ${make} requires captive lender only, false if outside financing allowed, null if unknown`:"null"}",
+  "buyout_note": "${isBuyout?`One sentence about buyout financing options for ${make||"this manufacturer"}`:"null"}",
+  "condition": "${condition}",
+  "as_of": "current month and year",
+  "disclaimer": "Rates based on current national averages. Verify directly with your lender. Subject to change."
+}`;
+
+      const rateRaw = await ai(ratePrompt, true);
+      try {
+        const clean = rateRaw.replace(/```json|```/g, "").trim();
+        const parsed = JSON.parse(clean);
+        setFR(parsed);
+      } catch { setFR(null); }
+    } catch { setFR(null); }
+    setLM(""); setL(false);
     saveToolRun({ tool: "deal_analyzer", tier, final_offer: finalOffer, condition, zip: f.zip||null, vehicle: f.vehicle||null });
     if (tier === "single") setSubmitted(true);
   };
@@ -1297,12 +1339,75 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
       {loading && !res && <Loading msg={loadMsg} web={!!f.zip} />}
       {res && (
         <>
-          <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);}} />
+          <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);setFR(null);}} />
           {(condition==="used"||condition==="cpo") && !loading && (
             <div style={{background:"rgba(255,214,0,.04)",border:"1px solid rgba(255,214,0,.12)",borderRadius:10,padding:"10px 16px",fontSize:11,color:"var(--muted)",fontWeight:700,lineHeight:1.65,marginBottom:8}}>
               ⚠ <strong style={{color:"var(--text2)"}}>Not all pre-owned vehicles are created equal.</strong> This analysis reflects the information you provided. A <JargonTip term="PPI" /> from an independent mechanic before signing is always worth the $100-150.
             </div>
           )}
+
+          {/* ── Financing Intelligence ─────────────────────────────────── */}
+          {finRate && (
+            <div className="card ranim" style={{marginBottom:12}}>
+              <div className="vstrip">
+                <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>LIVE DATA</span>
+                <span className="badge bb">💰 CURRENT FINANCING LANDSCAPE</span>
+              </div>
+
+              {/* OEM incentive rate — paid only */}
+              {paid && finRate.oem_rate && finRate.oem_rate !== "null" && (
+                <div style={{background:"rgba(0,201,107,.07)",border:"1px solid rgba(0,201,107,.25)",borderRadius:10,padding:"10px 14px",marginBottom:12,fontSize:12,fontWeight:700,color:"#80E8B0",lineHeight:1.6}}>
+                  <div style={{fontSize:11,fontWeight:900,color:"var(--green)",letterSpacing:.5,marginBottom:4}}>🏭 MANUFACTURER INCENTIVE RATE</div>
+                  <strong style={{fontSize:15,color:"var(--green)"}}>{finRate.oem_rate}</strong>
+                  {finRate.oem_program && finRate.oem_program !== "null" && <div style={{marginTop:4,fontSize:11,color:"var(--text2)"}}>{finRate.oem_program}</div>}
+                </div>
+              )}
+
+              {/* Buyout restriction warning — paid only */}
+              {paid && condition==="buyout" && finRate.buyout_restriction !== null && finRate.buyout_restriction !== "null" && (
+                <div style={{background: finRate.buyout_restriction==="true"||finRate.buyout_restriction===true?"rgba(255,68,68,.07)":"rgba(0,201,107,.07)", border:`1px solid ${finRate.buyout_restriction==="true"||finRate.buyout_restriction===true?"rgba(255,68,68,.25)":"rgba(0,201,107,.25)"}`,borderRadius:10,padding:"10px 14px",marginBottom:12,fontSize:12,fontWeight:700,lineHeight:1.6,color:finRate.buyout_restriction==="true"||finRate.buyout_restriction===true?"#FF9999":"#80E8B0"}}>
+                  <div style={{fontSize:11,fontWeight:900,letterSpacing:.5,marginBottom:4}}>{finRate.buyout_restriction==="true"||finRate.buyout_restriction===true?"⚠ CAPTIVE LENDER REQUIRED":"✓ OUTSIDE FINANCING ALLOWED"}</div>
+                  {finRate.buyout_note && finRate.buyout_note !== "null" && <div style={{fontSize:11,color:"var(--text2)"}}>{finRate.buyout_note}</div>}
+                </div>
+              )}
+
+              {/* Green/Yellow/Red range cards */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:10}}>
+                {[
+                  {key:"green",bg:"rgba(0,201,107,.07)",border:"rgba(0,201,107,.3)",label_color:"var(--green)",emoji:"🟢"},
+                  {key:"yellow",bg:"rgba(255,214,0,.07)",border:"rgba(255,214,0,.3)",label_color:"var(--y)",emoji:"🟡"},
+                  {key:"red",bg:"rgba(255,68,68,.07)",border:"rgba(255,68,68,.3)",label_color:"var(--red)",emoji:"🔴"},
+                ].map(({key,bg,border,label_color,emoji})=>(
+                  finRate[key] && (
+                    <div key={key} style={{background:bg,border:`1px solid ${border}`,borderRadius:10,padding:"10px 10px",textAlign:"center"}}>
+                      <div style={{fontSize:14,marginBottom:4}}>{emoji}</div>
+                      <div style={{fontSize:9,fontWeight:900,color:label_color,letterSpacing:.3,marginBottom:4,lineHeight:1.3}}>{finRate[key].label}</div>
+                      <div style={{fontSize:15,fontWeight:900,color:"var(--text)",marginBottom:2}}>{finRate[key].range}</div>
+                      <div style={{fontSize:10,color:"var(--muted)",fontWeight:700}}>avg {finRate[key].avg}</div>
+                      {paid && finRate[key].note && (
+                        <div style={{marginTop:6,fontSize:10,color:"var(--text2)",fontWeight:700,lineHeight:1.5,borderTop:"1px solid rgba(255,255,255,.05)",paddingTop:6}}>{finRate[key].note}</div>
+                      )}
+                    </div>
+                  )
+                ))}
+              </div>
+
+              {/* Free teaser CTA */}
+              {!paid && onBuy && (
+                <div style={{background:"rgba(255,214,0,.05)",border:"1px solid rgba(255,214,0,.2)",borderRadius:8,padding:"10px 14px",fontSize:11,fontWeight:700,color:"var(--text2)",lineHeight:1.6,display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+                  <div style={{flex:1}}>
+                    <strong style={{color:"var(--y)"}}>See how your dealer's quoted rate compares.</strong> Pro unlocks OEM incentive rates, manufacturer captive lender flags, and word-for-word scripts to fight rate markup in the finance office.
+                  </div>
+                  <button className="hbtn-y" style={{padding:"8px 16px",fontSize:11,whiteSpace:"nowrap"}} onClick={onBuy}>Unlock Pro — $49</button>
+                </div>
+              )}
+
+              <div style={{marginTop:8,fontSize:10,color:"var(--muted)",fontWeight:700,lineHeight:1.6}}>
+                ⚠ {finRate.disclaimer || "Rates based on current national averages. Verify directly with your lender. Subject to change."} {finRate.as_of ? `Data as of ${finRate.as_of}.` : ""} CNTROFR does not provide financial advice.
+              </div>
+            </div>
+          )}
+
           {!loading && market && (
             <div className="card ranim">
               <div className="vstrip">
@@ -1827,7 +1932,7 @@ function PrivacyPolicy() {
   return (
     <div className="tos-wrap">
       <h1>Privacy Policy</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: June 19, 2026</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: June 24, 2026</div>
 
       <h2>Our Philosophy</h2>
       <p>CNTROFR was built to keep your money in your pocket -- and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
@@ -1844,6 +1949,7 @@ function PrivacyPolicy() {
       </ul>
       <p>The deal information you enter into our tools is sent directly to the Anthropic Claude API to generate your analysis. Beyond the anonymous data points described above, <strong>we do not retain your full deal inputs, trade-in details, add-on information, or uploaded quote documents on our servers.</strong></p>
       <p>A note on dealer quotes: dealer quote photos or PDFs sometimes contain your name, address, or other personal details printed by the dealership. We do not extract, store, or retain this information -- our Quote Scanner is designed to pull only vehicle and pricing fields, and the source file itself is discarded after processing.</p>
+      <p>The Financing Intelligence feature performs a real-time web search to retrieve current auto loan rate averages and manufacturer incentive programs. This search does not involve any personal information -- no credit score, no SSN, no financial history. The vehicle make, model, year, and condition from your deal are used solely to retrieve relevant rate benchmarks. No personal financing data is ever collected or stored.</p>
 
       <h2>What We Do NOT Collect</h2>
       <ul>
@@ -1890,7 +1996,7 @@ function TermsOfService() {
   return (
     <div className="tos-wrap">
       <h1>Terms of Service</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: June 19, 2026</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: June 24, 2026</div>
 
       <h2>1. About CNTROFR</h2>
       <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, decode F&I products, fight add-on markups, and prepare negotiation strategies.</p>
@@ -1930,6 +2036,7 @@ function TermsOfService() {
 
       <h2>6. Accuracy of Information</h2>
       <p>Our AI tools use current market data and are designed to reflect up-to-date dealer tactics, fee benchmarks, and pricing data. However, market conditions change rapidly. CNTROFR makes no warranty that any specific piece of analysis is accurate, complete, or applicable to your specific situation. Use our output as one informed input -- not the only one.</p>
+      <p>The Financing Intelligence feature displays live auto loan rate ranges and manufacturer incentive program data sourced via real-time web search. These rates are based on current national averages and are provided for educational reference only. Actual rates depend on your individual credit profile, lender, loan term, and other factors. Manufacturer incentive programs and captive lender policies change frequently -- always verify current programs directly with the manufacturer and your lender before signing. CNTROFR does not collect, evaluate, or store any personal credit information.</p>
 
       <h2>7. Privacy & Data</h2>
       <p>We collect only what is necessary to process payments, deliver services, and improve our platform. When you use the Deal Analyzer, a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) may be logged to build market intelligence. This data is never linked to your identity or payment information. If you use the Quote Scanner, your uploaded photo or PDF is sent to the Anthropic Claude API for processing and is not stored by CNTROFR. We do not sell, rent, or share your personal information with third parties, including automobile dealers, lenders, or advertisers. For full details, see our Privacy Policy.</p>
