@@ -2865,7 +2865,7 @@ export default function App() {
             <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:14,padding:"20px 24px",marginTop:32,marginBottom:16}}>
               <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>📄 Check Your Doc Fee Before You Sign</div>
               <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>CNTROFR's Fee Comparison tool shows you exactly where your dealer's fees land against your state average — instantly, before you commit to anything.</p>
-              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{setView("tools");setTab("fee");window.scrollTo(0,0)}}>Try Fee Comparison — Free</button>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{buy(PLANS[2])}}>Unlock Fee Comparison — $49</button>
             </div>
           </div>
           <div className="footer">
