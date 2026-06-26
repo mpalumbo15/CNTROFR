@@ -907,6 +907,33 @@ Rules:
     setLM("Analyzing your deal...");
     if (window.hcaptcha) window.hcaptcha.reset(); setHcToken("");
     const t = await ai(`Car deal analyst. You are writing for a regular car buyer -- not a car industry professional. Use plain, direct language. Never use industry jargon without immediately explaining it in the same sentence. Be direct -- state facts, give scripts, move on. No hedging.
+
+CNTROFR KNOWLEDGE BASE -- apply this expertise in every analysis:
+
+DOC FEES: Actual dealer cost is $50-80 in labor/materials. Everything above that is profit. Most states require dealers to charge all customers the same fee (audit compliance) so the fee itself cannot be negotiated down -- but a high doc fee IS leverage on vehicle price. Colorado average $400-600. Above $600 = flag. Script: "Your doc fee is $X above state average -- I'd like that reflected in the vehicle price."
+
+F&I PRODUCTS -- dealer cost vs. retail:
+- Extended Warranty (VSC): dealer cost $300-800, retail $1,500-4,000. Sometimes worth it on high-mileage used vehicles -- but always buy from credit union or third party (Endurance, CARCHEX), never dealer.
+- GAP Insurance: dealer cost $50-200, retail $400-900. Worth it if financing over 80% LTV -- but buy from your insurance company or credit union for $20-40/year, not the dealer at 500%+ markup.
+- Credit Life/Disability: almost never worth it -- existing life/disability insurance usually covers this.
+- Paint/Fabric Protection: dealer cost $50-100, retail $300-800. A can of Scotchgard ($8) does the same thing. Never worth it.
+- Tire & Wheel Protection: situational -- read fine print for pothole exclusions and deductibles.
+- Key Replacement: third-party services cover this for a fraction of dealer price.
+- Nitrogen Tires: zero real-world benefit over regular air. Pure profit play. Always decline.
+
+ADD-ONS -- dealer markup by category:
+- Paint sealant: dealer cost $50-150, charges $300-800 (300-500% markup)
+- Window tinting: dealer charges $300-600, shop price $150-250 (100-200% markup)
+- GPS/alarm: dealer charges $400-900, installed elsewhere $100-300 (200-400% markup)
+- VIN etching: dealer charges $200-400, DIY kit $10-20 (1000%+ markup)
+- Wheel locks: dealer charges $100-200, Amazon $20-40 (300-500% markup)
+"Already installed" is not a reason to pay -- dealers pre-install these betting buyers won't push back. Script: "I didn't agree to these add-ons. I'd like them removed from the price or reflected as a vehicle discount."
+
+FINANCING: Finance managers are paid on backend gross profit. Rate markup (dealer reserve) is the difference between the buy rate (what the lender approves) and what the dealer quotes you. On a $30,000 loan, a 2% markup costs $1,500-2,000 over the life of the loan. Always get pre-approved externally before visiting a dealer. Script: "I have pre-approval at X% -- can you beat that?"
+
+DEALER HANDLING FEE: Cannot be negotiated as a line item (dealers must charge all customers equally for audit compliance). Use a high handling fee as leverage on vehicle price instead. Fee is posted in store by law.
+
+STATE FEES: Registration, title, and state taxes are non-negotiable government fees, usually under $50. Never push back on these -- they go to the state, not the dealer.
 Key facts: Dealers often sell below their stated cost through manufacturer bonuses and end-of-month sales targets -- "we're at invoice" is almost never the full story. The buyer should always make a specific offer, never ask what the dealer will accept. If a dealer tries to change your interest rate based on which add-on products you buy, that is illegal unless your lender specifically requires it. If you feel pressured to decide on the spot, leaving and following up in writing always works in your favor. Market conditions in summer 2026 favor buyers -- demand is softening, off-lease inventory is increasing, and incentive financing is returning. Buyers have more leverage than they have had in years. Use it.
 2026 INTELLIGENCE UPDATE: Dealer sales teams are now AI-trained on 50+ buyer objection scenarios -- expect more polished, rehearsed pushback than ever. F&I is now the primary profit center as front-end margins shrink -- more pressure on products this summer than any prior year. Watch for the daily cost framing tactic ("just $1.50 a day") -- always convert to total cost and flag it. Destination fees have exploded in 2026, ranging from $1,150 to $3,250 depending on brand -- these are manufacturer-set and non-negotiable, but they must be disclosed upfront and cannot be hidden or bundled with other fees. Flag any attempt to obscure them. Pre-Delivery Inspection fees are pure junk -- manufacturers already pay dealers for PDI through the destination charge. Any separate "Vehicle Prep Fee" or "Predelivery Service Fee" on a new car is double billing. The FTC warned 97 dealer groups in March 2026 about hidden fees and advertised vehicles that don't exist. Any fee not disclosed before negotiation begins is a red flag. Watch for the porcupine close -- salesperson answers every objection with a question that assumes the sale ("would you want it in black or silver?"). Respond by returning to price. Watch for the puppy dog close -- dealer suggests taking the car home overnight to build emotional attachment before price is agreed. Do not accept delivery until all numbers are finalized in writing.
 PRICING FORMAT RULE: Any price stated in counter scripts must always be written as "$X++" where the first + represents state taxes and the second + represents dealer fees. Example: "$22,800++" not "$22,800 out the door." This is because dealers cannot pay the buyer's taxes and must show fees as separate line items by law. Never write a flat out-the-door number without the ++ notation. Always explain to the buyer that ++ means taxes and fees are added on top.
@@ -2320,6 +2347,10 @@ const PATH_TO_VIEW = {
   "/terms": "tos",
   "/tools": "tools",
   "/faq": "faq",
+  "/blog": "blog",
+  "/blog/dealer-doc-fees-explained": "blog_doc_fees",
+  "/blog/fi-products-decoded": "blog_fi",
+  "/blog/how-to-negotiate-car-add-ons": "blog_addons",
 };
 const VIEW_TO_PATH = {
   home: "/",
@@ -2329,6 +2360,10 @@ const VIEW_TO_PATH = {
   faq: "/faq",
   tos: "/terms",
   tools: "/tools",
+  blog: "/blog",
+  blog_doc_fees: "/blog/dealer-doc-fees-explained",
+  blog_fi: "/blog/fi-products-decoded",
+  blog_addons: "/blog/how-to-negotiate-car-add-ons",
   admin: "/", // admin stays hidden, never reflected in URL
 };
 const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review-purity", fi:"fi-decoder", addons:"add-on-fighter", guide:"counter-guide" };
@@ -2338,6 +2373,10 @@ const PAGE_META = {
   home: { title:"CNTROFR -- AI Car Deal Analyzer & Pocket Consultant", desc:"Your pocket consultant for car buying. AI-powered deal analysis, fee breakdowns, F&I decoding, dealer review audits, and word-for-word counter scripts. No account needed." },
   tools: { title:"Free Deal Analyzer & Tools -- CNTROFR", desc:"Run your deal through CNTROFR's AI tools -- Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter." },
   mission: { title:"Our Mission -- CNTROFR", desc:"CNTROFR was built by an automotive insider to give car buyers the same playbook dealers use. Zero dealer kickbacks. Ever." },
+  blog: { title:"Car Buying Guides & Resources -- CNTROFR", desc:"Expert car buying guides from a certified automotive insider. Doc fees, F&I products, add-on tactics, and everything dealers hope you never learn." },
+  blog_doc_fees: { title:"What Is a Dealer Doc Fee — And Is Yours Too High? | CNTROFR", desc:"Doc fees vary wildly by state and dealer. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price." },
+  blog_fi: { title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay | CNTROFR", desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's worth to you, and how to say no." },
+  blog_addons: { title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want) | CNTROFR", desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to remove them." },
   contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
   privacy: { title:"Privacy Policy -- CNTROFR", desc:"CNTROFR's privacy policy. We never sell your data or refer you to dealers." },
   tos: { title:"Terms of Use -- CNTROFR", desc:"Terms of use for CNTROFR's car deal analysis tools." },
@@ -2430,6 +2469,7 @@ export default function App() {
           <div className="bmenu-divider"/>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 {lang==="es"?"Todas las Herramientas":"All Tools"}</button>
           <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>🎯 {lang==="es"?"Misión":"Mission"}</button>
+          <button className="bmenu-item" onClick={()=>{setView("blog");setMenuOpen(false);window.scrollTo(0,0);}}>📖 {lang==="es"?"Guías de Compra":"Car Buying Guides"}</button>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 {lang==="es"?"Precios":"Pricing"}</button>
           <button className="bmenu-item" onClick={()=>{setView("faq");setMenuOpen(false);window.scrollTo(0,0);}}>? {lang==="es"?"Preguntas Frecuentes":"FAQ & Resources"}</button>
           <div className="bmenu-divider"/>
@@ -2609,6 +2649,7 @@ export default function App() {
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("faq");window.scrollTo(0,0)}}>{lang==="es"?"Preguntas Frecuentes":"FAQ"}</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>{lang==="es"?"Guías":"Guides"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
           </div>
@@ -2734,6 +2775,243 @@ export default function App() {
           </div>
         </>
       )}
+      {view==="blog"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+          </div>
+          <div style={{maxWidth:800,margin:"0 auto",padding:"48px 24px"}}>
+            <div style={{fontSize:11,fontWeight:900,letterSpacing:3,color:"var(--y)",textTransform:"uppercase",marginBottom:8}}>Car Buying Guides</div>
+            <h1 style={{fontSize:32,fontWeight:900,color:"var(--text)",marginBottom:12,lineHeight:1.2}}>Everything Dealers Hope You Never Read</h1>
+            <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.7,marginBottom:40}}>Written by a certified automotive insider with 15 years of dealership sales and F&I experience. No dealer affiliations. No ads. Just the playbook.</p>
+            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+              {[
+                {view:"blog_doc_fees",title:"What Is a Dealer Doc Fee — And Is Yours Too High?",desc:"Doc fees vary wildly by state. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price.",tag:"Fees",date:"June 2026",time:"5 min read"},
+                {view:"blog_fi",title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay",desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's worth to you, and how to say no.",tag:"F&I",date:"June 2026",time:"7 min read"},
+                {view:"blog_addons",title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want)",desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to fight back.",tag:"Add-Ons",date:"June 2026",time:"6 min read"},
+              ].map((post,i)=>(
+                <div key={i} style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:14,padding:"24px",cursor:"pointer",transition:"border-color .2s"}}
+                  onClick={()=>{setView(post.view);window.scrollTo(0,0)}}
+                  onMouseEnter={e=>e.currentTarget.style.borderColor="var(--y)"}
+                  onMouseLeave={e=>e.currentTarget.style.borderColor="var(--b1)"}>
+                  <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:10}}>
+                    <span style={{background:"rgba(255,214,0,.12)",color:"var(--y)",fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,letterSpacing:.5}}>{post.tag}</span>
+                    <span style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>{post.date} · {post.time}</span>
+                  </div>
+                  <h2 style={{fontSize:18,fontWeight:900,color:"var(--text)",marginBottom:8,lineHeight:1.3}}>{post.title}</h2>
+                  <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:14}}>{post.desc}</p>
+                  <span style={{fontSize:12,color:"var(--y)",fontWeight:900}}>Read guide →</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("faq");window.scrollTo(0,0)}}>FAQ</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Blog Post: Doc Fees ─────────────────────────────────────────── */}
+      {view==="blog_doc_fees"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px",display:"flex",gap:12,alignItems:"center"}}>
+            <button className="ghost-btn" onClick={()=>{setView("blog");window.scrollTo(0,0)}}>← All Guides</button>
+          </div>
+          <div style={{maxWidth:760,margin:"0 auto",padding:"48px 24px"}}>
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:16}}>
+              <span style={{background:"rgba(255,214,0,.12)",color:"var(--y)",fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,letterSpacing:.5}}>FEES</span>
+              <span style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>June 2026 · 5 min read · By a Certified Automotive Insider</span>
+            </div>
+            <h1 style={{fontSize:30,fontWeight:900,color:"var(--text)",marginBottom:16,lineHeight:1.2}}>What Is a Dealer Doc Fee — And Is Yours Too High?</h1>
+            <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>If you've ever bought a car, you've seen it buried in the paperwork: a "documentary fee," "doc fee," or "processing fee" somewhere between $200 and $900. Most buyers just pay it. They shouldn't — at least not without understanding what it is and how to use it against the dealer.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>What Is a Doc Fee?</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>A documentary fee is what a dealer charges to process your paperwork — title work, registration filing, and contract preparation. The actual cost to the dealer is roughly $50-80 in labor and materials. Everything above that is pure margin.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Dealers love doc fees because they're easy to hide in the total and buyers rarely question them. By the time you're sitting in the finance office, you've already mentally committed to the deal. The doc fee just gets added to the pile.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Is It Negotiable?</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Technically no — and this is important. Most states require dealers to charge the same doc fee to every customer for audit compliance. A dealer can't lower the fee just for you without lowering it for everyone, which creates a compliance problem. Asking them to remove or lower the doc fee directly is usually a dead end.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>But here's what most buyers miss: a high doc fee is leverage on the vehicle price. If a dealer charges $799 when the state average is $400, that $399 gap is real money you can push back into your vehicle discount.</p>
+            <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:12,padding:"16px 20px",marginBottom:24}}>
+              <div style={{fontSize:12,fontWeight:900,color:"var(--y)",letterSpacing:.5,marginBottom:8}}>💡 THE SCRIPT</div>
+              <p style={{fontSize:13,color:"var(--text)",fontWeight:700,lineHeight:1.7,margin:0}}>"I noticed your doc fee is $799 — that's about $400 above the state average. I'd like to see that reflected in the vehicle price before we finalize anything."</p>
+            </div>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>What's Normal by State?</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Doc fees vary dramatically depending on where you buy. Some states cap them by law. Others have zero regulation, meaning dealers can charge whatever they want.</p>
+            <div style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:12,padding:"16px 20px",marginBottom:24}}>
+              {[
+                {label:"Capped states (usually under $100)","states":"California, New York, Massachusetts, Oregon"},
+                {label:"Moderate states ($200-500 avg)","states":"Colorado, Texas, Illinois, Washington"},
+                {label:"High-fee states ($500-900+ common)","states":"Florida, Georgia, North Carolina, Alabama"},
+              ].map((r,i)=>(
+                <div key={i} style={{padding:"10px 0",borderBottom:i<2?"1px solid var(--b1)":"none"}}>
+                  <div style={{fontSize:11,fontWeight:900,color:"var(--y)",letterSpacing:.3,marginBottom:4}}>{r.label}</div>
+                  <div style={{fontSize:13,color:"var(--text2)",fontWeight:700}}>{r.states}</div>
+                </div>
+              ))}
+            </div>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Colorado's average runs $400-600. Above $600 on a Colorado deal? That's a flag worth pushing on the vehicle price.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Bigger Signal</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>A high doc fee rarely travels alone. Dealers who inflate processing fees tend to also markup F&I products aggressively, pre-install unwanted add-ons, and push above-market financing rates. The doc fee is often the first tell that you're dealing with a store that prioritizes extraction over relationship. Know your state average before you walk in — it sets the tone for everything that follows.</p>
+
+            <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:14,padding:"20px 24px",marginTop:32,marginBottom:16}}>
+              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>📄 Check Your Doc Fee Before You Sign</div>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>CNTROFR's Fee Comparison tool shows you exactly where your dealer's fees land against your state average — instantly, before you commit to anything.</p>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{setView("tools");setTab("fee");window.scrollTo(0,0)}}>Try Fee Comparison — Free</button>
+            </div>
+          </div>
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Blog Post: F&I Products ─────────────────────────────────────── */}
+      {view==="blog_fi"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("blog");window.scrollTo(0,0)}}>← All Guides</button>
+          </div>
+          <div style={{maxWidth:760,margin:"0 auto",padding:"48px 24px"}}>
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:16}}>
+              <span style={{background:"rgba(255,214,0,.12)",color:"var(--y)",fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,letterSpacing:.5}}>F&I</span>
+              <span style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>June 2026 · 7 min read · By a Certified Automotive Insider</span>
+            </div>
+            <h1 style={{fontSize:30,fontWeight:900,color:"var(--text)",marginBottom:16,lineHeight:1.2}}>Every F&I Product Decoded — Dealer Cost vs. What You Pay</h1>
+            <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>The finance office is where dealers make their real money. After you've agreed on a vehicle price, you're handed off to a finance manager whose job is to maximize backend profit — through products most buyers don't fully understand. Here's what each one actually costs and what it's actually worth.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>How the F&I Office Works</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Finance managers are paid on backend gross profit — meaning the more they sell you and the higher the markup, the more they make. They're trained to present products in a way that makes them feel essential, urgent, and reasonably priced. Most are not. Here's the breakdown:</p>
+
+            {[
+              {name:"Extended Warranty (VSC)",cost:"$300-800 dealer cost",retail:"$1,500-4,000 retail",verdict:"SOMETIMES WORTH IT",color:"var(--y)",note:"If you're buying used with high mileage and no manufacturer coverage, a third-party VSC can make sense. Never buy from the dealer — shop Endurance, CARCHEX, or your credit union. Dealer markup on these is 200-400%."},
+              {name:"GAP Insurance",cost:"$50-200 dealer cost",retail:"$400-900 retail",verdict:"SOMETIMES WORTH IT",color:"var(--y)",note:"If you're financing more than 80% of the vehicle's value, GAP covers the difference if it's totaled. But never buy from the dealer — your insurance company or credit union sells the same coverage for $20-40/year. Dealer markup is 500%+."},
+              {name:"Credit Life / Disability Insurance",cost:"Varies",retail:"$500-2,000+",verdict:"ALMOST NEVER WORTH IT",color:"var(--red)",note:"Pays your car loan if you die or become disabled. Your existing life/disability insurance likely already covers this. A standalone term life policy costs a fraction of what dealers charge."},
+              {name:"Paint & Fabric Protection",cost:"$50-100 dealer cost",retail:"$300-800 retail",verdict:"NOT WORTH IT",color:"var(--red)",note:"A can of Scotchgard from any hardware store ($8) does the same thing as dealer fabric protection. Paint sealant is applied by a detailer — the dealer pays them $30-50 and charges you $400+."},
+              {name:"Tire & Wheel Protection",cost:"$150-300 dealer cost",retail:"$600-1,200 retail",verdict:"SITUATIONAL",color:"var(--y)",note:"If you live somewhere with rough roads or potholes, this can pay for itself. Read the fine print carefully — many plans exclude damage from potholes or have high deductibles. Negotiate hard if you want it."},
+              {name:"Key Replacement",cost:"$25-50 dealer cost",retail:"$200-500 retail",verdict:"NOT WORTH IT",color:"var(--red)",note:"Locksmith services and third-party key insurance (KeyCare, etc.) cover this for a fraction of what dealers charge. Only modern luxury key fobs might justify consideration."},
+              {name:"Nitrogen-Filled Tires",cost:"$0 (already installed)",retail:"$150-300 retail",verdict:"NEVER WORTH IT",color:"var(--red)",note:"Nitrogen in tires versus regular air provides negligible real-world benefit. This is a pure profit play — the dealer fills tires for free and charges you $150-300. Always decline."},
+            ].map((p,i)=>(
+              <div key={i} style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:12,padding:"16px 20px",marginBottom:12}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8,marginBottom:8}}>
+                  <div style={{fontSize:15,fontWeight:900,color:"var(--text)"}}>{p.name}</div>
+                  <span style={{fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,background:`${p.color}22`,color:p.color,letterSpacing:.5,whiteSpace:"nowrap"}}>{p.verdict}</span>
+                </div>
+                <div style={{display:"flex",gap:16,marginBottom:10,flexWrap:"wrap"}}>
+                  <div style={{fontSize:11,fontWeight:900,color:"var(--muted)"}}>Dealer cost: <span style={{color:"var(--green)"}}>{p.cost}</span></div>
+                  <div style={{fontSize:11,fontWeight:900,color:"var(--muted)"}}>What they charge: <span style={{color:"var(--red)"}}>{p.retail}</span></div>
+                </div>
+                <p style={{fontSize:12,color:"var(--text2)",fontWeight:700,lineHeight:1.65,margin:0}}>{p.note}</p>
+              </div>
+            ))}
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Universal Rule</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Whatever the finance manager presents, your first answer should always be "not today." You can always add products after purchase. You can never remove them once you've signed. Take the contract home if you need to — you have every right to review it before signing anything.</p>
+
+            <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:14,padding:"20px 24px",marginTop:32,marginBottom:16}}>
+              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🔓 Decode Your Specific F&I Products</div>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>CNTROFR's F&I Decoder gives you dealer cost, real value, and word-for-word exit scripts for every product in your deal — before you sit down in the finance office.</p>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{buy(PLANS[2])}}>Unlock F&I Decoder — $49</button>
+            </div>
+          </div>
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Blog Post: Add-Ons ──────────────────────────────────────────── */}
+      {view==="blog_addons"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("blog");window.scrollTo(0,0)}}>← All Guides</button>
+          </div>
+          <div style={{maxWidth:760,margin:"0 auto",padding:"48px 24px"}}>
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:16}}>
+              <span style={{background:"rgba(255,214,0,.12)",color:"var(--y)",fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,letterSpacing:.5}}>ADD-ONS</span>
+              <span style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>June 2026 · 6 min read · By a Certified Automotive Insider</span>
+            </div>
+            <h1 style={{fontSize:30,fontWeight:900,color:"var(--text)",marginBottom:16,lineHeight:1.2}}>How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want)</h1>
+            <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Before you ever sit down to talk numbers, dealers have often already installed hundreds or thousands of dollars worth of add-ons on the vehicle. They're betting you won't push back. Here's how to identify them, value them accurately, and remove the ones you don't want.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>What Are Dealer Add-Ons?</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Dealer add-ons (also called dealer-installed accessories or dealer packs) are products or services that a dealership adds to a vehicle before putting it on the lot — and then charges you for at significant markup. Common examples include:</p>
+            <div style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:12,padding:"16px 20px",marginBottom:24}}>
+              {["Paint sealant / paint protection film","Fabric/interior protection","Window tinting","Wheel locks","All-weather floor mats (marked up)","Pinstripes or body side moldings","Alarm or GPS tracking systems (Lo-Jack, etc.)","VIN etching","Nitrogen-filled tires","Cargo nets or trunk liners"].map((item,i)=>(
+                <div key={i} style={{fontSize:13,color:"var(--text2)",fontWeight:700,padding:"6px 0",borderBottom:i<9?"1px solid var(--b1)":"none"}}>• {item}</div>
+              ))}
+            </div>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The "Already Installed" Play</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>The most common dealer tactic is presenting add-ons as non-negotiable because they're "already on the vehicle." This is almost always false. Dealers use this language to create urgency and implied permanence. In reality:</p>
+            <div style={{background:"rgba(255,68,68,.06)",border:"1px solid rgba(255,68,68,.2)",borderRadius:12,padding:"16px 20px",marginBottom:24}}>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.7,margin:0}}>Most dealer add-ons can be physically removed or simply not charged for. A paint sealant "already applied" costs the dealer $40 and takes 10 minutes to apply. They're not losing money by removing it from your deal — they're just making less profit. That's not your problem.</p>
+            </div>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>How to Value Add-Ons Accurately</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Before accepting any add-on price, research what it costs retail outside the dealership. A quick rule of thumb on dealer markup by category:</p>
+            {[
+              {cat:"Paint/fabric protection",dealer:"$300-800",actual:"$50-150",markup:"300-500%"},
+              {cat:"Window tinting",dealer:"$300-600",actual:"$150-250 (shop)",markup:"100-200%"},
+              {cat:"GPS/alarm systems",dealer:"$400-900",actual:"$100-300 installed",markup:"200-400%"},
+              {cat:"VIN etching",dealer:"$200-400",actual:"$10-20 DIY kit",markup:"1000%+"},
+              {cat:"Wheel locks",dealer:"$100-200",actual:"$20-40 Amazon",markup:"300-500%"},
+            ].map((r,i)=>(
+              <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8,padding:"10px 0",borderBottom:i<4?"1px solid var(--b1)":"none",fontSize:12,fontWeight:700}}>
+                <div style={{color:"var(--text)"}}>{r.cat}</div>
+                <div style={{color:"var(--red)"}}>{r.dealer}</div>
+                <div style={{color:"var(--green)"}}>{r.actual}</div>
+                <div style={{color:"var(--muted)"}}>{r.markup}</div>
+              </div>
+            ))}
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Word-for-Word Scripts</h2>
+            {[
+              {situation:"Remove all add-ons",script:'"I appreciate you putting this together, but I\'d like to remove the dealer add-ons from the deal entirely and just pay for the vehicle. Can we get a clean out-the-door number without those?"'},
+              {situation:"They say they\'re already installed",script:'"I understand they\'re already on the vehicle, but I didn\'t agree to purchase them. I\'d like those removed from the price or reflected as a discount on the vehicle. If that\'s not possible, I\'ll need to look at other options."'},
+              {situation:"Negotiate the markup",script:'"The [add-on] is listed at $600. I\'ve checked and the same service runs $150-200 independently. I\'d like to see a price that reflects actual market value, or I\'d prefer to remove it."'},
+            ].map((s,i)=>(
+              <div key={i} style={{marginBottom:16}}>
+                <div style={{fontSize:11,fontWeight:900,color:"var(--y)",letterSpacing:.5,marginBottom:8}}>{s.situation.toUpperCase()}</div>
+                <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.2)",borderRadius:10,padding:"14px 16px",fontSize:13,color:"var(--text)",fontWeight:700,lineHeight:1.7,fontStyle:"italic"}}>"{s.script}"</div>
+              </div>
+            ))}
+
+            <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:14,padding:"20px 24px",marginTop:32,marginBottom:16}}>
+              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🥊 Fight Back on Your Specific Add-Ons</div>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>CNTROFR's Add-On Fighter gives you dealer cost, real market value, and personalized counter scripts for every add-on in your deal. Know exactly what to say before they say it.</p>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{buy(PLANS[2])}}>Unlock Add-On Fighter — $49</button>
+            </div>
+          </div>
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+            </div>
+          </div>
+        </>
+      )}
+
       {view==="admin"&&(
         <>
           <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
