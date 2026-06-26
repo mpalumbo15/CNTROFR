@@ -910,7 +910,7 @@ Rules:
 
 CNTROFR KNOWLEDGE BASE -- apply this expertise in every analysis:
 
-DOC FEES: Actual dealer cost is $50-80 in labor/materials. Everything above that is profit. Most states require dealers to charge all customers the same fee (audit compliance) so the fee itself cannot be negotiated down -- but a high doc fee IS leverage on vehicle price. Colorado average $400-600. Above $600 = flag. Script: "Your doc fee is $X above state average -- I'd like that reflected in the vehicle price."
+DOC FEES: Actual dealer cost is $50-80 in labor/materials. Everything above that is profit. Most states require dealers to charge all customers the same fee (audit compliance) so the fee itself cannot be negotiated down -- but a high doc fee IS leverage on vehicle price. National average is $490. Colorado benchmark is $699 -- one of the highest in the region. Above $700 in Colorado = flag. Script: "Your doc fee is $X above state average -- I'd like that reflected in the vehicle price."
 
 F&I PRODUCTS -- dealer cost vs. retail:
 - Extended Warranty (VSC): dealer cost $300-800, retail $1,500-4,000. Sometimes worth it on high-mileage used vehicles -- but always buy from credit union or third party (Endurance, CARCHEX), never dealer.
@@ -2847,9 +2847,9 @@ export default function App() {
             <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Doc fees vary dramatically depending on where you buy. Some states cap them by law. Others have zero regulation, meaning dealers can charge whatever they want.</p>
             <div style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:12,padding:"16px 20px",marginBottom:24}}>
               {[
-                {label:"Capped states (usually under $100)","states":"California, New York, Massachusetts, Oregon"},
-                {label:"Moderate states ($200-500 avg)","states":"Colorado, Texas, Illinois, Washington"},
-                {label:"High-fee states ($500-900+ common)","states":"Florida, Georgia, North Carolina, Alabama"},
+                {label:"Capped states (under $200)","states":"California ($85), New York ($175), Washington ($200), Oregon ($250)"},
+                {label:"Moderate states ($200-500 avg)","states":"Illinois ($324), Texas (~$400), Michigan ($200-600)"},
+                {label:"High-fee states ($600-999+)","states":"Florida ($999 avg), North Carolina ($699-749), Colorado ($699), Georgia (~$599)"},
               ].map((r,i)=>(
                 <div key={i} style={{padding:"10px 0",borderBottom:i<2?"1px solid var(--b1)":"none"}}>
                   <div style={{fontSize:11,fontWeight:900,color:"var(--y)",letterSpacing:.3,marginBottom:4}}>{r.label}</div>
@@ -2857,7 +2857,7 @@ export default function App() {
                 </div>
               ))}
             </div>
-            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Colorado's average runs $400-600. Above $600 on a Colorado deal? That's a flag worth pushing on the vehicle price.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Colorado's benchmark doc fee is $699 — one of the highest in the region. Above $700 on a Colorado deal? That's a flag worth pushing on the vehicle price. The national average across all states is $490.</p>
 
             <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Bigger Signal</h2>
             <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>A high doc fee rarely travels alone. Dealers who inflate processing fees tend to also markup F&I products aggressively, pre-install unwanted add-ons, and push above-market financing rates. The doc fee is often the first tell that you're dealing with a store that prioritizes extraction over relationship. Know your state average before you walk in — it sets the tone for everything that follows.</p>
