@@ -2351,6 +2351,7 @@ const PATH_TO_VIEW = {
   "/blog/dealer-doc-fees-explained": "blog_doc_fees",
   "/blog/fi-products-decoded": "blog_fi",
   "/blog/how-to-negotiate-car-add-ons": "blog_addons",
+  "/blog/car-shopper-vs-car-buyer": "blog_shopper",
 };
 const VIEW_TO_PATH = {
   home: "/",
@@ -2364,6 +2365,7 @@ const VIEW_TO_PATH = {
   blog_doc_fees: "/blog/dealer-doc-fees-explained",
   blog_fi: "/blog/fi-products-decoded",
   blog_addons: "/blog/how-to-negotiate-car-add-ons",
+  blog_shopper: "/blog/car-shopper-vs-car-buyer",
   admin: "/", // admin stays hidden, never reflected in URL
 };
 const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review-purity", fi:"fi-decoder", addons:"add-on-fighter", guide:"counter-guide" };
@@ -2377,6 +2379,7 @@ const PAGE_META = {
   blog_doc_fees: { title:"What Is a Dealer Doc Fee — And Is Yours Too High? | CNTROFR", desc:"Doc fees vary wildly by state and dealer. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price." },
   blog_fi: { title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay | CNTROFR", desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's worth to you, and how to say no." },
   blog_addons: { title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want) | CNTROFR", desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to remove them." },
+  blog_shopper: { title:"Car Shopper vs. Car Buyer — Which One Are You? | CNTROFR", desc:"The most expensive car mistake isn't overpaying. It's overpaying for the wrong car. Know your driving habits, match your vehicle to your life, and walk in ready to buy — not browse." },
   contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
   privacy: { title:"Privacy Policy -- CNTROFR", desc:"CNTROFR's privacy policy. We never sell your data or refer you to dealers." },
   tos: { title:"Terms of Use -- CNTROFR", desc:"Terms of use for CNTROFR's car deal analysis tools." },
@@ -2518,7 +2521,7 @@ export default function App() {
             <div className="stat"><div className="stat-n">$0</div><div className="stat-l">{lang==="es"?"Comisiones de concesionarios. Nunca.":"Dealer kickbacks. Ever."}</div></div>
           </div>
         </div>
-        <div id="tools" className="alert"><p>{lang==="es"?<>⚠ La regla de la FTC que protegía a los compradores de tarifas ocultas fue <strong>demandada y eliminada por el lobby de concesionarios en 2025.</strong> Los concesionarios ahora pueden ocultar tarifas legalmente. Necesitas CNTROFR más que nunca.</>:<>⚠ The FTC rule protecting buyers from hidden dealer fees was <strong>sued and killed by the dealer lobby in 2025.</strong> Dealers can now legally hide fees. You need CNTROFR more than ever.</>}</p></div>
+        <div id="tools" className="alert"><p>{lang==="es"?<>⚠ La regla CARS de la FTC fue eliminada por los tribunales en 2025, pero la FTC sigue activa: <strong>envió advertencias a 97 grupos de concesionarios en 2026 por ocultar tarifas.</strong> Las tácticas siguen siendo reales. Necesitas CNTROFR más que nunca.</>:<>⚠ The FTC's CARS Rule was struck down in 2025, but the FTC is still active — <strong>it warned 97 dealer groups in 2026 for hiding fees in advertised prices.</strong> The tactics are real. You need CNTROFR more than ever.</>}</p></div>
         <div id="how" className="sec">
           <div className="sec-eye">{lang==="es"?"Cómo Funciona":"How It Works"}</div>
           <h2 className="sec-h2">{lang==="es"?"Tres Pasos Hacia Tu Contraoferta":"Three Steps to Your Counter"}</h2>
@@ -2789,6 +2792,7 @@ export default function App() {
                 {view:"blog_doc_fees",title:"What Is a Dealer Doc Fee — And Is Yours Too High?",desc:"Doc fees vary wildly by state. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price.",tag:"Fees",date:"June 2026",time:"5 min read"},
                 {view:"blog_fi",title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay",desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's worth to you, and how to say no.",tag:"F&I",date:"June 2026",time:"7 min read"},
                 {view:"blog_addons",title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want)",desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to fight back.",tag:"Add-Ons",date:"June 2026",time:"6 min read"},
+                {view:"blog_shopper",title:"Car Shopper vs. Car Buyer — Which One Are You?",desc:"The most expensive car mistake isn't overpaying. It's overpaying for the wrong car. Know your driving habits, match your vehicle to your life, and walk in ready to buy.",tag:"Car Buying 101",date:"June 2026",time:"6 min read"},
               ].map((post,i)=>(
                 <div key={i} style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:14,padding:"24px",cursor:"pointer",transition:"border-color .2s"}}
                   onClick={()=>{setView(post.view);window.scrollTo(0,0)}}
@@ -2999,6 +3003,101 @@ export default function App() {
               <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🥊 Fight Back on Your Specific Add-Ons</div>
               <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>CNTROFR's Add-On Fighter gives you dealer cost, real market value, and personalized counter scripts for every add-on in your deal. Know exactly what to say before they say it.</p>
               <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{buy(PLANS[2])}}>Unlock Add-On Fighter — $49</button>
+            </div>
+          </div>
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Blog Post: Shopper vs Buyer ─────────────────────────────────── */}
+      {view==="blog_shopper"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("blog");window.scrollTo(0,0)}}>← All Guides</button>
+          </div>
+          <div style={{maxWidth:760,margin:"0 auto",padding:"48px 24px"}}>
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:16}}>
+              <span style={{background:"rgba(255,214,0,.12)",color:"var(--y)",fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,letterSpacing:.5}}>CAR BUYING 101</span>
+              <span style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>June 2026 · 6 min read · By a Certified Automotive Insider</span>
+            </div>
+            <h1 style={{fontSize:30,fontWeight:900,color:"var(--text)",marginBottom:16,lineHeight:1.2}}>Car Shopper vs. Car Buyer — Which One Are You?</h1>
+            <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>The most expensive car mistake isn't overpaying on a deal. It's overpaying for the wrong car entirely. Dealers love shoppers — they're easy to dazzle with features, packages, and monthly payments. Buyers are harder. They know what they want, why they want it, and what it's actually worth. Here's how to make the switch before you set foot on a lot.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Shopper Mindset</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Shoppers are driven by feeling. They fall in love with a trim level they can't quite afford, get upsold on a sunroof they'll use twice, and leave the dealership having paid for someone else's idea of what their life should look like. None of that is the dealer's fault — they're just reading the room.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>The shiny object trap is real and it's by design. Showroom lighting, new car smell, a test drive on a perfect afternoon — all of it is engineered to make you feel like a buyer when you're still a shopper. The switch from browsing to buying happens fast, and dealers are trained to accelerate it.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Buyer Mindset</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Buyers have done the homework before they arrive. They know their budget, their actual needs, and the specific vehicle they're targeting. They're not there to browse — they're there to execute. That shift in posture changes everything about how a dealer interacts with you.</p>
+            <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:12,padding:"16px 20px",marginBottom:24}}>
+              <div style={{fontSize:12,fontWeight:900,color:"var(--y)",letterSpacing:.5,marginBottom:8}}>💡 THE MINDSET SHIFT</div>
+              <p style={{fontSize:13,color:"var(--text)",fontWeight:700,lineHeight:1.7,margin:0}}>Shoppers ask "what do you have?" Buyers say "I'm looking for a specific vehicle and I'm ready to move this week if the deal is right." One of those sentences makes a dealer work for your business. The other puts you at their mercy.</p>
+            </div>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Start With Your Driving Life</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Before you look at a single vehicle, be honest about how you actually drive — not how you'd like to drive in an imaginary version of your life. Answer these questions first:</p>
+
+            {[
+              {q:"How many miles do you drive per year?",a:"Under 10,000 miles/year and you're leasing territory. Over 15,000 and you should almost certainly buy. This single number changes your financial math more than almost anything else about the deal."},
+              {q:"Where do you spend most of your time driving?",a:"City driving rewards smaller vehicles with better maneuverability and higher MPG in stop-and-go. Highway commuters benefit from larger, more comfortable vehicles with strong highway fuel economy. If you're splitting both, prioritize whichever represents more of your weekly miles."},
+              {q:"Do you actually need the truck?",a:"This is the big one. Trucks and large SUVs are the most heavily marketed vehicles in America for a reason — the margins are enormous. If you're using truck bed or 3rd-row seating less than 10 times a year, you're paying a significant premium (both purchase price and fuel) for capability you're not using."},
+              {q:"What does your weather look like?",a:"AWD and 4WD add cost, weight, and fuel consumption. In Colorado, the Pacific Northwest, or the upper Midwest — worth it. In Phoenix, Dallas, or Atlanta — probably not. Be honest about your actual climate, not the one worst-case scenario you're planning for."},
+              {q:"How long do you plan to keep it?",a:"Short-term ownership (under 3 years) favors leasing or low-mileage used vehicles. Long-term ownership (5+ years) favors buying new or certified pre-owned with remaining factory warranty. Planning to keep a vehicle 10 years? Reliability data matters more than any feature list."},
+            ].map((item,i)=>(
+              <div key={i} style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:12,padding:"16px 20px",marginBottom:12}}>
+                <div style={{fontSize:14,fontWeight:900,color:"var(--text)",marginBottom:8}}>❓ {item.q}</div>
+                <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.65,margin:0}}>{item.a}</p>
+              </div>
+            ))}
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Match the Vehicle to Your Life — Not the Other Way Around</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Once you've answered those questions honestly, the right vehicle category usually becomes obvious. A few common mismatches worth avoiding:</p>
+
+            {[
+              {mismatch:"Buying a full-size truck for occasional hauling",cost:"$10,000-20,000 in additional purchase price, $200-400/month more in fuel costs annually, harder to park daily",fix:"A mid-size truck or large SUV with a hitch covers 90% of the same use cases for significantly less money."},
+              {mismatch:"Buying a 3-row SUV for a family of three",cost:"$5,000-15,000 in additional purchase price, worse fuel economy, harder to maneuver",fix:"A compact or mid-size SUV or a minivan (which remains the most practical family vehicle by almost every metric people refuse to admit)."},
+              {mismatch:"Buying new when your annual miles are under 8,000",cost:"Rapid depreciation on a vehicle that barely moves the odometer",fix:"A 2-3 year old certified pre-owned vehicle lets someone else absorb the depreciation hit while you still get a nearly new experience."},
+              {mismatch:"Leasing a vehicle you'll drive over 15,000 miles/year",cost:"Overage charges at $0.25-0.30/mile can add thousands to your lease-end cost",fix:"Buy instead, or negotiate a higher mileage lease upfront — the per-mile rate is almost always cheaper when negotiated at signing."},
+            ].map((item,i)=>(
+              <div key={i} style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:12,padding:"16px 20px",marginBottom:12}}>
+                <div style={{fontSize:11,fontWeight:900,color:"var(--red)",letterSpacing:.5,marginBottom:6}}>⚠ COMMON MISMATCH</div>
+                <div style={{fontSize:13,fontWeight:900,color:"var(--text)",marginBottom:6}}>{item.mismatch}</div>
+                <div style={{fontSize:12,color:"var(--red)",fontWeight:700,marginBottom:8}}>Real cost: {item.cost}</div>
+                <div style={{fontSize:12,color:"var(--green)",fontWeight:700}}>Better path: {item.fix}</div>
+              </div>
+            ))}
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The One-Week Buyer Window</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Once you've identified the right vehicle for your actual life, you have roughly a one-week window to move from decision to deal. Here's why that timeline matters:</p>
+            <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:24}}>
+              {[
+                {day:"Day 1-2",action:"Lock in your target vehicle — year, make, model, trim. Narrow to 2-3 options max. Color flexibility saves money — light vs. dark matters less than being rigid about a specific combination."},
+                {day:"Day 2-3",action:"Get pre-approved for financing through your bank or credit union before you contact a single dealer. This is non-negotiable. Walking in pre-approved changes the entire dynamic of the finance office conversation."},
+                {day:"Day 3-4",action:"Get quotes from 3+ dealers via email or phone. Never negotiate in person on your first contact. Let them compete for your business before you show up anywhere."},
+                {day:"Day 4-5",action:"Run your best quote through CNTROFR. Know exactly what you're walking into — fee benchmarks, F&I product costs, add-on scripts, financing markup — before you sit down anywhere."},
+                {day:"Day 5-7",action:"Execute the deal. You're not browsing anymore. You know the vehicle, you know the fair price, you know the F&I office playbook. Walk in as a buyer, not a shopper."},
+              ].map((item,i)=>(
+                <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:10,padding:"14px 16px"}}>
+                  <div style={{minWidth:64,fontSize:11,fontWeight:900,color:"var(--y)",letterSpacing:.5,paddingTop:2}}>{item.day}</div>
+                  <div style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.65}}>{item.action}</div>
+                </div>
+              ))}
+            </div>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Why the One-Week Window Works</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>The average car buyer spends 14+ hours across multiple dealer visits over weeks or months. Most of that time is spent in shopper mode — browsing, comparing, getting emotionally invested before they've done the financial homework. Compressing that into a focused one-week buying process eliminates the window where dealers can work on your emotions and your wallet simultaneously. You arrive informed, pre-approved, and ready. The power dynamic flips entirely.</p>
+
+            <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:14,padding:"20px 24px",marginTop:32,marginBottom:16}}>
+              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>⚡ Ready to Move From Shopper to Buyer?</div>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>CNTROFR's Pro Bundle gives you every tool you need for that one-week window — deal analysis, fee benchmarks, F&I decoding, dealer review audits, add-on scripts, and your full counter playbook. One price. Seven days. Everything you need to walk in as a buyer.</p>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{buy(PLANS[2])}}>Unlock Pro Bundle — $49</button>
             </div>
           </div>
           <div className="footer">
