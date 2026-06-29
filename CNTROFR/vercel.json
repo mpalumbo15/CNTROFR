@@ -5,6 +5,9 @@
     },
     "api/digest.js": {
       "maxDuration": 60
+    },
+    "api/scan.js": {
+      "maxDuration": 60
     }
   },
   "crons": [
@@ -59,7 +62,4 @@
       ]
     }
   ]
-}
-"api/scan.js": {
-  "maxDuration": 60
 }
