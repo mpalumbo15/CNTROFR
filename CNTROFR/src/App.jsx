@@ -933,13 +933,6 @@ Extraction rules:
   useEffect(() => {
     window.onHcVerify = token => setHcToken(token);
     window.onHcExpire = () => setHcToken("");
-    if (!document.getElementById("hcaptcha-script")) {
-      const sc = document.createElement("script");
-      sc.id = "hcaptcha-script";
-      sc.src = "https://js.hcaptcha.com/1/api.js";
-      sc.async = true; sc.defer = true;
-      document.head.appendChild(sc);
-    }
     const tryRender = () => {
       if (window.hcaptcha && captchaRef.current && !captchaRef.current.dataset.rendered) {
         captchaRef.current.dataset.rendered = "true";
@@ -950,6 +943,14 @@ Extraction rules:
         });
       }
     };
+    if (!document.getElementById("hcaptcha-script")) {
+      const sc = document.createElement("script");
+      sc.id = "hcaptcha-script";
+      sc.src = "https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcLoad";
+      sc.async = true; sc.defer = true;
+      document.head.appendChild(sc);
+    }
+    window.onHcLoad = () => tryRender();
     if (window.hcaptcha) {
       tryRender();
     } else {
@@ -1412,7 +1413,7 @@ Return this exact JSON structure:
             </div>
           )}
           <div className="hcaptcha-wrap">
-            <div ref={captchaRef} className="h-captcha" data-sitekey={HCAPTCHA_KEY} data-callback="onHcVerify" data-expired-callback="onHcExpire" />
+            <div ref={captchaRef} className="h-captcha" />
           </div>
           <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)||!hcToken}>{loading ? loadMsg||"Working..." : finalOffer ? "→ Get My Final Counter" : f.zip && paid ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
