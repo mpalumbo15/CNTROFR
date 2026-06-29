@@ -68,16 +68,26 @@ export default async function handler(req) {
     );
   }
 
-  // ── Payload size guard ───────────────────────────────────────────────────
-  const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
-  // Peek at the raw body to detect image/document scanner requests
-  const rawText = await req.text();
-  const isImageRequest = rawText.includes('"type":"image"') || rawText.includes('"type":"document"');
-  const maxBytes = isImageRequest ? MAX_BODY_BYTES_IMAGE : MAX_BODY_BYTES_TEXT;
-  if (contentLength > maxBytes) {
+  // ── Payload size guard + body parse ─────────────────────────────────────
+  let body;
+  let rawText;
+  try {
+    const buffer = await req.arrayBuffer();
+    const bytes = buffer.byteLength;
+    rawText = new TextDecoder().decode(buffer);
+    const isImageRequest = rawText.includes('"type":"image"') || rawText.includes('"type":"document"');
+    const maxBytes = isImageRequest ? MAX_BODY_BYTES_IMAGE : MAX_BODY_BYTES_TEXT;
+    if (bytes > maxBytes) {
+      return new Response(
+        JSON.stringify({ error: { message: "Request too large." } }),
+        { status: 413, headers: { ...CORS, "Content-Type": "application/json" } }
+      );
+    }
+    body = JSON.parse(rawText);
+  } catch {
     return new Response(
-      JSON.stringify({ error: { message: "Request too large." } }),
-      { status: 413, headers: { ...CORS, "Content-Type": "application/json" } }
+      JSON.stringify({ error: { message: "Invalid request body." } }),
+      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
     );
   }
 
@@ -86,16 +96,6 @@ export default async function handler(req) {
     return new Response(
       JSON.stringify({ error: { message: "Server is busy. Please try again in a few seconds." } }),
       { status: 503, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
-  }
-
-  let body;
-  try {
-    body = JSON.parse(rawText);
-  } catch {
-    return new Response(
-      JSON.stringify({ error: { message: "Invalid request body." } }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
     );
   }
 
