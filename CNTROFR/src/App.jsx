@@ -430,16 +430,12 @@ export function setGlobalLang(l) { CURRENT_LANG = l; }
 async function saveDeal(data) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   try {
-    const resp = await fetch(`${SUPABASE_URL}/rest/v1/deals`, {
+    await fetch(`${SUPABASE_URL}/rest/v1/deals`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Prefer": "return=minimal" },
       body: JSON.stringify({ ...data, timestamp: new Date().toISOString() })
     });
-    if (!resp.ok) {
-      const err = await resp.text();
-      console.error("saveDeal error:", resp.status, err.slice(0, 200));
-    }
-  } catch(e) { console.error("saveDeal catch:", e?.message); }
+  } catch(e) {}
 }
 
 async function saveGapFlag(description) {
@@ -1043,7 +1039,6 @@ The dealer has stated this is their best price or the buyer is about to enter th
       condition,
       zip: f.zip || null,
       asking_price: f.offer ? parseFloat(f.offer.toString().replace(/[$,]/g, "")) || null : null,
-      addons: f.addons || null,
       dealer_name: f.dealerName || null,
       dealer_city: f.dealerCity || null,
       dealer_state: f.dealerState || null
