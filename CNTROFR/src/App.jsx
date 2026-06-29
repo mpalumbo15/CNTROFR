@@ -790,7 +790,44 @@ function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }
             isPdf
               ? { type: "document", source: { type: "base64", media_type: mediaType, data: base64 } }
               : { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
-            { type: "text", text: `Extract the following fields from this dealer quote. Return ONLY a JSON object with these exact keys — no preamble, no markdown, no explanation:
+            { type: "text", text: `You are an expert at reading automotive dealer quotes from any dealership management system (DMS). This document may be from Reynolds & Reynolds, CDK Global, Dealertrack, VinSolutions, Tekion, DealerSocket, or any other dealer system. It may be a printed/scanned worksheet, a PDF export, a screenshot, or a photo taken in a showroom.
+
+Your job is to extract deal information regardless of layout, formatting, font style, or document structure. Common layouts include:
+- Reynolds & Reynolds: stacked sections (VEHICLE / TRADE IN / pricing table with line items)
+- CDK Global: grid-style layout, sometimes multi-column
+- Dealertrack: finance-focused, payment breakdowns, F&I product lines
+- VinSolutions: email-style summary sheet, informal structure
+- Tekion: clean modern digital format
+- Printed worksheets: handwritten or typed, may have crossed-out numbers
+
+Look for these fields anywhere in the document, in any order or layout:
+
+VEHICLE being purchased:
+- Year (4-digit number near vehicle description)
+- Make and Model (e.g. "Porsche 911", "Honda Accord", "Ford F-150")
+- Trim/Type (e.g. "GT3", "EX-L", "Lariat") — often on a separate "Type:" line
+- VIN (17-character alphanumeric)
+- Mileage/Odometer (numbers near "Miles", "Mileage", "Odometer")
+- Color
+
+PRICING (look for these exact or similar labels):
+- MSRP / Sale Price / Sticker Price / List Price
+- Selling Price / Offer / Agreed Price / Trade Difference
+- Doc Fee / Documentary Fee / Processing Fee / Admin Fee
+- Dealer Fee / Handling Fee / Prep Fee
+- Tax / Sales Tax
+- Tag and Title / Registration / Government Fees
+- Add-ons / Accessories / Dealer Installed / Protection Products
+- Trade Allowance / Trade Value / ACV
+- Trade Payoff / Lien Payoff
+- Net Price / Balance Forward / Total Due
+- Cash Deposit / Down Payment
+
+DEALER INFO:
+- Dealer name (usually at top of document)
+- City and State
+
+Return ONLY this JSON object — no preamble, no markdown backticks, no explanation:
 {
   "year": "",
   "vehicle": "",
@@ -802,17 +839,26 @@ function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }
   "notes": "",
   "dealerName": "",
   "dealerCity": "",
-  "dealerState": ""
+  "dealerState": "",
+  "docFee": "",
+  "tradeValue": "",
+  "tradePayoff": "",
+  "tax": ""
 }
-Rules:
-- "vehicle" = Make and Model only (e.g. "Honda Accord")
-- "offer" = the asking/selling price in numbers only, no $ sign
-- "msrp" = sticker price if shown, numbers only
-- "mileage" = odometer reading if shown, numbers only
-- "addons" = comma-separated list of any add-on products, accessories, or dealer-installed items
-- "notes" = doc fee, dealer fee, or any other fees listed
-- If a field is not clearly visible, return an empty string for that field
-- Do NOT guess or infer values that are not explicitly shown` }
+
+Extraction rules:
+- "vehicle" = Make and Model ONLY, no year, no trim (e.g. "Porsche 911" not "2018 Porsche 911 GT3")
+- "offer" = the asking/selling/sale price in numbers only, no $ or commas (e.g. "209201")
+- "msrp" = sticker/list price, numbers only
+- "mileage" = odometer reading, numbers only
+- "docFee" = documentary/processing/admin fee amount, numbers only
+- "tradeValue" = trade-in allowance/ACV, numbers only
+- "tradePayoff" = trade payoff/lien amount, numbers only
+- "tax" = sales tax amount, numbers only
+- "addons" = comma-separated list of any add-on products, accessories, protection packages, or dealer-installed items
+- "notes" = any other fees, special terms, or notable line items not captured above
+- If a field is not clearly visible or not present, return empty string — do NOT guess or infer
+- Numbers only in numeric fields — strip all $, commas, and spaces` }
           ]
         }]
       };
@@ -842,10 +888,16 @@ Rules:
         offer: extracted.offer || prev.offer,
         mileage: extracted.mileage || prev.mileage,
         addons: extracted.addons || prev.addons,
-        notes: extracted.notes || prev.notes,
+        notes: [
+          extracted.notes,
+          extracted.docFee ? `Doc Fee: $${extracted.docFee}` : "",
+          extracted.tax ? `Tax: $${extracted.tax}` : "",
+        ].filter(Boolean).join(" | ") || prev.notes,
         dealerName: extracted.dealerName || prev.dealerName,
         dealerCity: extracted.dealerCity || prev.dealerCity,
         dealerState: extracted.dealerState || prev.dealerState,
+        tradeIn: extracted.tradeValue || prev.tradeIn,
+        tradeOwed: extracted.tradePayoff || prev.tradeOwed,
       }));
       setScanSuccess(true);
       setScanMsg(ftb
