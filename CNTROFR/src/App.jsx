@@ -772,7 +772,6 @@ function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }
     e.target.value = "";
     setScanLoading(true);
     setScanMsg("");
-    let raw = "";
     try {
       const base64 = await new Promise((res, rej) => {
         const r = new FileReader();
@@ -865,22 +864,16 @@ Extraction rules:
           ]
         }]
       };
-      const resp = await fetch("/api/claude", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      console.log("Scanner response status:", resp.status);
-      if (!resp.ok) throw new Error(`API returned ${resp.status}`);
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      raw = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value);
-        for (const line of chunk.split("\n")) {
-          if (line.startsWith("data: ")) {
-            try { const p = JSON.parse(line.slice(6)); if (p.type === "content_block_delta" && p.delta?.text) raw += p.delta.text; } catch {}
-          }
-        }
+      // Scanner uses dedicated non-streaming endpoint for clean JSON extraction
+      const resp = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData?.error?.message || `API ${resp.status}`);
       }
+      const data = await resp.json();
+      const textBlock = data.content?.find(b => b.type === "text");
+      const raw = textBlock?.text || "";
+      console.log("Scanner raw:", raw.slice(0, 200));
       const clean = raw.replace(/```json|```/g, "").trim();
       const extracted = JSON.parse(clean);
       const hasAnyData = extracted.vehicle || extracted.offer || extracted.msrp || extracted.year || extracted.dealerName;
@@ -910,9 +903,7 @@ Extraction rules:
         ? "✓ Quote scanned! We filled in what we could find. Take a quick look below and correct anything that looks off — you know your deal better than anyone."
         : "✓ Quote scanned and pre-filled. Review the fields below and correct anything before running your analysis."
       );
-    } catch (err) {
-      console.error("Scanner error:", err?.message || err);
-      console.error("Raw response:", raw || "(empty)");
+    } catch {
       const next = scanAttempts + 1;
       setScanAttempts(next);
       if (next === 1) {
