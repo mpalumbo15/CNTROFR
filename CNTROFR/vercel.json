@@ -60,3 +60,6 @@
     }
   ]
 }
+"api/scan.js": {
+  "maxDuration": 60
+}
