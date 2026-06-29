@@ -430,12 +430,16 @@ export function setGlobalLang(l) { CURRENT_LANG = l; }
 async function saveDeal(data) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/deals`, {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/deals`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Prefer": "return=minimal" },
       body: JSON.stringify({ ...data, timestamp: new Date().toISOString() })
     });
-  } catch(e) {}
+    if (!resp.ok) {
+      const err = await resp.text();
+      console.error("saveDeal error:", resp.status, err.slice(0, 200));
+    }
+  } catch(e) { console.error("saveDeal catch:", e?.message); }
 }
 
 async function saveGapFlag(description) {
@@ -1086,12 +1090,23 @@ Return this exact JSON structure:
   "disclaimer": "Rates based on current national averages. Verify directly with your lender. Subject to change."
 }`;
 
-      const rateRaw = await ai(ratePrompt, true);
-      try {
-        const clean = rateRaw.replace(/```json|```/g, "").trim();
-        const parsed = JSON.parse(clean);
-        setFR(parsed);
-      } catch { setFR(null); }
+      const rateBody = {
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        tools: [{ type: "web_search_20250305", name: "web_search" }],
+        messages: [{ role: "user", content: ratePrompt }]
+      };
+      const rateResp = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(rateBody) });
+      if (rateResp.ok) {
+        const rateData = await rateResp.json();
+        const textBlock = rateData.content?.find(b => b.type === "text");
+        const rateRaw = textBlock?.text || "";
+        try {
+          const clean = rateRaw.replace(/```json|```/g, "").trim();
+          const parsed = JSON.parse(clean);
+          setFR(parsed);
+        } catch { setFR(null); }
+      }
     } catch { setFR(null); }
     setLM(""); setL(false);
     saveToolRun({ tool: "deal_analyzer", tier, final_offer: finalOffer, condition, zip: f.zip||null, vehicle: f.vehicle||null });
