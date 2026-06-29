@@ -783,7 +783,7 @@ function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }
       const mediaType = isPdf ? "application/pdf" : file.type || "image/jpeg";
       const body = {
         model: "claude-sonnet-4-6",
-        max_tokens: 1000,
+        max_tokens: 2000,
         messages: [{
           role: "user",
           content: [
@@ -848,10 +848,12 @@ Return ONLY this JSON object — no preamble, no markdown backticks, no explanat
 
 Extraction rules:
 - "vehicle" = Make and Model ONLY, no year, no trim (e.g. "Porsche 911" not "2018 Porsche 911 GT3")
-- "offer" = the asking/selling/sale price in numbers only, no $ or commas (e.g. "209201")
+- "offer" = the vehicle selling/asking price. Look for: "Sale Price", "Selling Price", "MSRP/Sale Price", "Agreed Price", "Vehicle Price". On Reynolds & Reynolds worksheets this is often labeled "MSRP/Sale Price" at the top of the pricing section. Do NOT use "Trade Difference", "Net Price", "Balance Forward", or "Total Due" for this field — those are calculated totals, not the vehicle price. Numbers only, no $ or commas
 - "msrp" = sticker/list price, numbers only
 - "mileage" = odometer reading, numbers only
 - "docFee" = documentary/processing/admin fee amount, numbers only
+- "year" = 4-digit model year of the vehicle being purchased (not the trade-in)
+- "trim" = trim level only. On Reynolds & Reynolds look for a "Type:" line below the vehicle name (e.g. "GT3 2dr Rear-wheel Drive Coupe" → extract "GT3" only). On other systems look for trim/package designation. Do not include body style or drive type
 - "tradeValue" = trade-in allowance/ACV, numbers only
 - "tradePayoff" = trade payoff/lien amount, numbers only
 - "tax" = sales tax amount, numbers only
@@ -878,7 +880,8 @@ Extraction rules:
       }
       const clean = raw.replace(/```json|```/g, "").trim();
       const extracted = JSON.parse(clean);
-      if (!extracted.vehicle && !extracted.offer) throw new Error("Could not extract deal data");
+      const hasAnyData = extracted.vehicle || extracted.offer || extracted.msrp || extracted.year || extracted.dealerName;
+      if (!hasAnyData) throw new Error("Could not extract deal data");
       setF(prev => ({
         ...prev,
         year: extracted.year || prev.year,
