@@ -873,7 +873,6 @@ Extraction rules:
       const data = await resp.json();
       const textBlock = data.content?.find(b => b.type === "text");
       const raw = textBlock?.text || "";
-      console.log("Scanner raw:", raw.slice(0, 200));
       const clean = raw.replace(/```json|```/g, "").trim();
       const extracted = JSON.parse(clean);
       const hasAnyData = extracted.vehicle || extracted.offer || extracted.msrp || extracted.year || extracted.dealerName;
@@ -929,13 +928,6 @@ Extraction rules:
   useEffect(() => {
     window.onHcVerify = token => setHcToken(token);
     window.onHcExpire = () => setHcToken("");
-    if (!document.getElementById("hcaptcha-script")) {
-      const sc = document.createElement("script");
-      sc.id = "hcaptcha-script";
-      sc.src = "https://js.hcaptcha.com/1/api.js";
-      sc.async = true; sc.defer = true;
-      document.head.appendChild(sc);
-    }
     const tryRender = () => {
       if (window.hcaptcha && captchaRef.current && !captchaRef.current.dataset.rendered) {
         captchaRef.current.dataset.rendered = "true";
@@ -946,6 +938,14 @@ Extraction rules:
         });
       }
     };
+    window.onHcLoad = tryRender;
+    if (!document.getElementById("hcaptcha-script")) {
+      const sc = document.createElement("script");
+      sc.id = "hcaptcha-script";
+      sc.src = "https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcLoad";
+      sc.async = true; sc.defer = true;
+      document.head.appendChild(sc);
+    }
     if (window.hcaptcha) {
       tryRender();
     } else {
@@ -1032,7 +1032,18 @@ The dealer has stated this is their best price or the buyer is about to enter th
     const m = t.match(/VERDICT[^:]*:\s*(GO|NEGOTIATE|WALK\s*AWAY)/i);
     setV(m ? m[1].trim().toUpperCase() : "COMPLETE"); setR(t);
     parseAndFlagGaps(t);
-    saveDeal({ make: f.vehicle?f.vehicle.split(" ")[0]:null, model: f.vehicle?f.vehicle.split(" ").slice(1).join(" "):null, year: f.year||null, condition, zip: f.zip||null, asking_price: f.offer?parseFloat(f.offer.replace(/,/g,"")):null, addons: f.addons||null, dealer_name: f.dealerName||null, dealer_city: f.dealerCity||null, dealer_state: f.dealerState||null });
+    saveDeal({
+      make: f.vehicle ? f.vehicle.split(" ")[0] : null,
+      model: f.vehicle ? f.vehicle.split(" ").slice(1).join(" ") : null,
+      year: f.year ? parseInt(f.year.toString().replace(/\D/g, "")) || null : null,
+      condition,
+      zip: f.zip || null,
+      asking_price: f.offer ? parseFloat(f.offer.toString().replace(/[$,]/g, "")) || null : null,
+      addons: f.addons || null,
+      dealer_name: f.dealerName || null,
+      dealer_city: f.dealerCity || null,
+      dealer_state: f.dealerState || null
+    });
     if (f.zip && f.year && f.vehicle && condition !== "buyout") {
       setLM("Scanning nearby dealer prices...");
       await new Promise(r => setTimeout(r, 3000));
