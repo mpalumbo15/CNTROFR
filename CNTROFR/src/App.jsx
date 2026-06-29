@@ -1071,8 +1071,11 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
       const make = f.vehicle ? f.vehicle.split(" ")[0] : "";
       const ratePrompt = `You are a live auto financing rate analyst. Search for current auto loan rates and manufacturer incentive programs. Return ONLY a JSON object, no markdown, no preamble.
 
+Vehicle context: ${vehicle || "unknown"}, ${condition} condition, asking price $${f.offer || "unknown"}
+${f.offer && parseFloat(f.offer) > 100000 ? "IMPORTANT: This is a high-value specialty/luxury/exotic vehicle. Lenders treat these differently — rates are typically 1-3% higher than standard used vehicles, some lenders cap loan amounts or require larger down payments, and specialty lenders (JM Associates, Woodside Credit, USAA, PenFed) may offer better terms than traditional banks for collector/performance vehicles." : ""}
+
 Search for:
-1. Current average auto loan APRs by credit tier for ${isNew?"new":isCPO?"certified pre-owned":"used"} vehicles (June 2026)
+1. Current average auto loan APRs by credit tier specifically for ${isNew?"new":isCPO?"certified pre-owned":"used"} vehicles priced ${f.offer && parseFloat(f.offer) > 100000 ? "above $100,000 (high-value/luxury/exotic)" : "in the standard market"} (June 2026)
 2. ${isNew&&make?`Current ${make} manufacturer financing incentives and special APR programs for ${vehicle}`:""}
 3. ${isBuyout&&make?`${make} lease buyout financing policy -- does ${make} require buyout through their captive lender or allow outside financing?`:""}
 
@@ -1455,7 +1458,7 @@ Return this exact JSON structure:
             <div className="card ranim" style={{marginBottom:12}}>
               <div className="vstrip">
                 <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>LIVE DATA</span>
-                <span className="badge bb">💰 CURRENT FINANCING LANDSCAPE</span>
+                <span className="badge bb">💰 {condition==="new"||condition==="custom"?"NEW VEHICLE":"used"==="used"?f.offer&&parseFloat(f.offer)>100000?"HIGH-VALUE USED VEHICLE":"USED VEHICLE":condition==="cpo"?"CPO VEHICLE":condition==="buyout"?"LEASE BUYOUT":""} FINANCING LANDSCAPE</span>
               </div>
 
               {/* OEM incentive rate — paid only */}
