@@ -433,7 +433,7 @@ async function saveDeal(data) {
     await fetch(`${SUPABASE_URL}/rest/v1/deals`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Prefer": "return=minimal" },
-      body: JSON.stringify({ ...data, timestamp: new Date().toISOString() })
+      body: JSON.stringify(data)
     });
   } catch(e) {}
 }
@@ -1035,13 +1035,19 @@ The dealer has stated this is their best price or the buyer is about to enter th
     saveDeal({
       make: f.vehicle ? f.vehicle.split(" ")[0] : null,
       model: f.vehicle ? f.vehicle.split(" ").slice(1).join(" ") : null,
-      year: f.year ? parseInt(f.year.toString().replace(/\D/g, "")) || null : null,
+      year: f.year ? f.year.toString().replace(/\D/g, "") || null : null,
       condition,
       zip: f.zip || null,
-      asking_price: f.offer ? parseFloat(f.offer.toString().replace(/[$,]/g, "")) || null : null,
+      asking_price: f.msrp ? f.msrp.toString().replace(/[$,]/g, "") || null : null,
+      offer_price: f.offer ? f.offer.toString().replace(/[$,]/g, "") || null : null,
+      add_ons: f.addons || null,
+      mileage: f.mileage ? f.mileage.toString().replace(/,/g, "") || null : null,
+      trim_level: f.trim || null,
+      accident_severity: f.accidentSeverity || null,
+      owners: f.owners || null,
       dealer_name: f.dealerName || null,
       dealer_city: f.dealerCity || null,
-      dealer_state: f.dealerState || null
+      dealer_state: f.dealerState || null,
     });
     if (f.zip && f.year && f.vehicle && condition !== "buyout") {
       setLM("Scanning nearby dealer prices...");
