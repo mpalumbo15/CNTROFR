@@ -36,7 +36,10 @@ function checkIpLimit(ip) {
 const ALLOWED_MODEL = "claude-sonnet-4-6";
 
 // ── Max payload size ─────────────────────────────────────────────────────────
-const MAX_BODY_BYTES = 32_000;
+// Standard text requests: 32KB
+// Image/document scanner requests: 10MB (base64 images are large)
+const MAX_BODY_BYTES_TEXT = 32_000;
+const MAX_BODY_BYTES_IMAGE = 10_000_000;
 
 export default async function handler(req) {
   if (req.method === "OPTIONS") {
@@ -67,7 +70,11 @@ export default async function handler(req) {
 
   // ── Payload size guard ───────────────────────────────────────────────────
   const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
-  if (contentLength > MAX_BODY_BYTES) {
+  // Peek at the raw body to detect image/document scanner requests
+  const rawText = await req.text();
+  const isImageRequest = rawText.includes('"type":"image"') || rawText.includes('"type":"document"');
+  const maxBytes = isImageRequest ? MAX_BODY_BYTES_IMAGE : MAX_BODY_BYTES_TEXT;
+  if (contentLength > maxBytes) {
     return new Response(
       JSON.stringify({ error: { message: "Request too large." } }),
       { status: 413, headers: { ...CORS, "Content-Type": "application/json" } }
@@ -84,7 +91,7 @@ export default async function handler(req) {
 
   let body;
   try {
-    body = await req.json();
+    body = JSON.parse(rawText);
   } catch {
     return new Response(
       JSON.stringify({ error: { message: "Invalid request body." } }),
