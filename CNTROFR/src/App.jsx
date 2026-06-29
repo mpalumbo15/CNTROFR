@@ -772,6 +772,7 @@ function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }
     e.target.value = "";
     setScanLoading(true);
     setScanMsg("");
+    let raw = "";
     try {
       const base64 = await new Promise((res, rej) => {
         const r = new FileReader();
@@ -865,9 +866,11 @@ Extraction rules:
         }]
       };
       const resp = await fetch("/api/claude", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      console.log("Scanner response status:", resp.status);
+      if (!resp.ok) throw new Error(`API returned ${resp.status}`);
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
-      let raw = "";
+      raw = "";
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -907,7 +910,9 @@ Extraction rules:
         ? "✓ Quote scanned! We filled in what we could find. Take a quick look below and correct anything that looks off — you know your deal better than anyone."
         : "✓ Quote scanned and pre-filled. Review the fields below and correct anything before running your analysis."
       );
-    } catch {
+    } catch (err) {
+      console.error("Scanner error:", err?.message || err);
+      console.error("Raw response:", raw || "(empty)");
       const next = scanAttempts + 1;
       setScanAttempts(next);
       if (next === 1) {
@@ -933,6 +938,13 @@ Extraction rules:
   useEffect(() => {
     window.onHcVerify = token => setHcToken(token);
     window.onHcExpire = () => setHcToken("");
+    if (!document.getElementById("hcaptcha-script")) {
+      const sc = document.createElement("script");
+      sc.id = "hcaptcha-script";
+      sc.src = "https://js.hcaptcha.com/1/api.js";
+      sc.async = true; sc.defer = true;
+      document.head.appendChild(sc);
+    }
     const tryRender = () => {
       if (window.hcaptcha && captchaRef.current && !captchaRef.current.dataset.rendered) {
         captchaRef.current.dataset.rendered = "true";
@@ -943,14 +955,6 @@ Extraction rules:
         });
       }
     };
-    if (!document.getElementById("hcaptcha-script")) {
-      const sc = document.createElement("script");
-      sc.id = "hcaptcha-script";
-      sc.src = "https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcLoad";
-      sc.async = true; sc.defer = true;
-      document.head.appendChild(sc);
-    }
-    window.onHcLoad = () => tryRender();
     if (window.hcaptcha) {
       tryRender();
     } else {
@@ -1413,7 +1417,7 @@ Return this exact JSON structure:
             </div>
           )}
           <div className="hcaptcha-wrap">
-            <div ref={captchaRef} className="h-captcha" />
+            <div ref={captchaRef} className="h-captcha" data-sitekey={HCAPTCHA_KEY} data-callback="onHcVerify" data-expired-callback="onHcExpire" />
           </div>
           <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)||!hcToken}>{loading ? loadMsg||"Working..." : finalOffer ? "→ Get My Final Counter" : f.zip && paid ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
