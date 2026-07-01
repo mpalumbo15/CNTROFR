@@ -392,6 +392,7 @@ const GLOSSARY = {
   "CPO": "Certified Pre-Owned — a used vehicle that has passed a manufacturer inspection and includes an extended warranty. Programs vary widely by brand.",
   "APR": "Annual Percentage Rate — the true yearly cost of your loan, including interest and fees. Lower is better.",
   "MF": "Money Factor — the interest rate on a lease, expressed as a tiny decimal. Multiply by 2,400 to get the APR equivalent.",
+  "Term": "Loan Term — the length of your loan in months (36, 48, 60, 72, 84). Longer terms mean lower monthly payments but more total interest paid over the life of the loan.",
   "GAP": "Guaranteed Asset Protection — covers the difference between what you owe on the loan and what insurance pays out if the car is totaled or stolen.",
   "OTD": "Out The Door price — the total amount you actually pay including vehicle price, taxes, fees, and any add-ons. Always negotiate OTD.",
   "D&H": "Dealer Handling fee — a prep and admin charge that varies by state. Cannot be negotiated as a line item, but a high D&H is leverage on vehicle price.",
@@ -749,8 +750,48 @@ function Loading({ msg, web }) {
   );
 }
 
+// ── Loan math (APR / Term calculator) ────────────────────────────────────────
+// Standard amortization. No credit advice -- just arithmetic on numbers the
+// buyer provides plus the live rate data we already pulled.
+function monthlyPayment(principal, aprPct, termMonths) {
+  const r = (aprPct / 100) / 12;
+  if (!principal || !termMonths) return 0;
+  if (r === 0) return principal / termMonths;
+  const pow = Math.pow(1 + r, termMonths);
+  return principal * (r * pow) / (pow - 1);
+}
+function loanMath({ principal, aprPct, termMonths }) {
+  const pmt = monthlyPayment(principal, aprPct, termMonths);
+  const total = pmt * termMonths;
+  const interest = total - principal;
+  return { payment: pmt, totalPaid: total, totalInterest: interest };
+}
+function fmtMoney(n) {
+  if (!isFinite(n)) return "--";
+  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+// Shared by the results card render AND the run() save-to-Supabase logic,
+// so the displayed number and the catalogued number can never drift apart.
+function computeLoanSavings(f, finRate) {
+  if (!finRate || !f.apr || !f.term) return null;
+  const num = v => parseFloat(String(v||"0").replace(/[$,]/g,"")) || 0;
+  const parsePct = str => { const m = String(str||"").match(/[\d.]+/); return m ? parseFloat(m[0]) : null; };
+  const principal = Math.max(0, num(f.offer) - (num(f.tradeIn) - num(f.tradeOwed)));
+  const aprNum = parseFloat(f.apr);
+  const termNum = parseInt(f.term, 10);
+  if (!principal || !aprNum || !termNum) return null;
+  const oemNum = finRate.oem_rate && finRate.oem_rate !== "null" ? parsePct(finRate.oem_rate) : null;
+  const greenNum = finRate.green ? parsePct(finRate.green.avg) : null;
+  const compareRate = oemNum ?? greenNum;
+  const compareLabel = oemNum ? "Manufacturer Incentive Rate" : "Excellent Credit Average";
+  if (!compareRate) return null;
+  const yours = loanMath({ principal, aprPct: aprNum, termMonths: termNum });
+  const best = loanMath({ principal, aprPct: compareRate, termMonths: termNum });
+  return { principal, aprNum, termNum, compareRate, compareLabel, yours, best, monthlyDiff: yours.payment - best.payment, interestDiff: yours.totalInterest - best.totalInterest };
+}
+
 function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }) {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"", packages:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"", packages:"", apr:"", term:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState(""); const [finRate, setFR] = useState(null);
   const [hcToken, setHcToken] = useState("");
   const [finalOffer, setFinalOffer] = useState(false);
@@ -1063,6 +1104,7 @@ Search for current ${condition==="new"||condition==="custom"?"new":condition==="
     }
     setL(false); setLM("");
     // ── Live Financing Rate Intelligence ──────────────────────────────────
+    let liveFinRate = null;
     try {
       setLM("Pulling live financing rates...");
       const vehicle = `${f.year||""} ${f.vehicle||""}`.trim();
@@ -1109,11 +1151,15 @@ Return this exact JSON structure:
           const clean = rateRaw.replace(/```json|```/g, "").trim();
           const parsed = JSON.parse(clean);
           setFR(parsed);
+          liveFinRate = parsed;
         } catch { setFR(null); }
       }
     } catch { setFR(null); }
     setLM(""); setL(false);
-    saveToolRun({ tool: "deal_analyzer", tier, final_offer: finalOffer, condition, zip: f.zip||null, vehicle: f.vehicle||null });
+    // Catalog realized savings (not the raw APR/term inputs themselves) for future reporting.
+    const savings = paid ? computeLoanSavings(f, liveFinRate) : null;
+    const moneySaved = savings && savings.interestDiff > 0.5 ? Math.round(savings.interestDiff) : null;
+    saveToolRun({ tool: "deal_analyzer", tier, final_offer: finalOffer, condition, zip: f.zip||null, vehicle: f.vehicle||null, money_saved: moneySaved });
     if (tier === "single") setSubmitted(true);
   };
   const vc = v => /^GO/.test(v) ? "vg" : /WALK/.test(v) ? "vr" : /NEG/.test(v) ? "vy" : "vx";
@@ -1392,6 +1438,36 @@ Return this exact JSON structure:
         </div>
       </div>
 
+      <div className="card" style={finalOffer ? {border:"2px solid var(--y)",boxShadow:"0 0 0 1px rgba(255,214,0,.15)"} : undefined}>
+        <div className="ch"><span className="clbl">Your Loan <span style={{color:"var(--green)",fontSize:9,letterSpacing:1,marginLeft:8}}>NEW</span></span></div>
+        <div className="cb">
+          {finalOffer && (
+            <div style={{background:"rgba(255,214,0,.08)",border:"1px solid rgba(255,214,0,.3)",borderRadius:8,padding:"10px 14px",marginBottom:12,fontSize:11,fontWeight:700,color:"var(--text2)",lineHeight:1.6}}>
+              🏁 <strong style={{color:"var(--y)"}}>You're in Final Offer Mode.</strong> This is exactly where rate markup hides. If the finance office has quoted you a rate, drop it in below -- this is your last shot to catch it before you sign.
+            </div>
+          )}
+          <div className="g2">
+            <div className="fld"><label><JargonTip term="APR" /> You Were Quoted</label><input placeholder="7.9" value={f.apr} onChange={s("apr")} /></div>
+            <div className="fld">
+              <label><JargonTip term="Term" /> (months)</label>
+              <select value={f.term||""} onChange={s("term")} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
+                <option value="">Select term</option>
+                <option value="24">24 months</option>
+                <option value="36">36 months</option>
+                <option value="48">48 months</option>
+                <option value="60">60 months</option>
+                <option value="72">72 months</option>
+                <option value="84">84 months</option>
+              </select>
+            </div>
+          </div>
+          <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,marginTop:10,lineHeight:1.65,padding:"8px 0",borderTop:"1px solid var(--b1)"}}>
+            📌 <strong style={{color:"var(--text2)"}}>Optional.</strong> If financing, drop in the rate and term from your quote and we'll run the real math against live rate data -- exact dollars, not vibes. We don't do credit -- this is arithmetic on the numbers you give us, not a credit decision.
+          </div>
+        </div>
+
+      </div>
+
       {paid && (
       <div className="card">
         <div className="ch"><span className="clbl">Add-Ons & Notes</span></div>
@@ -1515,6 +1591,60 @@ Return this exact JSON structure:
               </div>
             </div>
           )}
+
+          {!loading && finRate && f.apr && f.term && (() => {
+            const savings = computeLoanSavings(f, finRate);
+            if (!savings) return null;
+            const { aprNum, termNum, compareRate, compareLabel, yours, best, monthlyDiff, interestDiff, principal } = savings;
+            return (
+              <div className="card ranim" style={finalOffer ? {border:"2px solid var(--y)",boxShadow:"0 0 0 1px rgba(255,214,0,.15)"} : undefined}>
+                <div className="vstrip">
+                  <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>YOUR NUMBERS</span>
+                  <span className="badge bb">💵 WHAT YOUR RATE ACTUALLY COSTS</span>
+                </div>
+                {paid ? (
+                  <>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:10}}>
+                      <div style={{background:"rgba(255,255,255,.03)",border:"1px solid var(--b1)",borderRadius:10,padding:"10px 12px",textAlign:"center"}}>
+                        <div style={{fontSize:9,fontWeight:900,color:"var(--muted)",letterSpacing:.5,marginBottom:4}}>YOUR QUOTE</div>
+                        <div style={{fontSize:16,fontWeight:900,color:"var(--text)"}}>{aprNum}% APR</div>
+                        <div style={{fontSize:11,color:"var(--text2)",fontWeight:700,marginTop:2}}>{fmtMoney(yours.payment)}/mo</div>
+                      </div>
+                      <div style={{background:"rgba(0,201,107,.07)",border:"1px solid rgba(0,201,107,.25)",borderRadius:10,padding:"10px 12px",textAlign:"center"}}>
+                        <div style={{fontSize:9,fontWeight:900,color:"var(--green)",letterSpacing:.5,marginBottom:4}}>{compareLabel.toUpperCase()}</div>
+                        <div style={{fontSize:16,fontWeight:900,color:"var(--text)"}}>{compareRate}% APR</div>
+                        <div style={{fontSize:11,color:"var(--text2)",fontWeight:700,marginTop:2}}>{fmtMoney(best.payment)}/mo</div>
+                      </div>
+                    </div>
+                    {monthlyDiff > 0.5 ? (
+                      <div style={{background:"rgba(255,68,68,.07)",border:"1px solid rgba(255,68,68,.25)",borderRadius:10,padding:"12px 14px",marginBottom:10}}>
+                        <div style={{fontSize:11,fontWeight:900,color:"var(--red)",letterSpacing:.3,marginBottom:4}}>⚠ YOUR RATE IS COSTING YOU EXTRA</div>
+                        <div style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6}}>
+                          <strong style={{color:"var(--text)"}}>{fmtMoney(monthlyDiff)}/mo</strong> more than {compareLabel.toLowerCase()} — <strong style={{color:"var(--text)"}}>{fmtMoney(interestDiff)}</strong> more in total interest over {termNum} months.
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{background:"rgba(0,201,107,.07)",border:"1px solid rgba(0,201,107,.25)",borderRadius:10,padding:"12px 14px",marginBottom:10}}>
+                        <div style={{fontSize:12,color:"#80E8B0",fontWeight:700,lineHeight:1.6}}>✓ Your quoted rate is at or below {compareLabel.toLowerCase()} -- no obvious markup here.</div>
+                      </div>
+                    )}
+                    <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,lineHeight:1.6}}>
+                      Based on a financed amount of {fmtMoney(principal)} (offer price minus trade equity, if entered) -- taxes, fees, and add-ons rolled into the loan will change the real number. We don't do credit. This is arithmetic on the numbers you gave us, not a credit decision or financial advice.
+                    </div>
+                  </>
+                ) : (
+                  onBuy && (
+                    <div style={{background:"rgba(255,214,0,.05)",border:"1px solid rgba(255,214,0,.2)",borderRadius:8,padding:"10px 14px",fontSize:11,fontWeight:700,color:"var(--text2)",lineHeight:1.6,display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+                      <div style={{flex:1}}>
+                        <strong style={{color:"var(--y)"}}>See exactly what your quoted rate costs you in real dollars.</strong> Pro runs your APR and term against live market data -- monthly payment difference, total interest difference, all of it.
+                      </div>
+                      <button className="hbtn-y" style={{padding:"8px 16px",fontSize:11,whiteSpace:"nowrap"}} onClick={onBuy}>Unlock Pro — $49</button>
+                    </div>
+                  )
+                )}
+              </div>
+            );
+          })()}
 
           {!loading && market && (
             <div className="card ranim">
