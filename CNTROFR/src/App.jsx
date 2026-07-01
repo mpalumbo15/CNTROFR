@@ -1043,7 +1043,11 @@ ${condition==="buyout"?`This is a LEASE BUYOUT. The residual price listed is con
 4. FINANCING -- If the buyer is financing the buyout through the dealer, the interest rate markup is fully negotiable. Explain how to get pre-approved externally and use that as leverage.
 5. WHAT NOT TO DO -- Common mistakes lease buyout buyers make in the F&I office because they feel comfortable with the car and let their guard down.`:""}
 ${condition==="buyout"?"VERDICT: For lease buyouts, skip the GO/NEGOTIATE/WALK verdict on price. Instead give a PROCEED / CAUTION / STOP verdict based solely on whether the F&I, fees, and add-ons are clean or predatory.":""}
-## EXTREME WARNING -- Only if there are serious red flags. Leave this section out completely if the deal looks clean.
+## SEVERITY CALL -- Pick exactly ONE header below based on real dollar impact relative to the size of this deal, not vibes. A single line item that's roughly $100-400 over benchmark, or under ~1% of the vehicle price, is NOT extreme -- most buyers won't blink at that on any deal size, small or large. Reserve the top tier for things that would actually cost a buyer real money if they signed without catching it.
+- Use "## SLIGHTLY ABOVE AVERAGE" when one or more items are modestly over benchmark (roughly $100-400 total, or under ~1% of vehicle price). State it in one calm, matter-of-fact sentence. This will be the most common outcome -- most deals have something a little off, and that's normal, not alarming.
+- Use "## CAUTION" for a single clearly negotiable item in the ~$400-1,500 range, or a pattern worth pushing back on (e.g. a financing rate markup of 1-2 points above buy rate).
+- Use "## EXTREME WARNING" only for stacked red flags, predatory F&I markup (2+ point rate markup, warranties marked up 300%+), illegal practices, or a single item exceeding ~$1,500 or ~2% of vehicle price. This should be rare -- reserve it for something a buyer would genuinely regret missing.
+If nothing rises even to "slightly above average," omit this section entirely.
 ## OVERALL VERDICT -- GO, NEGOTIATE, or WALK AWAY. One sentence in plain English.
 ${f.dealerName ? `## DEALER INTEL -- If you recognize this dealer as part of a major corporate group (AutoNation, Lithia, Asbury, Penske, Sonic, Holman, or similar), briefly note it in one plain sentence and explain what corporate-owned dealerships typically means for the buyer's negotiating experience. If you do not recognize the dealer or cannot confirm the parent company, skip this section entirely.` : ""}
 ${condition!=="custom" && condition!=="buyout" ? `## VEHICLE PRICE -- Is this price fair? How much room is left to negotiate? If mileage is high, explain how that affects the vehicle's value in plain terms.` : condition==="custom" ? "## DELIVERY & FEES -- What fees are standard at delivery for a custom order and which are negotiable? Flag anything that should have been agreed to in writing before the order was placed." : "## FORCE ADDS -- List every dealer-installed add-on or accessory the buyer is being charged for. Is each one mandatory or negotiable? What is the dealer's actual cost vs. what they are charging?"}
@@ -1529,6 +1533,7 @@ Return this exact JSON structure:
               ⚠ <strong style={{color:"var(--text2)"}}>Not all pre-owned vehicles are created equal.</strong> This analysis reflects the information you provided. A <JargonTip term="PPI" /> from an independent mechanic before signing is always worth the $100-150.
             </div>
           )}
+          {loading && <Loading msg={loadMsg} web={!!f.zip} />}
 
           {/* ── Financing Intelligence ─────────────────────────────────── */}
           {finRate && (
