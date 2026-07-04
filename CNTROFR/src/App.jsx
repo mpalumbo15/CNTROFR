@@ -102,7 +102,7 @@ const S = `
   .alert p { font-size: 14px; color: #FF8888; font-weight: 700; max-width: 860px; line-height: 1.6; text-align: center; }
   .alert p strong { color: var(--red); }
   .sec { max-width: 900px; margin: 0 auto; padding: 48px 16px; } @media(min-width:600px){ .sec { padding: 64px 24px; } }
-  .sec-eye { font-family: 'Bebas Neue'; font-size: 12px; letter-spacing: 4px; color: var(--y); text-align: center; margin-bottom: 10px; }
+  .sec-eye { font-family: 'Bebas Neue'; font-size: clamp(12px, 1.4vw, 16px); letter-spacing: 4px; color: var(--y); text-align: center; margin-bottom: 10px; }
   .sec-h2 { font-family: 'Bebas Neue'; font-size: clamp(28px, 5vw, 44px); letter-spacing: 1px; text-align: center; margin-bottom: 6px; }
   .sec-sub { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 36px; font-weight: 600; }
   .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
@@ -2707,7 +2707,7 @@ export default function App() {
           <div className="hero-center-plate">
             <img src="/cntrofrplate.svg" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
           </div>
-          <div className="sec-eye" style={{marginBottom:14}}>{lang==="es"?"TU CONSULTOR DE BOLSILLO":"YOUR POCKET CONSULTANT"}</div>
+          <div className="sec-eye" style={{marginBottom:14}}>{lang==="es"?"TU CONSULTOR DE BOLSILLO PARA AUTOS":"YOUR POCKET CAR CONSULTANT"}</div>
           <div className="savings-callout">
             <span className="sc-icon">💰</span>
             <span className="sc-text">{lang==="es"?<>Los compradores encuentran hasta <span className="y">$8,300</span> escondidos en su oferta.</>:<>Buyers find up to <span className="y">$8,300</span> hiding in their deal.</>}</span>
