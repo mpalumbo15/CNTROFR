@@ -2460,6 +2460,86 @@ function MissionPage() {
   );
 }
 
+const ARSENAL_DETAIL = {
+  en: [
+    { id:"scan", icon:"📄", name:"Quote Scanner", free:false,
+      what:"Upload a photo or PDF of your actual dealer quote or buyer's order, and CNTROFR reads it line by line -- no typing, no re-entering numbers by hand.",
+      catches:["Reads Reynolds & Reynolds, CDK, Dealertrack, VinSolutions, and Tekion formats -- the actual software dealers use","Flags line items you never asked for","Feeds straight into the same analysis as manual entry, just faster"] },
+    { id:"deal", icon:"🔍", name:"Deal Analyzer", free:true,
+      what:"The core breakdown -- price, trade-in, and add-ons -- run against real-time market data for your specific vehicle, mileage, and ZIP code.",
+      catches:["Whether your price is above, at, or below what the same car is actually selling for nearby","Add-on markup and trade-in lowballing","A clear GO, NEGOTIATE, or WALK verdict -- not just a wall of numbers"] },
+    { id:"fee", icon:"💰", name:"Fee Comparison", free:false,
+      what:"Checks your doc fee and other line-item fees against what's actually normal and legal in your state -- live, not from a stale table someone built two years ago.",
+      catches:["Fees padded above your state's benchmark","Fees that shouldn't be itemized as a separate line at all","The difference between a fee that's negotiable and one that's mandated by law"] },
+    { id:"review", icon:"🔎", name:"Review Purity", free:false,
+      what:"Looks past the star rating to who actually owns the dealership -- corporate group, employee culture, complaint history -- so you know who's about to get your money.",
+      catches:["Large corporate groups known for trained sales pressure (Asbury, Lithia, AutoNation, Penske, Sonic, and others)","Patterns across complaints, not just one bad review taken out of context","Whether good reviews look earned or incentivized"] },
+    { id:"fi", icon:"🔓", name:"F&I Decoder", free:false,
+      what:"Every product pitched in the finance office -- extended warranty, GAP, paint protection, etched VIN -- decoded to what it actually costs the dealer versus what you're being asked to pay.",
+      catches:["Products marked up 300%+ over dealer cost","Products you may already have covered elsewhere (insurance, credit card, manufacturer warranty)","A clean, direct exit line for each product you don't want"] },
+    { id:"addons", icon:"🥊", name:"Add-On Fighter", free:false,
+      what:"Dealer-installed add-ons -- paint sealant, nitrogen tires, VIN etching, fabric protection -- identified and given word-for-word removal scripts.",
+      catches:["Which add-ons are near-pure profit with almost no real cost","Which ones are genuinely non-negotiable by dealer policy (rare, but it happens)","Exactly what to say to get it off the bill"] },
+  ],
+  es: [
+    { id:"scan", icon:"📄", name:"Escáner de Cotización", free:false,
+      what:"Sube una foto o PDF de tu cotización real del concesionario o la orden de compra, y CNTROFR la lee línea por línea -- sin escribir ni volver a ingresar números a mano.",
+      catches:["Lee formatos de Reynolds & Reynolds, CDK, Dealertrack, VinSolutions y Tekion -- el software real que usan los concesionarios","Marca artículos que nunca pediste","Se conecta directo al mismo análisis que el ingreso manual, solo que más rápido"] },
+    { id:"deal", icon:"🔍", name:"Analizador de Ofertas", free:true,
+      what:"El desglose principal -- precio, intercambio y extras -- comparado con datos de mercado en tiempo real para tu vehículo, kilometraje y código postal específicos.",
+      catches:["Si tu precio está arriba, igual o debajo de lo que el mismo auto se vende realmente cerca de ti","Sobreprecio en extras y ofertas bajas en tu auto de intercambio","Un veredicto claro de PROCEDE, NEGOCIA o RETÍRATE -- no solo una pared de números"] },
+    { id:"fee", icon:"💰", name:"Comparación de Tarifas", free:false,
+      what:"Compara tu tarifa de documentación y otras tarifas por línea con lo que es realmente normal y legal en tu estado -- en vivo, no de una tabla desactualizada de hace dos años.",
+      catches:["Tarifas infladas por encima del punto de referencia de tu estado","Tarifas que ni siquiera deberían aparecer como línea separada","La diferencia entre una tarifa negociable y una exigida por ley"] },
+    { id:"review", icon:"🔎", name:"Pureza de Reseñas", free:false,
+      what:"Va más allá de la calificación de estrellas para ver quién realmente es dueño del concesionario -- grupo corporativo, cultura laboral, historial de quejas -- para que sepas a quién le vas a dar tu dinero.",
+      catches:["Grandes grupos corporativos conocidos por presión de ventas entrenada (Asbury, Lithia, AutoNation, Penske, Sonic, y otros)","Patrones en las quejas, no solo una mala reseña fuera de contexto","Si las buenas reseñas parecen genuinas o incentivadas"] },
+    { id:"fi", icon:"🔓", name:"Decodificador F&I", free:false,
+      what:"Cada producto que te ofrecen en la oficina de financiamiento -- garantía extendida, GAP, protección de pintura, grabado de VIN -- decodificado para mostrar lo que realmente le cuesta al concesionario contra lo que te piden pagar.",
+      catches:["Productos con sobreprecio de 300%+ sobre el costo del concesionario","Productos que ya podrías tener cubiertos en otro lado (seguro, tarjeta de crédito, garantía de fábrica)","Una línea de salida clara y directa para cada producto que no quieras"] },
+    { id:"addons", icon:"🥊", name:"Luchador de Extras", free:false,
+      what:"Extras instalados por el concesionario -- sellador de pintura, llantas con nitrógeno, grabado de VIN, protección de tela -- identificados con guiones palabra por palabra para eliminarlos.",
+      catches:["Qué extras son casi pura ganancia con costo real casi nulo","Cuáles son genuinamente no negociables por política del concesionario (raro, pero pasa)","Exactamente qué decir para quitarlo de la factura"] },
+  ],
+};
+
+function ArsenalPage({ lang, setView, setTab, buy, canUse }) {
+  const items = ARSENAL_DETAIL[lang] || ARSENAL_DETAIL.en;
+  const open = t => { if (t.id==="scan" || !canUse(t.id)) { buy(PLANS[2]); } else { setView("tools"); setTab(t.id); window.scrollTo(0,0); } };
+  return (
+    <div className="sec" style={{maxWidth:840}}>
+      <div className="sec-eye">{lang==="es"?"Cómo Funciona":"How It Works"}</div>
+      <h2 className="sec-h2">{lang==="es"?"Seis Herramientas. Cada Ángulo Cubierto.":"Six Tools. Every Angle Covered."}</h2>
+      <p className="sec-sub">{lang==="es"?"Esto es exactamente lo que hace cada herramienta, y exactamente lo que detecta. Sin misterios antes de pagar.":"Here's exactly what each tool does, and exactly what it catches. No mystery before you pay."}</p>
+      <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:8}}>
+        {items.map((t,i)=>(
+          <div key={i} style={{background:"var(--bg3)",border:"1px solid var(--b1)",borderRadius:16,padding:"24px 26px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12,flexWrap:"wrap"}}>
+              <span style={{fontSize:26}}>{t.icon}</span>
+              <span style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:1,color:"var(--text)"}}>{t.name}</span>
+              {t.free?<span className="tag-free">{lang==="es"?"Gratis":"Free"}</span>:<span className="tag-pro">Pro</span>}
+            </div>
+            <p style={{fontSize:14,color:"var(--text2)",lineHeight:1.6,fontWeight:600,marginBottom:14}}>{t.what}</p>
+            <div style={{fontSize:10,fontWeight:900,letterSpacing:1,color:"var(--muted)",marginBottom:8}}>{lang==="es"?"QUÉ DETECTA":"WHAT IT CATCHES"}</div>
+            <ul style={{margin:0,paddingLeft:18,display:"flex",flexDirection:"column",gap:6}}>
+              {t.catches.map((c,j)=>(<li key={j} style={{fontSize:13,color:"var(--text2)",lineHeight:1.5,fontWeight:600}}>{c}</li>))}
+            </ul>
+            <button className="hbtn-y" style={{marginTop:16,padding:"9px 20px",fontSize:12}} onClick={()=>open(t)}>
+              {t.free?(lang==="es"?"Probar Gratis →":"Try It Free →"):(lang==="es"?"Desbloquear →":"Unlock It →")}
+            </button>
+          </div>
+        ))}
+      </div>
+      <div style={{textAlign:"center",marginTop:36}}>
+        <button className="hbtn-y" style={{padding:"13px 28px",fontSize:14}} onClick={()=>{setView("home");window.scrollTo(0,0);setTimeout(()=>document.getElementById("pricing")?.scrollIntoView(),50);}}>
+          {lang==="es"?"Ver Precios →":"See Pricing →"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
 const BETA_CODE = "CNTROFR-BETA";
 const BETA_ACTIVE = true;
 
@@ -2564,6 +2644,7 @@ const PATH_TO_VIEW = {
   "/tools": "tools",
   "/faq": "faq",
   "/blog": "blog",
+  "/the-arsenal": "arsenal",
   "/blog/dealer-doc-fees-explained": "blog_doc_fees",
   "/blog/fi-products-decoded": "blog_fi",
   "/blog/how-to-negotiate-car-add-ons": "blog_addons",
@@ -2578,6 +2659,7 @@ const VIEW_TO_PATH = {
   tos: "/terms",
   tools: "/tools",
   blog: "/blog",
+  arsenal: "/the-arsenal",
   blog_doc_fees: "/blog/dealer-doc-fees-explained",
   blog_fi: "/blog/fi-products-decoded",
   blog_addons: "/blog/how-to-negotiate-car-add-ons",
@@ -2590,6 +2672,7 @@ const SLUG_TO_TAB = Object.fromEntries(Object.entries(TAB_TO_SLUG).map(([k,v])=>
 const PAGE_META = {
   home: { title:"CNTROFR -- AI Car Deal Analyzer & Pocket Consultant", desc:"Your pocket consultant for car buying. AI-powered deal analysis, fee breakdowns, F&I decoding, dealer review audits, and word-for-word counter scripts. No account needed." },
   tools: { title:"Free Deal Analyzer & Tools -- CNTROFR", desc:"Run your deal through CNTROFR's AI tools -- Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter." },
+  arsenal: { title:"What Each Tool Actually Does -- CNTROFR", desc:"A full breakdown of CNTROFR's six tools -- Quote Scanner, Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter -- and exactly what each one catches." },
   mission: { title:"Our Mission -- CNTROFR", desc:"CNTROFR was built by an automotive insider to give car buyers the same playbook dealers use. Zero dealer kickbacks. Ever." },
   blog: { title:"Car Buying Guides & Resources -- CNTROFR", desc:"Expert car buying guides from a certified automotive insider. Doc fees, F&I products, add-on tactics, and everything dealers hope you never learn." },
   blog_doc_fees: { title:"What Is a Dealer Doc Fee — And Is Yours Too High? | CNTROFR", desc:"Doc fees vary wildly by state and dealer. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price." },
@@ -2752,6 +2835,11 @@ export default function App() {
           <div className="sec-eye">{lang==="es"?"El Arsenal":"The Arsenal"}</div>
           <h2 className="sec-h2">{lang==="es"?"Seis Herramientas. Un Precio.":"Six Tools. One Price."}</h2>
           <p className="sec-sub">{lang==="es"?"Todo lo que necesitas desde que ves un auto hasta el segundo antes de firmar.":"Everything you need from the moment you see a car to the second before you sign."}</p>
+          <div style={{textAlign:"center",marginBottom:20}}>
+            <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}} style={{color:"var(--y)",fontSize:12,fontWeight:800,textDecoration:"underline",cursor:"pointer"}}>
+              {lang==="es"?"Ver qué detecta exactamente cada herramienta →":"See exactly what each tool catches →"}
+            </a>
+          </div>
           <div className="tgrid">
             {(lang==="es"?[{id:"scan",icon:"📄",name:"Escáner de Cotización",desc:"¿Tienes tu cotización del concesionario? Sube una foto o PDF y lo analizamos línea por línea al instante.",free:false},{id:"deal",icon:"🔍",name:"Analizador de Ofertas",desc:"Desglose completo de precio, intercambio y extras con un veredicto de PROCEDE / NEGOCIA / RETÍRATE.",free:true},{id:"fee",icon:"💰",name:"Comparación de Tarifas",desc:"¿Es justa esa tarifa de documentación para tu estado? Lo averiguamos con datos en vivo.",free:false},{id:"review",icon:"🔎",name:"Pureza de Reseñas",desc:"Conoce a quién le estás comprando. Reseñas reales, cultura laboral e historial de quejas -- para que tu dinero vaya a concesionarios que se lo merecen.",free:false},{id:"fi",icon:"🔓",name:"Decodificador F&I",desc:"Cada producto de la oficina de financiamiento decodificado -- costo del concesionario, valor real, guion de salida.",free:false},{id:"addons",icon:"🥊",name:"Luchador de Extras",desc:"Conocemos los guiones que usan los concesionarios. Aquí están los tuyos para contraatacar.",free:false}]:[{id:"scan",icon:"📄",name:"Quote Scanner",desc:"Got your dealer quote? Upload a photo or PDF and we'll scan it line by line — skip the form entirely.",free:false},{id:"deal",icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{id:"fee",icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{id:"review",icon:"🔎",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{id:"fi",icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{id:"addons",icon:"🥊",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}]).map((t,i)=>(
               <div key={i} className="tc" style={{cursor:"pointer"}} onClick={()=>{if(t.id==="scan"||!canUse(t.id)){buy(PLANS[2]);}else{setView("tools");setTab(t.id);window.scrollTo(0,0);}}}>
@@ -2865,6 +2953,7 @@ export default function App() {
           </div>
           <p>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
           <div className="footer-links">
+            <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("faq");window.scrollTo(0,0)}}>{lang==="es"?"Preguntas Frecuentes":"FAQ"}</a>
@@ -2885,6 +2974,7 @@ export default function App() {
           <div className="footer-slogan">{lang==="es"?"No Firmes. Contraataca.":"Don't Sign. Counter."}</div>
           <p>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
           <div className="footer-links">
+            <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
             <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
@@ -2913,6 +3003,7 @@ export default function App() {
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
@@ -2932,6 +3023,7 @@ export default function App() {
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
@@ -2950,6 +3042,7 @@ export default function App() {
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
@@ -2968,6 +3061,26 @@ export default function App() {
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
+              <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+            </div>
+          </div>
+        </>
+      )}
+      {view==="arsenal"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+          </div>
+          <ArsenalPage lang={lang} setView={setView} setTab={setTab} buy={buy} canUse={canUse} />
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
@@ -2986,6 +3099,7 @@ export default function App() {
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
@@ -3028,6 +3142,7 @@ export default function App() {
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("faq");window.scrollTo(0,0)}}>FAQ</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
@@ -3091,6 +3206,7 @@ export default function App() {
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
@@ -3150,6 +3266,7 @@ export default function App() {
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
@@ -3224,6 +3341,7 @@ export default function App() {
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
@@ -3319,6 +3437,7 @@ export default function App() {
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
