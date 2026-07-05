@@ -2503,9 +2503,14 @@ const ARSENAL_DETAIL = {
   ],
 };
 
-function ArsenalPage({ lang, setView, setTab, buy, canUse }) {
+function ArsenalPage({ lang, setView, setTab, buy, canUse, access }) {
   const items = ARSENAL_DETAIL[lang] || ARSENAL_DETAIL.en;
-  const open = t => { if (t.id==="scan" || !canUse(t.id)) { buy(PLANS[2]); } else { setView("tools"); setTab(t.id); window.scrollTo(0,0); } };
+  const open = t => {
+    const hasScanAccess = access.includes("fee") || access.includes("ftb");
+    if (t.id==="scan") { if (hasScanAccess) { setView("tools"); setTab("deal"); window.scrollTo(0,0); } else { buy(PLANS[2]); } }
+    else if (!canUse(t.id)) { buy(PLANS[2]); }
+    else { setView("tools"); setTab(t.id); window.scrollTo(0,0); }
+  };
   return (
     <div className="sec" style={{maxWidth:840}}>
       <div className="sec-eye">{lang==="es"?"Cómo Funciona":"How It Works"}</div>
@@ -2842,7 +2847,7 @@ export default function App() {
           </div>
           <div className="tgrid">
             {(lang==="es"?[{id:"scan",icon:"📄",name:"Escáner de Cotización",desc:"¿Tienes tu cotización del concesionario? Sube una foto o PDF y lo analizamos línea por línea al instante.",free:false},{id:"deal",icon:"🔍",name:"Analizador de Ofertas",desc:"Desglose completo de precio, intercambio y extras con un veredicto de PROCEDE / NEGOCIA / RETÍRATE.",free:true},{id:"fee",icon:"💰",name:"Comparación de Tarifas",desc:"¿Es justa esa tarifa de documentación para tu estado? Lo averiguamos con datos en vivo.",free:false},{id:"review",icon:"🔎",name:"Pureza de Reseñas",desc:"Conoce a quién le estás comprando. Reseñas reales, cultura laboral e historial de quejas -- para que tu dinero vaya a concesionarios que se lo merecen.",free:false},{id:"fi",icon:"🔓",name:"Decodificador F&I",desc:"Cada producto de la oficina de financiamiento decodificado -- costo del concesionario, valor real, guion de salida.",free:false},{id:"addons",icon:"🥊",name:"Luchador de Extras",desc:"Conocemos los guiones que usan los concesionarios. Aquí están los tuyos para contraatacar.",free:false}]:[{id:"scan",icon:"📄",name:"Quote Scanner",desc:"Got your dealer quote? Upload a photo or PDF and we'll scan it line by line — skip the form entirely.",free:false},{id:"deal",icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{id:"fee",icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{id:"review",icon:"🔎",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{id:"fi",icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{id:"addons",icon:"🥊",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}]).map((t,i)=>(
-              <div key={i} className="tc" style={{cursor:"pointer"}} onClick={()=>{if(t.id==="scan"||!canUse(t.id)){buy(PLANS[2]);}else{setView("tools");setTab(t.id);window.scrollTo(0,0);}}}>
+              <div key={i} className="tc" style={{cursor:"pointer"}} onClick={()=>{const hasScanAccess=access.includes("fee")||access.includes("ftb");if(t.id==="scan"){if(hasScanAccess){setView("tools");setTab("deal");window.scrollTo(0,0);}else{buy(PLANS[2]);}}else if(!canUse(t.id)){buy(PLANS[2]);}else{setView("tools");setTab(t.id);window.scrollTo(0,0);}}}>
                 <div className="tc-icon">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
                 <div className="tc-desc">{t.desc}</div>
@@ -3075,7 +3080,7 @@ export default function App() {
           <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
             <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
           </div>
-          <ArsenalPage lang={lang} setView={setView} setTab={setTab} buy={buy} canUse={canUse} />
+          <ArsenalPage lang={lang} setView={setView} setTab={setTab} buy={buy} canUse={canUse} access={access} />
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
