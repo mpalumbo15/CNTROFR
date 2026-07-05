@@ -2769,7 +2769,7 @@ export default function App() {
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);window.scrollTo(0,0);}}>🏠 {lang==="es"?"Inicio":"Home"}</button>
           <button className="bmenu-item" onClick={()=>{setView("tools");setTab("deal");setMenuOpen(false);}}> {lang==="es"?"Analizador Gratis":"Free Deal Analyzer"}</button>
           <div className="bmenu-divider"/>
-          <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#tools")?.scrollIntoView({behavior:"smooth"}),100);}}>🔧 {lang==="es"?"Todas las Herramientas":"All Tools"}</button>
+          <button className="bmenu-item" onClick={()=>{setView("arsenal");setMenuOpen(false);window.scrollTo(0,0);}}>🔧 {lang==="es"?"Todas las Herramientas":"All Tools"}</button>
           <button className="bmenu-item" onClick={()=>{setView("mission");setMenuOpen(false);window.scrollTo(0,0);}}>🎯 {lang==="es"?"Misión":"Mission"}</button>
           <button className="bmenu-item" onClick={()=>{setView("blog");setMenuOpen(false);window.scrollTo(0,0);}}>📖 {lang==="es"?"Guías de Compra":"Car Buying Guides"}</button>
           <button className="bmenu-item" onClick={()=>{setView("home");setMenuOpen(false);setTimeout(()=>document.querySelector("#pricing")?.scrollIntoView({behavior:"smooth"}),100);}}>💰 {lang==="es"?"Precios":"Pricing"}</button>
