@@ -419,42 +419,38 @@ function HeroPlateScene() {
     <svg className="hero-plate-scene" viewBox="0 0 700 420" role="img" aria-label="CNTROFR plate mounted on a car's rear trunk, brake lights softly pulsing">
       <defs>
         <linearGradient id="cnBody" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#24242f"/>
-          <stop offset="100%" stopColor="#111117"/>
+          <stop offset="0%" stopColor="#232330"/>
+          <stop offset="100%" stopColor="#121218"/>
         </linearGradient>
-        <filter id="cnBlur" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9"/></filter>
-        <filter id="cnBlurSoft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter>
+        <filter id="cnBlur" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="10"/></filter>
+        <filter id="cnBlurSoft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="6"/></filter>
       </defs>
 
-      <ellipse cx="350" cy="396" rx="250" ry="18" fill="#000000" opacity="0.35"/>
+      <ellipse cx="350" cy="396" rx="240" ry="17" fill="#000000" opacity="0.35"/>
 
-      <path d="M120 366 L120 256 Q120 180 195 125 L245 70 Q265 52 350 52 Q435 52 455 70 L505 125 Q580 180 580 256 L580 366 Q580 390 555 390 L145 390 Q120 390 120 366 Z" fill="url(#cnBody)" stroke="#33333f" strokeWidth="1.5"/>
+      {/* Single continuous body silhouette -- shoulders flare out at the taillight zone, taper back at the bumper */}
+      <path d="M280,58 L420,58 Q470,60 500,85 Q545,110 570,150 Q585,175 582,195 Q585,230 578,270 Q572,330 562,380 L138,380 Q128,330 122,270 Q115,230 118,195 Q115,175 130,150 Q155,110 200,85 Q230,60 280,58 Z" fill="url(#cnBody)" stroke="#34343f" strokeWidth="1.5"/>
 
-      <path d="M262 74 Q350 58 438 74 L455 130 L245 130 Z" fill="#0a0a10" stroke="#2a2a36" strokeWidth="1"/>
-      <path d="M278 82 L310 124" stroke="#3a3a48" strokeWidth="4" opacity="0.4" strokeLinecap="round"/>
-      <path d="M310 78 L354 126" stroke="#3a3a48" strokeWidth="3" opacity="0.3" strokeLinecap="round"/>
+      {/* Rear glass -- flat, no reflections, kept minimal */}
+      <path d="M300,66 L400,66 L415,110 L285,110 Z" fill="#0a0a10" opacity="0.9"/>
 
+      {/* Brake light glow, pulsing */}
       <g className="cn-pulse-glow">
-        <ellipse cx="175" cy="174" rx="52" ry="32" fill="#E8342F" filter="url(#cnBlur)"/>
-        <ellipse cx="525" cy="174" rx="52" ry="32" fill="#E8342F" filter="url(#cnBlur)"/>
-        <rect x="245" y="152" width="210" height="9" rx="4.5" fill="#E8342F" filter="url(#cnBlurSoft)"/>
+        <ellipse cx="150" cy="205" rx="48" ry="44" fill="#E8342F" filter="url(#cnBlur)"/>
+        <ellipse cx="550" cy="205" rx="48" ry="44" fill="#E8342F" filter="url(#cnBlur)"/>
+        <rect x="215" y="156" width="270" height="9" rx="4.5" fill="#E8342F" filter="url(#cnBlurSoft)"/>
       </g>
 
+      {/* Taillights -- traced along the body's own edge, flush with the silhouette, angular inner cut */}
       <g className="cn-pulse-light">
-        <path d="M135 150 L218 143 L222 202 L141 210 Q131 210 131 198 L131 162 Q131 152 135 150 Z" fill="#E8342F"/>
-        <path d="M565 150 L482 143 L478 202 L559 210 Q569 210 569 198 L569 162 Q569 152 565 150 Z" fill="#E8342F"/>
-        <rect x="250" y="155" width="200" height="5" rx="2.5" fill="#FF5B52"/>
+        <path d="M130,150 Q115,175 118,195 Q118,230 122,270 L185,255 L190,203 L175,158 Z" fill="#E8342F"/>
+        <path d="M570,150 Q585,175 582,195 Q582,230 578,270 L515,255 L510,203 L525,158 Z" fill="#E8342F"/>
+        <rect x="220" y="159" width="260" height="5" rx="2.5" fill="#FF5B52"/>
       </g>
-      <path d="M150 167 L204 164" stroke="#FF9490" strokeWidth="3" opacity="0.5" strokeLinecap="round"/>
-      <path d="M550 167 L496 164" stroke="#FF9490" strokeWidth="3" opacity="0.5" strokeLinecap="round"/>
+      <path d="M140,175 L172,168" stroke="#FF9490" strokeWidth="2.5" opacity="0.45" strokeLinecap="round"/>
+      <path d="M560,175 L528,168" stroke="#FF9490" strokeWidth="2.5" opacity="0.45" strokeLinecap="round"/>
 
-      <path d="M155 232 Q350 248 545 232" stroke="#2c2c38" strokeWidth="1.5" fill="none" opacity="0.6"/>
-
-      <image href="/cntrofrplate.svg" x="255" y="246" width="190" height="92" preserveAspectRatio="xMidYMid meet" />
-
-      <rect x="145" y="358" width="410" height="16" rx="4" fill="#050508"/>
-      <rect x="190" y="374" width="50" height="11" rx="3" fill="#0a0a10"/>
-      <rect x="460" y="374" width="50" height="11" rx="3" fill="#0a0a10"/>
+      <image href="/cntrofrplate.svg" x="255" y="252" width="190" height="92" preserveAspectRatio="xMidYMid meet" />
     </svg>
   );
 }
