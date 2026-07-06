@@ -385,10 +385,10 @@ const S = `
 
   /* == HERO PLATE -- glow, shadow, gleam == */
   .hero-plate-wrap { position: relative; display: flex; align-items: center; justify-content: center; padding: 24px 0 8px; }
-  .hero-plate-glow { position: absolute; width: 60%; max-width: 480px; height: 55%; max-height: 260px; background: radial-gradient(ellipse at center, rgba(255,214,0,.38) 0%, rgba(255,214,0,.14) 45%, rgba(255,214,0,0) 75%); filter: blur(4px); animation: platePulse 3.4s ease-in-out infinite; pointer-events: none; z-index: 0; }
+  .hero-plate-glow { position: absolute; width: 66%; max-width: 600px; height: 58%; max-height: 320px; background: radial-gradient(ellipse at center, rgba(255,214,0,.38) 0%, rgba(255,214,0,.14) 45%, rgba(255,214,0,0) 75%); filter: blur(4px); animation: platePulse 3.4s ease-in-out infinite; pointer-events: none; z-index: 0; }
   @keyframes platePulse { 0%,100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
   .hero-plate-imgwrap { position: relative; display: inline-block; z-index: 1; }
-  .hero-plate-img { max-width: min(640px,92vw); width: 100%; height: auto; display: block; filter: drop-shadow(0 22px 30px rgba(0,0,0,.55)); }
+  .hero-plate-img { max-width: min(820px,94vw); width: 100%; height: auto; display: block; filter: drop-shadow(0 22px 30px rgba(0,0,0,.55)); }
   .hero-plate-gleam { position: absolute; inset: 0; overflow: hidden; pointer-events: none; -webkit-mask-image: url(/cntrofrplate.svg); -webkit-mask-size: contain; -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; mask-image: url(/cntrofrplate.svg); mask-size: contain; mask-position: center; mask-repeat: no-repeat; }
   .hero-plate-gleam::before { content: ""; position: absolute; top: -10%; left: -60%; width: 45%; height: 120%; background: linear-gradient(115deg, transparent 15%, rgba(255,255,255,.55) 50%, transparent 85%); mix-blend-mode: overlay; animation: plateGleam 5s ease-in-out infinite; }
   @keyframes plateGleam { 0% { left: -60%; } 45% { left: 130%; } 100% { left: 130%; } }
