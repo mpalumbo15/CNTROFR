@@ -383,12 +383,15 @@ const S = `
   .mission-page p { font-size: 13px; color: var(--text2); line-height: 1.85; font-weight: 600; margin-bottom: 10px; }
   .mission-page strong { color: var(--text); font-weight: 900; }
 
-  /* == HERO PLATE SCENE (animated) == */
-  .hero-plate-scene { width: 100%; max-width: 620px; height: auto; display: block; margin: 0 auto; }
-  .cn-pulse-light { animation: cnPulseLight 2.8s ease-in-out infinite; }
-  .cn-pulse-glow { animation: cnPulseGlow 2.8s ease-in-out infinite; }
-  @keyframes cnPulseLight { 0%,100% { opacity: .82; } 50% { opacity: 1; } }
-  @keyframes cnPulseGlow { 0%,100% { opacity: .25; } 50% { opacity: .6; } }
+  /* == HERO PLATE -- glow, shadow, gleam == */
+  .hero-plate-wrap { position: relative; display: flex; align-items: center; justify-content: center; padding: 24px 0 8px; }
+  .hero-plate-glow { position: absolute; width: 60%; max-width: 480px; height: 55%; max-height: 260px; background: radial-gradient(ellipse at center, rgba(255,214,0,.38) 0%, rgba(255,214,0,.14) 45%, rgba(255,214,0,0) 75%); filter: blur(4px); animation: platePulse 3.4s ease-in-out infinite; pointer-events: none; z-index: 0; }
+  @keyframes platePulse { 0%,100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+  .hero-plate-imgwrap { position: relative; display: inline-block; z-index: 1; }
+  .hero-plate-img { max-width: min(640px,92vw); width: 100%; height: auto; display: block; filter: drop-shadow(0 22px 30px rgba(0,0,0,.55)); }
+  .hero-plate-gleam { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .hero-plate-gleam::before { content: ""; position: absolute; top: -10%; left: -60%; width: 45%; height: 120%; background: linear-gradient(115deg, transparent 15%, rgba(255,255,255,.55) 50%, transparent 85%); mix-blend-mode: overlay; animation: plateGleam 5s ease-in-out infinite; }
+  @keyframes plateGleam { 0% { left: -60%; } 45% { left: 130%; } 100% { left: 130%; } }
 `;
 
 
@@ -416,42 +419,13 @@ const GLOSSARY = {
 
 function HeroPlateScene() {
   return (
-    <svg className="hero-plate-scene" viewBox="0 0 700 420" role="img" aria-label="CNTROFR plate mounted on a car's rear trunk, brake lights softly pulsing">
-      <defs>
-        <linearGradient id="cnBody" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#232330"/>
-          <stop offset="100%" stopColor="#121218"/>
-        </linearGradient>
-        <filter id="cnBlur" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="10"/></filter>
-        <filter id="cnBlurSoft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="6"/></filter>
-      </defs>
-
-      <ellipse cx="350" cy="396" rx="240" ry="17" fill="#000000" opacity="0.35"/>
-
-      {/* Single continuous body silhouette -- shoulders flare out at the taillight zone, taper back at the bumper */}
-      <path d="M280,58 L420,58 Q470,60 500,85 Q545,110 570,150 Q585,175 582,195 Q585,230 578,270 Q572,330 562,380 L138,380 Q128,330 122,270 Q115,230 118,195 Q115,175 130,150 Q155,110 200,85 Q230,60 280,58 Z" fill="url(#cnBody)" stroke="#34343f" strokeWidth="1.5"/>
-
-      {/* Rear glass -- flat, no reflections, kept minimal */}
-      <path d="M300,66 L400,66 L415,110 L285,110 Z" fill="#0a0a10" opacity="0.9"/>
-
-      {/* Brake light glow, pulsing */}
-      <g className="cn-pulse-glow">
-        <ellipse cx="150" cy="205" rx="48" ry="44" fill="#E8342F" filter="url(#cnBlur)"/>
-        <ellipse cx="550" cy="205" rx="48" ry="44" fill="#E8342F" filter="url(#cnBlur)"/>
-        <rect x="215" y="156" width="270" height="9" rx="4.5" fill="#E8342F" filter="url(#cnBlurSoft)"/>
-      </g>
-
-      {/* Taillights -- traced along the body's own edge, flush with the silhouette, angular inner cut */}
-      <g className="cn-pulse-light">
-        <path d="M130,150 Q115,175 118,195 Q118,230 122,270 L185,255 L190,203 L175,158 Z" fill="#E8342F"/>
-        <path d="M570,150 Q585,175 582,195 Q582,230 578,270 L515,255 L510,203 L525,158 Z" fill="#E8342F"/>
-        <rect x="220" y="159" width="260" height="5" rx="2.5" fill="#FF5B52"/>
-      </g>
-      <path d="M140,175 L172,168" stroke="#FF9490" strokeWidth="2.5" opacity="0.45" strokeLinecap="round"/>
-      <path d="M560,175 L528,168" stroke="#FF9490" strokeWidth="2.5" opacity="0.45" strokeLinecap="round"/>
-
-      <image href="/cntrofrplate.svg" x="255" y="252" width="190" height="92" preserveAspectRatio="xMidYMid meet" />
-    </svg>
+    <div className="hero-plate-wrap">
+      <div className="hero-plate-glow" />
+      <div className="hero-plate-imgwrap">
+        <img src="/cntrofrplate.svg" alt="CNTROFR" className="hero-plate-img" />
+        <div className="hero-plate-gleam" />
+      </div>
+    </div>
   );
 }
 
