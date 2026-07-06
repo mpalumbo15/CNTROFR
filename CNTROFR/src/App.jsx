@@ -389,7 +389,7 @@ const S = `
   @keyframes platePulse { 0%,100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
   .hero-plate-imgwrap { position: relative; display: inline-block; z-index: 1; }
   .hero-plate-img { max-width: min(640px,92vw); width: 100%; height: auto; display: block; filter: drop-shadow(0 22px 30px rgba(0,0,0,.55)); }
-  .hero-plate-gleam { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .hero-plate-gleam { position: absolute; inset: 0; overflow: hidden; pointer-events: none; -webkit-mask-image: url(/cntrofrplate.svg); -webkit-mask-size: contain; -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; mask-image: url(/cntrofrplate.svg); mask-size: contain; mask-position: center; mask-repeat: no-repeat; }
   .hero-plate-gleam::before { content: ""; position: absolute; top: -10%; left: -60%; width: 45%; height: 120%; background: linear-gradient(115deg, transparent 15%, rgba(255,255,255,.55) 50%, transparent 85%); mix-blend-mode: overlay; animation: plateGleam 5s ease-in-out infinite; }
   @keyframes plateGleam { 0% { left: -60%; } 45% { left: 130%; } 100% { left: 130%; } }
 `;
