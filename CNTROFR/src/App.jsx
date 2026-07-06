@@ -382,6 +382,13 @@ const S = `
   .mission-page h2 { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 1px; color: var(--y); margin: 28px 0 8px; }
   .mission-page p { font-size: 13px; color: var(--text2); line-height: 1.85; font-weight: 600; margin-bottom: 10px; }
   .mission-page strong { color: var(--text); font-weight: 900; }
+
+  /* == HERO PLATE SCENE (animated) == */
+  .hero-plate-scene { width: 100%; max-width: 620px; height: auto; display: block; margin: 0 auto; }
+  .cn-pulse-light { animation: cnPulseLight 2.8s ease-in-out infinite; }
+  .cn-pulse-glow { animation: cnPulseGlow 2.8s ease-in-out infinite; }
+  @keyframes cnPulseLight { 0%,100% { opacity: .82; } 50% { opacity: 1; } }
+  @keyframes cnPulseGlow { 0%,100% { opacity: .25; } 50% { opacity: .6; } }
 `;
 
 
@@ -406,6 +413,51 @@ const GLOSSARY = {
   "PPF": "Paint Protection Film — a clear protective layer applied to the paint. Legitimate product, but pricing varies widely. Independent installers are usually half the dealer price.",
   "VIN": "Vehicle Identification Number — the unique 17-character code that identifies a specific vehicle. Used to pull history reports and verify the car's background.",
 };
+
+function HeroPlateScene() {
+  return (
+    <svg className="hero-plate-scene" viewBox="0 0 700 420" role="img" aria-label="CNTROFR plate mounted on a car's rear trunk, brake lights softly pulsing">
+      <defs>
+        <linearGradient id="cnBody" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#24242f"/>
+          <stop offset="100%" stopColor="#111117"/>
+        </linearGradient>
+        <filter id="cnBlur" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9"/></filter>
+        <filter id="cnBlurSoft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter>
+      </defs>
+
+      <ellipse cx="350" cy="396" rx="250" ry="18" fill="#000000" opacity="0.35"/>
+
+      <path d="M120 366 L120 256 Q120 180 195 125 L245 70 Q265 52 350 52 Q435 52 455 70 L505 125 Q580 180 580 256 L580 366 Q580 390 555 390 L145 390 Q120 390 120 366 Z" fill="url(#cnBody)" stroke="#33333f" strokeWidth="1.5"/>
+
+      <path d="M262 74 Q350 58 438 74 L455 130 L245 130 Z" fill="#0a0a10" stroke="#2a2a36" strokeWidth="1"/>
+      <path d="M278 82 L310 124" stroke="#3a3a48" strokeWidth="4" opacity="0.4" strokeLinecap="round"/>
+      <path d="M310 78 L354 126" stroke="#3a3a48" strokeWidth="3" opacity="0.3" strokeLinecap="round"/>
+
+      <g className="cn-pulse-glow">
+        <ellipse cx="175" cy="174" rx="52" ry="32" fill="#E8342F" filter="url(#cnBlur)"/>
+        <ellipse cx="525" cy="174" rx="52" ry="32" fill="#E8342F" filter="url(#cnBlur)"/>
+        <rect x="245" y="152" width="210" height="9" rx="4.5" fill="#E8342F" filter="url(#cnBlurSoft)"/>
+      </g>
+
+      <g className="cn-pulse-light">
+        <path d="M135 150 L218 143 L222 202 L141 210 Q131 210 131 198 L131 162 Q131 152 135 150 Z" fill="#E8342F"/>
+        <path d="M565 150 L482 143 L478 202 L559 210 Q569 210 569 198 L569 162 Q569 152 565 150 Z" fill="#E8342F"/>
+        <rect x="250" y="155" width="200" height="5" rx="2.5" fill="#FF5B52"/>
+      </g>
+      <path d="M150 167 L204 164" stroke="#FF9490" strokeWidth="3" opacity="0.5" strokeLinecap="round"/>
+      <path d="M550 167 L496 164" stroke="#FF9490" strokeWidth="3" opacity="0.5" strokeLinecap="round"/>
+
+      <path d="M155 232 Q350 248 545 232" stroke="#2c2c38" strokeWidth="1.5" fill="none" opacity="0.6"/>
+
+      <image href="/cntrofrplate.svg" x="255" y="246" width="190" height="92" preserveAspectRatio="xMidYMid meet" />
+
+      <rect x="145" y="358" width="410" height="16" rx="4" fill="#050508"/>
+      <rect x="190" y="374" width="50" height="11" rx="3" fill="#0a0a10"/>
+      <rect x="460" y="374" width="50" height="11" rx="3" fill="#0a0a10"/>
+    </svg>
+  );
+}
 
 function JargonTip({ term }) {
   const def = GLOSSARY[term];
@@ -2793,7 +2845,7 @@ export default function App() {
           <div className="hero-road" />
           <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
           <div className="hero-center-plate">
-            <img src="/cntrofrplate.svg" alt="CNTROFR" style={{maxWidth:"min(700px,95vw)",height:"auto",display:"block"}} />
+            <HeroPlateScene />
           </div>
           <div className="sec-eye" style={{marginBottom:14}}>{lang==="es"?"TU CONSULTOR DE BOLSILLO PARA AUTOS":"YOUR POCKET CAR CONSULTANT"}</div>
           <div className="savings-callout">
