@@ -384,7 +384,7 @@ const S = `
   .mission-page strong { color: var(--text); font-weight: 900; }
 
   /* == HERO PLATE -- glow, shadow, gleam == */
-  .hero-plate-wrap { position: relative; display: flex; align-items: center; justify-content: center; padding: 24px 0 8px; }
+  .hero-plate-wrap { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 24px 0 8px; }
   .hero-plate-glow { position: absolute; width: 70%; max-width: 720px; height: 60%; max-height: 380px; background: radial-gradient(ellipse at center, rgba(255,214,0,.38) 0%, rgba(255,214,0,.14) 45%, rgba(255,214,0,0) 75%); filter: blur(4px); animation: platePulse 3.4s ease-in-out infinite; pointer-events: none; z-index: 0; }
   @keyframes platePulse { 0%,100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
   .hero-plate-imgwrap { position: relative; width: 100%; max-width: min(880px,96vw); z-index: 1; }
