@@ -2058,7 +2058,7 @@ For EACH product WITHOUT A PRICE (prep mode):
 - Typical dealer markup / profit margin on this product
 - Generally worth buying or skip it -- and for whom
 - What to watch for and how to evaluate it when it's presented
-## OVERALL FINANCE OFFICE STRATEGY -- Which to keep, which to cut, and how much you could save by removing the flagged ones (priced products only).
+## OVERALL FINANCE OFFICE STRATEGY -- Which to keep, which to cut, and estimated savings either way -- from removing what you don't want, and from negotiating a fairer price on anything worth keeping (priced products only).
 ## HOW THEY SELL IT -- Finance managers will discount everything if you push back. Explain that "I want to think about it" and "I need to see that in writing" always work.
 ## MAINTENANCE NOTE -- If the vehicle or driving habits suggest the buyer may be choosing the wrong product, flag it plainly.
 ## OPENING LINE -- The exact first words to say when sitting down in the finance office.
@@ -2172,8 +2172,8 @@ For EACH add-on:
 - The exact words the dealer will use to keep it on the deal
 - The exact words the buyer should say to remove it or negotiate the price
 - If it is already physically installed on the vehicle, what to say in that situation
-## BATTLE PLAN -- Step by step instructions for removing flagged items. What to say if the dealer claims it cannot be removed.
-## TOTAL POTENTIAL SAVINGS -- Estimated dollar amount by removing the flagged items.
+## BATTLE PLAN -- Step by step instructions for removing flagged items, or negotiating the price down on any you want to keep. What to say if the dealer claims it cannot be removed or the price cannot move.
+## TOTAL POTENTIAL SAVINGS -- Estimated dollar amount from removing flagged items, plus estimated savings from successfully negotiating down the price on any marked KEEP or NEGOTIATE.
 If any add-on in this list is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [add-on name] -- [brief reason you could not fully evaluate it]`, false, chunk => setR(chunk));
     setR(t); setL(false); parseAndFlagGaps(t);
     saveToolRun({ tool: "addon_fighter", tier, vehicle: veh||null });
@@ -2427,7 +2427,7 @@ const FAQS = [
   {q:"What does a good deal actually look like?",a:"A great deal is good for both people at the table. CNTROFR exists to expose greed -- not to burn down the industry. Lots of people love cars. Lots of salespeople love selling them. That relationship can and should be a good one. The profit pressure that makes car buying miserable doesn't come from the floor -- it comes from ownership and management structures built to extract maximum margin from every deal. Your salesperson often sees none of it. If you walked out feeling respected, paid a fair price, and weren't loaded up with junk you didn't ask for -- that's a good deal. And if your salesperson made it happen, leave them a five-star review by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them."},
   {q:"Why no subscription or app?",a:"Simple -- use us when you need us. CNTROFR is built for the moment you're ready to make a large auto purchase, not something that needs to live on your phone year-round. You're not always car shopping, and you shouldn't be. Pay once, get what you need, go enjoy your new ride."},
   {q:"How do you protect my personal information?",a:"We keep it minimal by design. While some information is necessary for payment processing, we'd rather not hold onto your personal data at all. CNTROFR exists to keep your money with you -- not to collect, sell, or monetize your information in any way."},
-  {q:"Does CNTROFR work for used cars too?",a:"Absolutely. Whether you're buying new off the lot or used from a dealer, the same tactics apply. Inflated prices, lowball trade-ins, junk add-ons, and mystery fees don't discriminate -- and neither do our tools. One firm piece of advice though: we do not recommend 'Buy Here, Pay Here' lots under any circumstances. If a dealership doesn't have established relationships with outside banks and lenders, something is off. Reputable dealers work with real financial institutions. If they're financing everything in-house, that's a red flag worth walking away from before you ever get to the numbers."},
+  {q:"Does CNTROFR work for used cars too?",a:"Absolutely. Whether you're buying new off the lot or used from a dealer, the same tactics apply. Inflated prices, lowball trade-ins, overpriced add-ons, and mystery fees don't discriminate -- and neither do our tools. One firm piece of advice though: we do not recommend 'Buy Here, Pay Here' lots under any circumstances. If a dealership doesn't have established relationships with outside banks and lenders, something is off. Reputable dealers work with real financial institutions. If they're financing everything in-house, that's a red flag worth walking away from before you ever get to the numbers."},
   {q:"Can you help me find a vehicle?",a:"That's not our lane. There are plenty of great marketplace tools out there for that part of the process. We're here once you've found the one you want and it's time to talk numbers."},
   {q:"What if the dealer won't budge?",a:"Having the right information is powerful, but the dealership still has to agree to terms. If they won't move, be confident and walk. They are not the only game in town, and a dealer that won't negotiate fairly on one line item is likely doing it everywhere else too."},
   {q:"Is this legit for both new and used car dealerships?",a:"Yes. Franchise dealers, independent lots, certified pre-owned programs -- the F&I playbook and the fee games are industry-wide. CNTROFR is built on insider knowledge from both sides of that desk."},
@@ -2596,8 +2596,8 @@ const ARSENAL_DETAIL = {
       what:"Every product pitched in the finance office -- extended warranty, GAP, paint protection, etched VIN -- decoded to what it actually costs the dealer versus what you're being asked to pay.",
       catches:["Products marked up 300%+ over dealer cost","Products you may already have covered elsewhere (insurance, credit card, manufacturer warranty)","A clean, direct exit line for each product you don't want"] },
     { id:"addons", icon:"🥊", name:"Add-On Fighter", free:false,
-      what:"Dealer-installed add-ons -- paint sealant, nitrogen tires, VIN etching, fabric protection -- identified and given word-for-word removal scripts.",
-      catches:["Which add-ons are near-pure profit with almost no real cost","Which ones are genuinely non-negotiable by dealer policy (rare, but it happens)","Exactly what to say to get it off the bill"] },
+      what:"Dealer-installed add-ons -- paint sealant, nitrogen tires, VIN etching, fabric protection -- identified and given word-for-word scripts to negotiate the price or remove them entirely, your call.",
+      catches:["Which add-ons are near-pure profit with almost no real cost","Which ones are genuinely non-negotiable by dealer policy (rare, but it happens)","Exactly what to say -- whether you want it gone or just priced fairly"] },
   ],
   es: [
     { id:"scan", icon:"📄", name:"Escáner de Cotización", free:false,
@@ -2616,8 +2616,8 @@ const ARSENAL_DETAIL = {
       what:"Cada producto que te ofrecen en la oficina de financiamiento -- garantía extendida, GAP, protección de pintura, grabado de VIN -- decodificado para mostrar lo que realmente le cuesta al concesionario contra lo que te piden pagar.",
       catches:["Productos con sobreprecio de 300%+ sobre el costo del concesionario","Productos que ya podrías tener cubiertos en otro lado (seguro, tarjeta de crédito, garantía de fábrica)","Una línea de salida clara y directa para cada producto que no quieras"] },
     { id:"addons", icon:"🥊", name:"Luchador de Extras", free:false,
-      what:"Extras instalados por el concesionario -- sellador de pintura, llantas con nitrógeno, grabado de VIN, protección de tela -- identificados con guiones palabra por palabra para eliminarlos.",
-      catches:["Qué extras son casi pura ganancia con costo real casi nulo","Cuáles son genuinamente no negociables por política del concesionario (raro, pero pasa)","Exactamente qué decir para quitarlo de la factura"] },
+      what:"Extras instalados por el concesionario -- sellador de pintura, llantas con nitrógeno, grabado de VIN, protección de tela -- identificados con guiones palabra por palabra para negociar el precio o eliminarlos por completo, tú decides.",
+      catches:["Qué extras son casi pura ganancia con costo real casi nulo","Cuáles son genuinamente no negociables por política del concesionario (raro, pero pasa)","Exactamente qué decir -- ya sea que lo quieras fuera o solo a un precio justo"] },
   ],
 };
 
@@ -2799,7 +2799,7 @@ const PAGE_META = {
   mission: { title:"Our Mission -- CNTROFR", desc:"CNTROFR was built by an automotive insider to give car buyers the same playbook dealers use. Zero dealer kickbacks. Ever." },
   blog: { title:"Car Buying Guides & Resources -- CNTROFR", desc:"Expert car buying guides from a certified automotive insider. Doc fees, F&I products, add-on tactics, and everything dealers hope you never learn." },
   blog_doc_fees: { title:"What Is a Dealer Doc Fee — And Is Yours Too High? | CNTROFR", desc:"Doc fees vary wildly by state and dealer. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price." },
-  blog_fi: { title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay | CNTROFR", desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's worth to you, and how to say no." },
+  blog_fi: { title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay | CNTROFR", desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's genuinely worth to you, and how to negotiate it fairly if you want it." },
   blog_addons: { title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want) | CNTROFR", desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to remove them." },
   blog_shopper: { title:"Car Shopper vs. Car Buyer — Which One Are You? | CNTROFR", desc:"The most expensive car mistake isn't overpaying. It's overpaying for the wrong car. Know your driving habits, match your vehicle to your life, and walk in ready to buy — not browse." },
   contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
@@ -3243,7 +3243,7 @@ export default function App() {
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
               {[
                 {view:"blog_doc_fees",title:"What Is a Dealer Doc Fee — And Is Yours Too High?",desc:"Doc fees vary wildly by state. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price.",tag:"Fees",date:"June 2026",time:"5 min read"},
-                {view:"blog_fi",title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay",desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's worth to you, and how to say no.",tag:"F&I",date:"June 2026",time:"7 min read"},
+                {view:"blog_fi",title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay",desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's genuinely worth to you, and how to negotiate it fairly if you want it.",tag:"F&I",date:"June 2026",time:"7 min read"},
                 {view:"blog_addons",title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want)",desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to fight back.",tag:"Add-Ons",date:"June 2026",time:"6 min read"},
                 {view:"blog_shopper",title:"Car Shopper vs. Car Buyer — Which One Are You?",desc:"The most expensive car mistake isn't overpaying. It's overpaying for the wrong car. Know your driving habits, match your vehicle to your life, and walk in ready to buy.",tag:"Car Buying 101",date:"June 2026",time:"6 min read"},
               ].map((post,i)=>(
