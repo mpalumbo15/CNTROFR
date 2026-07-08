@@ -30,7 +30,17 @@
     <meta name="twitter:site" content="@cntrofr" />
 
     <!-- Favicon -->
+    <!-- SVG first for modern browsers (sharp at any size), PNG/ICO fallbacks -->
+    <!-- for everything else -- Google Search's favicon feature has limited, -->
+    <!-- unreliable SVG support and expects a square PNG or ICO to actually -->
+    <!-- show a favicon next to search results. -->
     <link rel="icon" type="image/svg+xml" href="/cntrofrfavicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/favicon-192.png" />
 
     <!-- Sitemap -->
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
