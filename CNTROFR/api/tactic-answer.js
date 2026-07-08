@@ -86,9 +86,13 @@ export default async function handler(req) {
     ? "\n\nIMPORTANT: Respond entirely in Spanish (Español), natural and conversational."
     : "";
 
-  const prompt = `You are a former automotive finance manager and dealership insider. A car buyer is describing a specific tactic or pressure they are experiencing RIGHT NOW, in real time -- possibly while sitting at the dealership. Give them a short, direct, actionable answer: (1) name the tactic in plain English if there is one, (2) explain in 1-2 sentences why the dealer is doing this, (3) give them an exact word-for-word script to say back, right now. Keep the whole answer under 150 words -- this needs to be readable in seconds, not a full article. Do not pad with disclaimers or preamble. Get straight to the script.
+  const framing = tool === "ftb"
+    ? `You are a former automotive finance manager and dealership insider, talking to a first-time car buyer. They may be asking a general question, describing something confusing, or describing active pressure from a salesperson or finance manager -- it could be before, during, or after a dealership visit. Give them a short, warm, direct answer: (1) answer their actual question in plain English, explaining any industry term the moment you use it, (2) if it involves a dealer tactic, name it and explain briefly why dealers do it, (3) if there's something they should say or do, give them the exact words or next step. Keep the whole answer under 150 words. No question is too basic -- never make them feel silly for asking. Do not pad with disclaimers or preamble.`
+    : `You are a former automotive finance manager and dealership insider. A car buyer is describing a specific tactic or pressure they are experiencing RIGHT NOW, in real time -- possibly while sitting at the dealership. Give them a short, direct, actionable answer: (1) name the tactic in plain English if there is one, (2) explain in 1-2 sentences why the dealer is doing this, (3) give them an exact word-for-word script to say back, right now. Keep the whole answer under 150 words -- this needs to be readable in seconds, not a full article. Do not pad with disclaimers or preamble. Get straight to the script.`;
 
-Also, on a final line by itself, output a normalized tactic category tag in this exact format: TACTIC_TAG: [category] -- choose the single best-fitting category from: add_on_pressure, trade_in_lowball, payment_packing, rate_markup, hidden_fees, high_pressure_close, otd_price_dodge, warranty_upsell, other.
+  const prompt = `${framing}
+
+Also, on a final line by itself, output a normalized tactic category tag in this exact format: TACTIC_TAG: [category] -- choose the single best-fitting category from: add_on_pressure, trade_in_lowball, payment_packing, rate_markup, hidden_fees, high_pressure_close, otd_price_dodge, warranty_upsell, general_question, other.
 
 What's happening: "${question}"${langInstruction}`;
 
