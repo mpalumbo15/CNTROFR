@@ -61,6 +61,32 @@ async function getToolRunStats() {
   } catch(e) { return null; }
 }
 
+// ── Tactic tracking stats (from the "What's Happening Right Now?" answer block) ──
+// Same shape/pattern as getToolRunStats -- pulls the last 7 days of free_samples
+// rows and breaks them down by tactic_tag, so the digest shows what dealer
+// tactics people are actually typing in about, live, not just tool usage counts.
+async function getTacticStats() {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+  try {
+    const since = new Date(Date.now() - 7 * 86400000).toISOString();
+    const r = await fetch(`${url}/rest/v1/free_samples?select=tool,tactic_tag,was_gated,created_at&created_at=gte.${since}`, {
+      headers: { "apikey": key, "Authorization": `Bearer ${key}` },
+    });
+    const rows = await r.json();
+    if (!Array.isArray(rows)) return null;
+    const byTag = {};
+    let gatedCount = 0;
+    for (const row of rows) {
+      const tag = row.tactic_tag || "other";
+      byTag[tag] = (byTag[tag] || 0) + 1;
+      if (row.was_gated) gatedCount++;
+    }
+    return { total: rows.length, byTag, gatedCount };
+  } catch(e) { return null; }
+}
+
 function statsToMarkdown(stats) {
   if (!stats) return "_Supabase stats unavailable this week._";
   if (!stats.total) return "No tool runs in the last 7 days.";
@@ -68,6 +94,15 @@ function statsToMarkdown(stats) {
     .sort((a, b) => b[1] - a[1])
     .map(([tool, count]) => `- **${tool}**: ${count}`);
   return `**Total runs (7 days): ${stats.total}**\n\n${lines.join("\n")}`;
+}
+
+function tacticStatsToMarkdown(stats) {
+  if (!stats) return "_Tactic tracking unavailable this week._";
+  if (!stats.total) return "No tactic questions asked in the last 7 days.";
+  const lines = Object.entries(stats.byTag)
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag, count]) => `- **${tag.replace(/_/g, " ")}**: ${count}`);
+  return `**Total questions (7 days): ${stats.total}** (${stats.gatedCount} from free-sample, non-paying visitors)\n\n${lines.join("\n")}`;
 }
 
 function markdownToHtml(md) {
@@ -82,7 +117,7 @@ function markdownToHtml(md) {
   return `<p style="font-size:13px;color:#A8A4C8;line-height:1.8;font-family:Arial,sans-serif;margin:8px 0;">${html}</p>`;
 }
 
-async function sendDigestEmail(digestMd, statsMd) {
+async function sendDigestEmail(digestMd, statsMd, tacticMd) {
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) return;
 
@@ -106,6 +141,11 @@ async function sendDigestEmail(digestMd, statsMd) {
         <div style="font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#FFD600;margin-bottom:16px;">Platform Activity -- Last 7 Days</div>
         <div style="font-size:13px;color:#A8A4C8;line-height:1.8;margin-bottom:24px;">${statsMd.replace(/\n/g, "<br/>").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#EEEAF8;'>$1</strong>")}</div>
 
+        <div style="border-top:1px solid #28283A;padding-top:20px;margin-bottom:24px;">
+          <div style="font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#FFD600;margin-bottom:16px;">Top Tactics This Week</div>
+          <div style="font-size:13px;color:#A8A4C8;line-height:1.8;">${tacticMd.replace(/\n/g, "<br/>").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#EEEAF8;'>$1</strong>")}</div>
+        </div>
+
         <div style="border-top:1px solid #28283A;padding-top:20px;">
           <div style="font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#FFD600;margin-bottom:8px;">Market Intelligence</div>
           ${markdownToHtml(digestMd)}
@@ -122,7 +162,7 @@ async function sendDigestEmail(digestMd, statsMd) {
 </body>
 </html>`;
 
-  const text = `CNTROFR Weekly Intelligence Digest -- ${today}\n\nPlatform Activity (7 days):\n${statsMd}\n\nMarket Intelligence:\n${digestMd}`;
+  const text = `CNTROFR Weekly Intelligence Digest -- ${today}\n\nPlatform Activity (7 days):\n${statsMd}\n\nTop Tactics This Week:\n${tacticMd}\n\nMarket Intelligence:\n${digestMd}`;
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -149,9 +189,10 @@ export default async function handler(req) {
   }
 
   try {
-    const [digest, stats] = await Promise.all([getDigest(), getToolRunStats()]);
+    const [digest, stats, tacticStats] = await Promise.all([getDigest(), getToolRunStats(), getTacticStats()]);
     const statsMd = statsToMarkdown(stats);
-    await sendDigestEmail(digest, statsMd);
+    const tacticMd = tacticStatsToMarkdown(tacticStats);
+    await sendDigestEmail(digest, statsMd, tacticMd);
     return new Response("OK", { status: 200 });
   } catch (e) {
     return new Response(`Error: ${e.message}`, { status: 500 });
