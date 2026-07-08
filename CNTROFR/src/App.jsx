@@ -772,6 +772,74 @@ function Loading({ msg, web }) {
   );
 }
 
+// ── Tactic Answer Block (shared: Counter Guide free hook + FTB included feature) ──
+// gated=true: enforces the one-free-sample-per-IP/30-days rule server-side (Counter Guide, pre-purchase).
+// gated=false: always answers, no limit (FTB customers already paid for this).
+function TacticAnswerBlock({ tool, gated, onBuy, lang }) {
+  const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [answer, setAnswer] = useState(null);
+  const [lockedOut, setLockedOut] = useState(false);
+  const [err, setErr] = useState(false);
+
+  const ask = async () => {
+    if (!q.trim() || loading) return;
+    setLoading(true); setAnswer(null); setLockedOut(false); setErr(false);
+    try {
+      const r = await fetch("https://cntrofr.com/api/tactic-answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q.trim(), tool, gated, lang }),
+      });
+      const data = await r.json();
+      if (data.gated_out) { setLockedOut(true); }
+      else if (data.answer) { setAnswer(data.answer); }
+      else { setErr(true); }
+    } catch { setErr(true); }
+    setLoading(false);
+  };
+
+  return (
+    <div className="card" style={{marginBottom:18}}>
+      <div className="ch"><span className="clbl">{lang==="es"?"¿Qué Está Pasando Ahora Mismo?":"What's Happening Right Now?"}</span>{gated && <span style={{fontSize:9,color:"var(--muted)",fontWeight:800,letterSpacing:1,marginLeft:8}}>{lang==="es"?"1 GRATIS":"1 FREE"}</span>}</div>
+      <div className="cb">
+        <div style={{fontSize:12,color:"var(--muted)",fontWeight:700,marginBottom:10,lineHeight:1.5}}>
+          {lang==="es"?"Describe lo que el vendedor o el gerente de finanzas te está diciendo ahora mismo. Te damos el guion exacto para responder.":"Describe what the salesperson or finance manager is telling you right now. We'll give you the exact script to say back."}
+        </div>
+        <textarea
+          value={q}
+          onChange={e=>setQ(e.target.value)}
+          placeholder={lang==="es"?"Ej: Está insistiendo mucho en la garantía extendida y dice que es \"solo $40 al mes\"...":"e.g. He's really pushing the extended warranty hard, says it's \"only $40 a month\"..."}
+          style={{width:"100%",minHeight:110,resize:"vertical",whiteSpace:"pre-wrap",background:"var(--bg)",border:"2px solid var(--b1)",borderRadius:8,color:"var(--text)",fontFamily:"Nunito",fontSize:13,padding:12,outline:"none",lineHeight:1.6}}
+        />
+        <button className="go-btn" style={{marginTop:10}} onClick={ask} disabled={loading||!q.trim()}>
+          {loading ? (lang==="es"?"Escribiendo tu respuesta...":"Writing your answer...") : (lang==="es"?"→ Obtener Mi Respuesta":"→ Get My Answer")}
+        </button>
+
+        {answer && (
+          <div className="card ranim" style={{marginTop:14}}>
+            <div className="vstrip"><span className="badge ba">🎯 {lang==="es"?"TU RESPUESTA":"YOUR ANSWER"}</span></div>
+            <MD text={answer} />
+          </div>
+        )}
+
+        {lockedOut && (
+          <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:10,padding:"14px 16px",marginTop:14}}>
+            <div style={{fontSize:13,fontWeight:800,color:"var(--y)",marginBottom:6}}>{lang==="es"?"Ya usaste tu pregunta gratis":"You've used your free question"}</div>
+            <div style={{fontSize:12,color:"var(--text2)",fontWeight:600,lineHeight:1.6,marginBottom:12}}>
+              {lang==="es"?"Desbloquea preguntas ilimitadas con la Guía de Contraoferta completa.":"Unlock unlimited questions with the full Counter Guide."}
+            </div>
+            {onBuy && <button className="hbtn-y" style={{padding:"10px 22px",fontSize:12}} onClick={onBuy}>{lang==="es"?"Desbloquear -- $20":"Unlock -- $20"}</button>}
+          </div>
+        )}
+
+        {err && <div style={{color:"var(--red)",fontSize:12,fontWeight:700,marginTop:10}}>{lang==="es"?"Algo salió mal. Intenta de nuevo.":"Something went wrong. Try again."}</div>}
+      </div>
+    </div>
+  );
+}
+
+
 // ── Loan math (APR / Term calculator) ────────────────────────────────────────
 // Standard amortization. No credit advice -- just arithmetic on numbers the
 // buyer provides plus the live rate data we already pulled.
@@ -1220,6 +1288,7 @@ Return this exact JSON structure:
       <div className="phd">
         <h2>Deal <span>Analyzer</span></h2>
         {ftb && <div className="ftb-box"><div className="ftb-title">🎓 First Time Buyer Mode Active</div><p className="ftb-body">Your results will include a full first-time buyer guide — down payment ratios, PTI basics, how to set up your loan payment online, and what to expect after you sign.</p></div>}
+        {ftb && <TacticAnswerBlock tool="ftb" gated={false} onBuy={null} lang={CURRENT_LANG} />}
         <p>Enter your numbers. Get your counter before you sign.</p>
       </div>
 
@@ -2129,7 +2198,7 @@ If any add-on in this list is something you cannot fully evaluate or have not en
   );
 }
 
-function CounterGuide() {
+function CounterGuide({ paid = false, buy = null } = {}) {
   const [loading, setL] = useState(false);
   const [res, setR] = useState(null);
   const run = async () => {
@@ -2167,26 +2236,40 @@ A concise reference the buyer can actually use at the table:
         <h2>Counter <span>Guide</span></h2>
         <p>The dealer's playbook. Now yours. Written from the inside.</p>
       </div>
-      <div className="card">
-        <div className="ch"><span className="clbl">Your Insider Briefing</span></div>
-        <div className="cb">
-          <div style={{fontSize:13,color:"var(--text2)",lineHeight:1.8,fontWeight:600,marginBottom:16}}>
-            This guide covers how dealer profit actually works, what happens in the F&I office, add-on removal scripts, trade-in maximization tactics, and a printable cheat sheet for the table. Built from real dealership experience — not a blog post.
+
+      <TacticAnswerBlock tool="counter_guide" gated={!paid} onBuy={buy ? () => buy(PLANS[3]) : null} lang={CURRENT_LANG} />
+
+      {paid ? (
+        <>
+          <div className="card">
+            <div className="ch"><span className="clbl">Your Insider Briefing</span></div>
+            <div className="cb">
+              <div style={{fontSize:13,color:"var(--text2)",lineHeight:1.8,fontWeight:600,marginBottom:16}}>
+                This guide covers how dealer profit actually works, what happens in the F&I office, add-on removal scripts, trade-in maximization tactics, and a printable cheat sheet for the table. Built from real dealership experience — not a blog post.
+              </div>
+              <div className="disclaimer"><strong>Note:</strong> This guide reflects general industry knowledge and insider experience. Tactics and pricing vary by region, brand, and dealership. Use this as your foundation — not your only source.</div>
+              <button className="go-btn" onClick={run} disabled={loading||!!res}>{loading?"Building your guide...":"→ Generate My Counter Guide"}</button>
+              {res && <button className="ghost-btn" style={{marginTop:8,width:"100%",textAlign:"center"}} onClick={()=>setR(null)}>↺ Regenerate</button>}
+            </div>
           </div>
-          <div className="disclaimer"><strong>Note:</strong> This guide reflects general industry knowledge and insider experience. Tactics and pricing vary by region, brand, and dealership. Use this as your foundation — not your only source.</div>
-          <button className="go-btn" onClick={run} disabled={loading||!!res}>{loading?"Building your guide...":"→ Generate My Counter Guide"}</button>
-          {res && <button className="ghost-btn" style={{marginTop:8,width:"100%",textAlign:"center"}} onClick={()=>setR(null)}>↺ Regenerate</button>}
-        </div>
-      </div>
-      {loading && <Loading msg="Writing your insider guide" web={false} />}
-      {res && !loading && (
-        <div className="card ranim">
-          <div className="vstrip">
-            <span className="badge ba">📋 COUNTER GUIDE</span>
-            <div style={{flex:1}}/>
-            <button className="ghost-btn" onClick={()=>{navigator.clipboard.writeText(res||"")}}>📋 Copy</button>
-          </div>
-          <MD text={res}/>
+          {loading && <Loading msg="Writing your insider guide" web={false} />}
+          {res && !loading && (
+            <div className="card ranim">
+              <div className="vstrip">
+                <span className="badge ba">📋 COUNTER GUIDE</span>
+                <div style={{flex:1}}/>
+                <button className="ghost-btn" onClick={()=>{navigator.clipboard.writeText(res||"")}}>📋 Copy</button>
+              </div>
+              <MD text={res}/>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="upbox">
+          <div style={{fontSize:32,marginBottom:8}}>📋</div>
+          <h3>Get the Full Guide</h3>
+          <p style={{marginBottom:8}}><strong style={{color:"var(--y)"}}>How dealer profit really works, the full finance-office playbook, and every removal script -- not just one answer.</strong></p>
+          <button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy && buy(PLANS[3])}>Unlock Counter Guide — $20</button>
         </div>
       )}
     </div>
@@ -3025,7 +3108,7 @@ export default function App() {
               </button>
             ))}
           </div>
-          {canUse(tab)?<Active ftb={access.includes("ftb")} paid={access.length>0} tier={access.includes("fee")?"pro":access.includes("ftb")?"ftb":access.includes("guide")&&access.length===1?"guide":"single"} onBuy={()=>buy(PLANS[2])} />:<div className="upbox"><div style={{fontSize:32,marginBottom:8}}>📄</div><h3>Pro Feature</h3><p style={{marginBottom:8}}><strong style={{color:"var(--y)"}}>Snap your dealer quote. Get your counter in seconds.</strong></p><p>Unlock the Quote Scanner, {TABS.find(t=>t.id===tab)?.label}, and all 6 tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button></div>}
+          {(tab==="guide"||canUse(tab))?<Active ftb={access.includes("ftb")} paid={access.length>0} tier={access.includes("fee")?"pro":access.includes("ftb")?"ftb":access.includes("guide")&&access.length===1?"guide":"single"} onBuy={()=>buy(PLANS[2])} buy={buy} />:<div className="upbox"><div style={{fontSize:32,marginBottom:8}}>📄</div><h3>Pro Feature</h3><p style={{marginBottom:8}}><strong style={{color:"var(--y)"}}>Snap your dealer quote. Get your counter in seconds.</strong></p><p>Unlock the Quote Scanner, {TABS.find(t=>t.id===tab)?.label}, and all 6 tools with Pro access.</p><button className="hbtn-y" style={{padding:"12px 32px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button></div>}
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
