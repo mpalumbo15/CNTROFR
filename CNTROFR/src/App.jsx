@@ -402,6 +402,7 @@ const GLOSSARY = {
   "CPO": "Certified Pre-Owned — a used vehicle that has passed a manufacturer inspection and includes an extended warranty. Programs vary widely by brand.",
   "APR": "Annual Percentage Rate — the true yearly cost of your loan, including interest and fees. Lower is better.",
   "MF": "Money Factor — the interest rate on a lease, expressed as a tiny decimal. Multiply by 2,400 to get the APR equivalent.",
+  "FICO Auto Score": "The specific credit score most auto lenders actually pull -- different from the score you see on Credit Karma (which shows a VantageScore instead). The two can differ by 20-40+ points, sometimes more. Don't assume the tier a dealer quotes you matches what you saw on a free app.",
   "Term": "Loan Term — the length of your loan in months (36, 48, 60, 72, 84). Longer terms mean lower monthly payments but more total interest paid over the life of the loan.",
   "GAP": "Guaranteed Asset Protection — covers the difference between what you owe on the loan and what insurance pays out if the car is totaled or stolen.",
   "OTD": "Out The Door price — the total amount you actually pay including vehicle price, taxes, fees, and any add-ons. Always negotiate OTD.",
@@ -1240,7 +1241,8 @@ Return this exact JSON structure:
   "buyout_note": "${isBuyout?`One sentence about buyout financing options for ${make||"this manufacturer"}`:"null"}",
   "condition": "${condition}",
   "as_of": "current month and year",
-  "disclaimer": "Rates based on current national averages. Verify directly with your lender. Subject to change."
+  "disclaimer": "Rates based on current national averages. Verify directly with your lender. Subject to change.",
+  "credit_score_note": "The score you see on Credit Karma or similar free apps is usually a VantageScore, not the FICO Auto Score most auto lenders actually pull. These can differ by 20-40+ points, sometimes more -- know your real tier before you trust one a dealer quotes you."
 }`;
 
       const rateBody = {
@@ -1698,6 +1700,9 @@ Return this exact JSON structure:
               <div style={{marginTop:8,fontSize:10,color:"var(--muted)",fontWeight:700,lineHeight:1.6}}>
                 ⚠ {finRate.disclaimer || "Rates based on current national averages. Verify directly with your lender. Subject to change."} {finRate.as_of ? `Data as of ${finRate.as_of}.` : ""} CNTROFR does not provide financial advice.
               </div>
+              <div style={{marginTop:6,fontSize:10,color:"var(--muted)",fontWeight:700,lineHeight:1.6}}>
+                💳 {finRate.credit_score_note || "The score you see on Credit Karma or similar free apps is usually a VantageScore, not the FICO Auto Score most auto lenders actually pull. These can differ by 20-40+ points, sometimes more -- know your real tier before you trust one a dealer quotes you."}
+              </div>
             </div>
           )}
 
@@ -2040,7 +2045,7 @@ function FIDecoder({ tier = "single" }) {
     const list = priced.map(p=>`- ${p.name}: $${prices[p.id]||"unknown"}`).join("\n");
     const unpricedList = unpriced.map(p=>`- ${p.name}`).join("\n");
     const t = await ai(`Finance office product analyst. You are writing for a regular car buyer sitting across from a finance manager for the first time. Use plain, direct language. Never use industry terms without explaining them in the same sentence. Be direct and specific.
-Key facts: Finance managers are measured on how many products they sell per deal -- they will discount or bundle products to get a yes. If a finance manager tries to change your interest rate based on which products you buy, that is illegal unless your lender specifically requires it. Feeling pressured to decide immediately is a tactic, not a real deadline. The Magnuson-Moss Warranty Act protects buyers -- a manufacturer or dealership must prove a repair is not covered before denying a claim. If they cannot prove it, they must honor it. Know this law exists.
+Key facts: Finance managers are measured on how many products they sell per deal -- they will discount or bundle products to get a yes. If a finance manager tries to change your interest rate based on which products you buy, that is illegal unless your lender specifically requires it. Feeling pressured to decide immediately is a tactic, not a real deadline. The Magnuson-Moss Warranty Act protects buyers -- a manufacturer or dealership must prove a repair is not covered before denying a claim. If they cannot prove it, they must honor it. Know this law exists. If the buyer references a credit score they saw on Credit Karma or a similar free app, note that this is almost always a VantageScore, not the FICO Auto Score most auto lenders actually pull -- these can differ by 20-40+ points, sometimes 50+ if there's a paid collection (VantageScore ignores those, FICO does not) or a thin file. This matters directly for evaluating whether a quoted rate or "tier" is legitimate.
 2026 INTELLIGENCE UPDATE: F&I is now the single most important profit center as front-end vehicle margins shrink -- finance managers face more pressure to sell products than ever this summer. Daily cost framing is standard training -- every product will be presented as pennies per day. Always convert to total contract cost and call it out by name. Product bundling at a "discounted" rate is a tactic to get multiple yeses at once -- evaluate every product individually, never as a bundle. GAP insurance from your auto insurance company costs $3-5 per month versus $600-900 upfront at the dealer -- always mention this as your alternative. Extended warranties are service contracts, not manufacturer warranties -- third-party administrators control claims and may restrict which repair shops can be used and require pre-approval before any work begins. Pre-existing condition exclusions are the most common claim denial reason -- if a mechanical issue existed before purchase the contract will not cover it. Payment protection products (job loss, disability) are being pushed hard in 2026 due to economic anxiety -- exclusions are extensive and claims approval rates are low. Evaluate actual policy terms before considering. Finance managers will discount everything if pushed -- "I want to see that in writing" and "I need to think about it" always work.
 Vehicle: ${veh||"not specified"}${warrantyBrand?"\nWarranty provider: "+warrantyBrand:""}${drivingHabits?"\nHow they drive: "+drivingHabits:""}${ownershipLength?"\nHow long they plan to own it: "+ownershipLength:""}
 ${priced.length?`Products with a quoted price -- analyze whether the price is fair:\n${list}`:""}
@@ -2772,6 +2777,7 @@ const PATH_TO_VIEW = {
   "/blog/fi-products-decoded": "blog_fi",
   "/blog/how-to-negotiate-car-add-ons": "blog_addons",
   "/blog/car-shopper-vs-car-buyer": "blog_shopper",
+  "/blog/fico-score-vs-credit-karma": "blog_credit_score",
 };
 const VIEW_TO_PATH = {
   home: "/",
@@ -2787,6 +2793,7 @@ const VIEW_TO_PATH = {
   blog_fi: "/blog/fi-products-decoded",
   blog_addons: "/blog/how-to-negotiate-car-add-ons",
   blog_shopper: "/blog/car-shopper-vs-car-buyer",
+  blog_credit_score: "/blog/fico-score-vs-credit-karma",
   admin: "/", // admin stays hidden, never reflected in URL
 };
 const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review-purity", fi:"fi-decoder", addons:"add-on-fighter", guide:"counter-guide" };
@@ -2802,6 +2809,7 @@ const PAGE_META = {
   blog_fi: { title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay | CNTROFR", desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's genuinely worth to you, and how to negotiate it fairly if you want it." },
   blog_addons: { title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want) | CNTROFR", desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to remove them." },
   blog_shopper: { title:"Car Shopper vs. Car Buyer — Which One Are You? | CNTROFR", desc:"The most expensive car mistake isn't overpaying. It's overpaying for the wrong car. Know your driving habits, match your vehicle to your life, and walk in ready to buy — not browse." },
+  blog_credit_score: { title:"FICO Auto Score vs. Credit Karma — Why Your Score Isn't What the Dealer Sees | CNTROFR", desc:"Credit Karma shows a VantageScore. Most auto lenders pull a FICO Auto Score instead. The gap can be 20-40+ points -- here's why, and how to know your real number before you sit down to negotiate." },
   contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
   privacy: { title:"Privacy Policy -- CNTROFR", desc:"CNTROFR's privacy policy. We never sell your data or refer you to dealers." },
   tos: { title:"Terms of Use -- CNTROFR", desc:"Terms of use for CNTROFR's car deal analysis tools." },
@@ -3242,6 +3250,7 @@ export default function App() {
             <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.7,marginBottom:40}}>Written by a certified automotive insider with 15 years of dealership sales and F&I experience. No dealer affiliations. No ads. Just the playbook.</p>
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
               {[
+                {view:"blog_credit_score",title:"FICO Auto Score vs. Credit Karma — Why Your Score Isn't What the Dealer Sees",desc:"Credit Karma shows a VantageScore. Most auto lenders pull a FICO Auto Score instead. The gap can be 20-40+ points -- here's why, and how to know your real number before you sit down to negotiate.",tag:"Financing",date:"July 2026",time:"6 min read"},
                 {view:"blog_doc_fees",title:"What Is a Dealer Doc Fee — And Is Yours Too High?",desc:"Doc fees vary wildly by state. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price.",tag:"Fees",date:"June 2026",time:"5 min read"},
                 {view:"blog_fi",title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay",desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's genuinely worth to you, and how to negotiate it fairly if you want it.",tag:"F&I",date:"June 2026",time:"7 min read"},
                 {view:"blog_addons",title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want)",desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to fight back.",tag:"Add-Ons",date:"June 2026",time:"6 min read"},
@@ -3384,6 +3393,65 @@ export default function App() {
               <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🔓 Decode Your Specific F&I Products</div>
               <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>CNTROFR's F&I Decoder gives you dealer cost, real value, and word-for-word exit scripts for every product in your deal — before you sit down in the finance office.</p>
               <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{buy(PLANS[2])}}>Unlock F&I Decoder — $49</button>
+            </div>
+          </div>
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Blog Post: FICO Auto Score vs Credit Karma ──────────────────── */}
+      {view==="blog_credit_score"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("blog");window.scrollTo(0,0)}}>← All Guides</button>
+          </div>
+          <div style={{maxWidth:760,margin:"0 auto",padding:"48px 24px"}}>
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:16}}>
+              <span style={{background:"rgba(255,214,0,.12)",color:"var(--y)",fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,letterSpacing:.5}}>FINANCING</span>
+              <span style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>July 2026 · 6 min read · By a Certified Automotive Insider</span>
+            </div>
+            <h1 style={{fontSize:30,fontWeight:900,color:"var(--text)",marginBottom:16,lineHeight:1.2}}>FICO Auto Score vs. Credit Karma — Why Your Score Isn't What the Dealer Sees</h1>
+            <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Earlier this year, a video went viral of a car shopper confidently quoting her Credit Karma score to a salesman — who then pulled her actual credit and got a different number. It made the rounds because it's relatable, not because it's rare. This happens to buyers constantly. It's just usually not on camera.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>You Have More Than One Credit Score</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>This isn't a glitch or an error on anyone's part. Both scores pull from the same underlying credit report data — but they run it through completely different formulas, built by two different companies, that weigh things differently. You don't have one credit score. You have dozens, and which one shows up depends entirely on who's asking.</p>
+
+            {[
+              {name:"Credit Karma (and most free apps)",cost:"VantageScore 3.0",retail:"Equifax + TransUnion",verdict:"GOOD FOR TRACKING TRENDS",color:"var(--y)",note:"Free, updates frequently, and fine for watching your score move up or down over time. But it's not the model most auto lenders actually use to price your loan."},
+              {name:"What Most Auto Lenders Pull",cost:"FICO Auto Score 8 or 9",retail:"Varies by lender & bureau",verdict:"WHAT ACTUALLY SETS YOUR RATE",color:"var(--green)",note:"A specialized FICO version that weighs your auto loan payment history heavily. This is the number the finance office is looking at, not your Credit Karma app."},
+            ].map((p,i)=>(
+              <div key={i} style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:12,padding:"16px 20px",marginBottom:12}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8,marginBottom:8}}>
+                  <div style={{fontSize:15,fontWeight:900,color:"var(--text)"}}>{p.name}</div>
+                  <span style={{fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,background:`${p.color}22`,color:p.color,letterSpacing:.5,whiteSpace:"nowrap"}}>{p.verdict}</span>
+                </div>
+                <div style={{display:"flex",gap:16,marginBottom:10,flexWrap:"wrap"}}>
+                  <div style={{fontSize:11,fontWeight:900,color:"var(--muted)"}}>Model: <span style={{color:"var(--green)"}}>{p.cost}</span></div>
+                  <div style={{fontSize:11,fontWeight:900,color:"var(--muted)"}}>Source: <span style={{color:"var(--text2)"}}>{p.retail}</span></div>
+                </div>
+                <p style={{fontSize:12,color:"var(--text2)",fontWeight:700,lineHeight:1.65,margin:0}}>{p.note}</p>
+              </div>
+            ))}
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Why the Gap Can Be 20, 40, Even 50+ Points</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>For most people, the difference between a VantageScore and a FICO Auto Score lands somewhere between 20 and 40 points. It can go higher than that. If you've paid off a collection account, VantageScore treats it as if it's gone — FICO still counts it, just with less weight over time. If you have a thin credit file, VantageScore can generate a score with as little as one month of history; FICO generally needs six. Same person, same credit history, genuinely different numbers — and both are "correct" for what they're measuring.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>What This Means When You're Sitting Across From the Finance Manager</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>If you don't know your real FICO Auto Score, you have no independent way to check whether the "tier" you're being quoted is accurate. A finance manager telling you that you don't qualify for the advertised rate is sometimes true — and sometimes a markup dressed up as a credit decision. Without your own number to compare against, you're just trusting their word.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Before you go in: many banks and credit card issuers now show a real FICO score for free directly in their app — check what you already have access to before paying for one. And it's fair game to ask the finance office directly which score and which bureau they pulled. You're not being difficult. You're asking a math question about your own file.</p>
+
+            <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:14,padding:"20px 24px",marginTop:32,marginBottom:16}}>
+              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🔍 Check If Your Quoted Rate Is Fair</div>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>CNTROFR's free Deal Analyzer includes live financing rate intelligence and an APR/term calculator — plug in what you were quoted and see it stacked against real current-market rates before you decide if it's actually a good deal.</p>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{setView("tools");setTab("deal");window.scrollTo(0,0)}}>Try the Free Deal Analyzer</button>
             </div>
           </div>
           <div className="footer">
