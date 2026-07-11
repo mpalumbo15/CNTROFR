@@ -44,6 +44,81 @@ async function getDigest() {
   return textBlocks.join("\n\n") || "No digest content returned.";
 }
 
+// ── News ticker candidates ────────────────────────────────────────────────
+// Finds recent, independently-sourced headlines relevant to car buyers, with
+// verified publish dates -- proposed as "pending" for Mike to review and
+// approve directly in Supabase before they ever show up on the public ticker.
+// Deliberately strict on dates: better to return fewer items than to include
+// anything with an unverifiable or stale publish date.
+async function getTickerCandidates() {
+  const prompt = `You are finding current, credible news for a car-buyer advocacy platform's public news ticker.
+
+Find 5-8 recent news items relevant to car buyers: FTC/CFPB enforcement actions against dealers or lenders, dealer tactic exposes, notable shifts in used/new car prices or inventory, manufacturer incentive news, or consumer-protection wins.
+
+CRITICAL RULES ON SOURCING AND DATES:
+- Only include independent journalism, consumer advocacy organizations, or official government sources (FTC.gov, CFPB.gov, etc). Do NOT include dealer-funded, manufacturer-funded, or trade-association sources.
+- Only include an item if you can confidently verify its actual publish date from the search result, AND that date is within the last 21 days.
+- If you cannot verify a real publish date, or it's older than 21 days, leave it out entirely. Returning 3 solid items is better than 8 with shaky dates.
+
+Return ONLY a JSON array, no markdown, no preamble, no explanation:
+[{ "headline": "...", "source": "Publication Name", "url": "https://...", "published_date": "YYYY-MM-DD" }]`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1500,
+        messages: [{ role: "user", content: prompt }],
+        tools: [{ type: "web_search_20250305", name: "web_search" }],
+      }),
+    });
+    const data = await r.json();
+    const textBlocks = (data.content || []).filter(b => b.type === "text").map(b => b.text);
+    const combined = textBlocks.join("\n");
+    const jsonMatch = combined.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) return [];
+    const items = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(items)) return [];
+    return items.filter(it => it.headline && it.source && it.published_date);
+  } catch (e) {
+    return [];
+  }
+}
+
+async function saveTickerCandidates(items) {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_ANON_KEY;
+  if (!url || !key || !items.length) return 0;
+  try {
+    const rows = items.map(it => ({
+      headline: it.headline,
+      source: it.source,
+      url: it.url || null,
+      published_date: it.published_date,
+      status: "pending",
+    }));
+    await fetch(`${url}/rest/v1/news_ticker`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify(rows),
+    });
+    return rows.length;
+  } catch (e) {
+    return 0;
+  }
+}
+
 async function getToolRunStats() {
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.VITE_SUPABASE_ANON_KEY;
@@ -117,11 +192,17 @@ function markdownToHtml(md) {
   return `<p style="font-size:13px;color:#A8A4C8;line-height:1.8;font-family:Arial,sans-serif;margin:8px 0;">${html}</p>`;
 }
 
-async function sendDigestEmail(digestMd, statsMd, tacticMd) {
+async function sendDigestEmail(digestMd, statsMd, tacticMd, tickerCount = 0) {
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) return;
 
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const tickerReminderHtml = tickerCount > 0
+    ? `<div style="background:rgba(255,214,0,.08);border:1px solid rgba(255,214,0,.3);border-radius:10px;padding:14px 16px;margin-bottom:24px;">
+         <div style="font-size:12px;font-weight:900;color:#FFD600;margin-bottom:4px;">📰 ${tickerCount} new ticker headline${tickerCount === 1 ? "" : "s"} awaiting review</div>
+         <div style="font-size:12px;color:#A8A4C8;font-weight:700;">Sitting as "pending" in the news_ticker table in Supabase. Nothing goes live on the site until you flip them to "approved."</div>
+       </div>`
+    : "";
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -138,6 +219,7 @@ async function sendDigestEmail(digestMd, statsMd, tacticMd) {
       </td></tr>
 
       <tr><td style="background:#16161E;border:2px solid #28283A;border-radius:16px;padding:28px 24px;">
+        ${tickerReminderHtml}
         <div style="font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#FFD600;margin-bottom:16px;">Platform Activity -- Last 7 Days</div>
         <div style="font-size:13px;color:#A8A4C8;line-height:1.8;margin-bottom:24px;">${statsMd.replace(/\n/g, "<br/>").replace(/\*\*(.*?)\*\*/g, "<strong style='color:#EEEAF8;'>$1</strong>")}</div>
 
@@ -162,7 +244,7 @@ async function sendDigestEmail(digestMd, statsMd, tacticMd) {
 </body>
 </html>`;
 
-  const text = `CNTROFR Weekly Intelligence Digest -- ${today}\n\nPlatform Activity (7 days):\n${statsMd}\n\nTop Tactics This Week:\n${tacticMd}\n\nMarket Intelligence:\n${digestMd}`;
+  const text = `CNTROFR Weekly Intelligence Digest -- ${today}\n\n${tickerCount > 0 ? `${tickerCount} new ticker headline(s) awaiting review in Supabase (news_ticker table, status=pending).\n\n` : ""}Platform Activity (7 days):\n${statsMd}\n\nTop Tactics This Week:\n${tacticMd}\n\nMarket Intelligence:\n${digestMd}`;
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -189,10 +271,11 @@ export default async function handler(req) {
   }
 
   try {
-    const [digest, stats, tacticStats] = await Promise.all([getDigest(), getToolRunStats(), getTacticStats()]);
+    const [digest, stats, tacticStats, tickerCandidates] = await Promise.all([getDigest(), getToolRunStats(), getTacticStats(), getTickerCandidates()]);
     const statsMd = statsToMarkdown(stats);
     const tacticMd = tacticStatsToMarkdown(tacticStats);
-    await sendDigestEmail(digest, statsMd, tacticMd);
+    const savedCount = await saveTickerCandidates(tickerCandidates);
+    await sendDigestEmail(digest, statsMd, tacticMd, savedCount);
     return new Response("OK", { status: 200 });
   } catch (e) {
     return new Response(`Error: ${e.message}`, { status: 500 });
