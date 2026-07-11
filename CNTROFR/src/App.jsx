@@ -392,6 +392,17 @@ const S = `
   .hero-plate-gleam { position: absolute; inset: 0; overflow: hidden; pointer-events: none; -webkit-mask-image: url(/cntrofrplate.svg); -webkit-mask-size: contain; -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; mask-image: url(/cntrofrplate.svg); mask-size: contain; mask-position: center; mask-repeat: no-repeat; }
   .hero-plate-gleam::before { content: ""; position: absolute; top: -10%; left: -60%; width: 45%; height: 120%; background: linear-gradient(115deg, transparent 15%, rgba(255,255,255,.55) 50%, transparent 85%); mix-blend-mode: overlay; animation: plateGleam 5s ease-in-out infinite; }
   @keyframes plateGleam { 0% { left: -60%; } 45% { left: 130%; } 100% { left: 130%; } }
+
+  /* == NEWS TICKER == */
+  .news-ticker { display: flex; align-items: center; gap: 12px; background: var(--bg3); border-bottom: 1px solid var(--b1); padding: 7px 20px; overflow: hidden; }
+  .news-ticker-badge { font-family: 'Bebas Neue'; font-size: 10px; letter-spacing: 2px; color: var(--y); flex-shrink: 0; }
+  .news-ticker-item { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; text-decoration: none; animation: tickerFade .5s ease; overflow: hidden; }
+  .news-ticker-source { font-size: 11px; font-weight: 900; color: var(--muted); flex-shrink: 0; }
+  .news-ticker-headline { font-size: 12px; font-weight: 700; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .news-ticker-date { font-size: 10px; font-weight: 700; color: var(--muted); flex-shrink: 0; margin-left: auto; padding-left: 10px; }
+  @keyframes tickerFade { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .news-ticker-item { animation: none; } }
+  @media (max-width: 600px) { .news-ticker-date { display: none; } }
 `;
 
 
@@ -718,6 +729,62 @@ function CookieBanner() {
     <div className="cookie-banner">
       <div className="cookie-text"><strong>This website doesn't want your cookies.</strong> You're welcome. No tracking, no ad networks, no behavioral data. Just the tools you came for.</div>
       <button className="cookie-dismiss" onClick={()=>{ try { sessionStorage.setItem("cookie_dismissed","1"); } catch {} setShow(false); }}>Got It ✓</button>
+    </div>
+  );
+}
+
+// ── News Ticker -- reads Mikey-approved headlines from Supabase, rotates one at a time ──
+function NewsTicker() {
+  const [items, setItems] = useState([]);
+  const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    let mq;
+    try {
+      mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+      setReducedMotion(mq.matches);
+      const handler = () => setReducedMotion(mq.matches);
+      if (mq.addEventListener) mq.addEventListener("change", handler);
+      else mq.addListener(handler);
+      return () => { if (mq.removeEventListener) mq.removeEventListener("change", handler); else mq.removeListener(handler); };
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/news_ticker?select=headline,source,url,published_date&status=eq.approved&order=published_date.desc&limit=8`, {
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        });
+        const data = await r.json();
+        if (Array.isArray(data) && data.length) setItems(data);
+      } catch {}
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (paused || reducedMotion || items.length < 2) return;
+    const t = setInterval(() => setIdx(i => (i + 1) % items.length), 5500);
+    return () => clearInterval(t);
+  }, [paused, reducedMotion, items.length]);
+
+  if (!items.length) return null;
+  const cur = items[idx];
+  const dateLabel = cur.published_date
+    ? new Date(cur.published_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    : "";
+
+  return (
+    <div className="news-ticker" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <span className="news-ticker-badge">NEWS</span>
+      <a key={idx} href={cur.url} target="_blank" rel="noopener noreferrer" className="news-ticker-item">
+        <span className="news-ticker-source">{cur.source}</span>
+        <span className="news-ticker-headline">{cur.headline}</span>
+        {dateLabel && <span className="news-ticker-date">{dateLabel}</span>}
+      </a>
     </div>
   );
 }
@@ -1204,8 +1271,10 @@ The dealer has stated this is their best price or the buyer is about to enter th
       const mkt = await ai(`Car market pricing analyst. You are writing for a regular car buyer who wants to know if the price they are being quoted is fair compared to what other dealers are charging. Use plain language. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
 Search for current ${condition==="new"||condition==="custom"?"new":condition==="cpo"?"certified pre-owned":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip code ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", with similar mileage to "+f.mileage : ""}.
 
+IMPORTANT ON DATES: For each listing, note when it was actually posted or last updated if that information is available in the search results. A listing that's been sitting for months carries less weight as "current market pricing" than one posted recently -- if a listing's age can't be determined, or it looks stale, say so plainly rather than presenting it with the same confidence as a fresh one.
+
 ## MARKET VERDICT -- Is $${f.offer} above, at, or below what other dealers are charging for the same vehicle right now? State it plainly.
-## COMPARABLE LISTINGS -- List each comparable vehicle found: dealer name, city, price, and mileage. Plain and readable.
+## COMPARABLE LISTINGS -- List each comparable vehicle found: dealer name, city, price, mileage, and how recent the listing appears to be (or note if that can't be determined). Plain and readable.
 ## HOW TO USE THIS -- The exact words the buyer can say at the dealership to use these comparisons as negotiating leverage.
 ## BOTTOM LINE -- What should this buyer realistically expect to pay based on current market data?`, true);
       setM(mkt);
@@ -1226,9 +1295,11 @@ Vehicle context: ${vehicle || "unknown"}, ${condition} condition, asking price $
 ${f.offer && parseFloat(f.offer) > 100000 ? "IMPORTANT: This is a high-value specialty/luxury/exotic vehicle. Lenders treat these differently — rates are typically 1-3% higher than standard used vehicles, some lenders cap loan amounts or require larger down payments, and specialty lenders (JM Associates, Woodside Credit, USAA, PenFed) may offer better terms than traditional banks for collector/performance vehicles." : ""}
 
 Search for:
-1. Current average auto loan APRs by credit tier specifically for ${isNew?"new":isCPO?"certified pre-owned":"used"} vehicles priced ${f.offer && parseFloat(f.offer) > 100000 ? "above $100,000 (high-value/luxury/exotic)" : "in the standard market"} (June 2026)
+1. Current average auto loan APRs by credit tier specifically for ${isNew?"new":isCPO?"certified pre-owned":"used"} vehicles priced ${f.offer && parseFloat(f.offer) > 100000 ? "above $100,000 (high-value/luxury/exotic)" : "in the standard market"} -- prioritize sources updated within the last 30 days
 2. ${isNew&&make?`Current ${make} manufacturer financing incentives and special APR programs for ${vehicle}`:""}
 3. ${isBuyout&&make?`${make} lease buyout financing policy -- does ${make} require buyout through their captive lender or allow outside financing?`:""}
+
+IMPORTANT ON DATES: Don't just report today's date as "as_of" -- report when the RATE DATA ITSELF was actually last updated, based on what your search results show (e.g. a Bankrate or NerdWallet rate table's own "last updated" date). If you cannot find rate data from the last 30-45 days, say so explicitly in the disclaimer rather than presenting older data as if it's current.
 
 Return this exact JSON structure:
 {
@@ -1240,7 +1311,7 @@ Return this exact JSON structure:
   "buyout_restriction": "${isBuyout&&make?`true if ${make} requires captive lender only, false if outside financing allowed, null if unknown`:"null"}",
   "buyout_note": "${isBuyout?`One sentence about buyout financing options for ${make||"this manufacturer"}`:"null"}",
   "condition": "${condition}",
-  "as_of": "current month and year",
+  "as_of": "the actual date the underlying rate data was last updated, based on your search results -- not today's date",
   "disclaimer": "Rates based on current national averages. Verify directly with your lender. Subject to change.",
   "credit_score_note": "The score you see on Credit Karma or similar free apps is usually a VantageScore, not the FICO Auto Score most auto lenders actually pull. These can differ by 20-40+ points, sometimes more -- know your real tier before you trust one a dealer quotes you."
 }`;
@@ -2881,6 +2952,7 @@ export default function App() {
     <>
       <style>{S}</style>
       <CookieBanner />
+      <NewsTicker />
       <div className="hdr">
         <button className={`burger ${menuOpen?"open":""}`} onClick={()=>setMenuOpen(m=>!m)} aria-label="Menu">
           <span/><span/><span/>
