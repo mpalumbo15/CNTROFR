@@ -356,11 +356,16 @@ const S = `
   /* == TRAFFIC LIGHT VERDICTS == */
   .verdict-hero { padding: 28px 24px; text-align: center; border-bottom: 1px solid var(--b1); }
   .verdict-label { font-size: 10px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-  .verdict-badge-lg { font-family: 'Bebas Neue'; font-size: clamp(48px, 10vw, 72px); letter-spacing: 4px; line-height: 1; margin-bottom: 16px; }
-  .verdict-badge-lg.vg { color: var(--green); text-shadow: 0 0 40px rgba(0,201,107,.4); }
-  .verdict-badge-lg.vy { color: var(--y); text-shadow: 0 0 40px rgba(255,214,0,.4); }
-  .verdict-badge-lg.vr { color: var(--red); text-shadow: 0 0 40px rgba(255,68,68,.4); }
+  .verdict-badge-lg { font-family: 'Bebas Neue'; font-weight: 900; font-size: clamp(48px, 10vw, 72px); letter-spacing: 4px; line-height: 1; margin-bottom: 16px; }
+  .verdict-badge-lg.vg { color: var(--green); text-shadow: 0 0 30px rgba(0,201,107,.65), 0 0 60px rgba(0,201,107,.35); }
+  .verdict-badge-lg.vy { color: var(--y); text-shadow: 0 0 30px rgba(255,214,0,.75), 0 0 60px rgba(255,214,0,.4); }
+  .verdict-badge-lg.vr { color: var(--red); animation: walkPulse 1.6s ease-in-out infinite; }
   .verdict-badge-lg.vx { color: var(--muted); }
+  @keyframes walkPulse {
+    0%, 100% { text-shadow: 0 0 25px rgba(255,68,68,.45), 0 0 50px rgba(255,68,68,.2); }
+    50% { text-shadow: 0 0 45px rgba(255,68,68,.9), 0 0 80px rgba(255,68,68,.5); }
+  }
+  @media (prefers-reduced-motion: reduce) { .verdict-badge-lg.vr { animation: none; text-shadow: 0 0 40px rgba(255,68,68,.5); } }
   .verdict-new-btn { background: none; border: 2px solid var(--b2); color: var(--muted); padding: 8px 20px; font-family: Nunito; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 8px; transition: all .2s; }
   .verdict-new-btn:hover { border-color: var(--y); color: var(--y); }
 
@@ -693,7 +698,7 @@ function MD({ text }) {
 
 function Res({ verdict, vc, text, onReset }) {
   const [copied, setCopied] = useState(false);
-  const displayVerdict = verdict === "GO" ? "🟢 GREEN LIGHT" : verdict === "WALK AWAY" ? "🔴 WALK AWAY" : verdict === "NEGOTIATE" ? "🟡 NEGOTIATE" : verdict === "ANALYZING" ? "Analyzing..." : verdict;
+  const displayVerdict = verdict === "GO" ? "GTG" : verdict === "WALK AWAY" ? "WALK AWAY" : verdict === "NEGOTIATE" ? "NEGOTIATE" : verdict === "ANALYZING" ? "Analyzing..." : verdict;
   const copyResults = () => { navigator.clipboard.writeText(text||"").then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2000); }); };
   const savePDF = () => {
     const w = window.open("","_blank");
@@ -3079,11 +3084,11 @@ export default function App() {
               {lang==="es"?<>Creamos CNTROFR porque <strong>la casa siempre gana -- hasta ahora.</strong> Sin comisiones de concesionarios. Sin relaciones publicitarias. Sin trajes manejando los hilos detrás de la cortina. Solo inteligencia cruda y sin filtros sobre tu oferta, entregada antes de que firmes cualquier cosa.<br/><br/>
               El concesionario tiene abogados, capacitadores y <strong>diez mil ofertas de experiencia</strong> trabajando en tu contra todos los días. Sus gerentes de F&I van a la escuela para aprender a extraer la máxima ganancia de cada comprador que se sienta frente a ese escritorio -- incluyéndote a ti.<br/><br/>
               Estudiamos los mismos manuales. Conocemos los guiones. <strong>Ahora tú también.</strong><br/><br/>
-              Y algo más que vale la pena decir: <strong>un trato justo es bueno para todos.</strong> Tu vendedor está trabajando horas largas y días festivos para alimentar a su familia -- merece tu respeto y tu negocio si te trata bien. La codicia vive en la cima. CNTROFR apunta a eso, no a la gente en el piso de ventas.<br/><br/>
+              Esto es lo que nos distingue: <strong>CNTROFR funciona con datos en vivo, no con un guion estático.</strong> Tasas de financiamiento en tiempo real según tu nivel de crédito, anuncios comparables actuales obtenidos en el momento en que buscas, y tácticas de concesionarios rastreadas mientras están ocurriendo ahora mismo -- no una guía escrita una vez y dejada a que se vuelva obsoleta. El mercado se mueve. Nosotros también.<br/><br/>
               No firmes. Contraataca.</>:<>We built CNTROFR because <strong>the house always wins -- until now.</strong> No dealer kickbacks. No advertiser relationships. No suits pulling strings behind the curtain. Just raw, unfiltered intelligence about your deal, handed to you before you sign your name to anything.<br/><br/>
               The dealership has lawyers, trainers, and <strong>ten thousand deals worth of experience</strong> working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk -- including you.<br/><br/>
               We studied the same playbooks. We know the scripts. <strong>Now you do too.</strong><br/><br/>
-              And here's something else worth saying: <strong>a fair deal is good for everyone.</strong> Your salesperson is working long hours and holidays to feed their family -- they deserve your respect and your business if they treat you right. The greed lives at the top. CNTROFR targets that, not the people on the floor.<br/><br/>
+              Here's what sets this apart: <strong>CNTROFR runs on live data, not a static script.</strong> Real-time financing rates by credit tier, current comparable listings pulled the moment you search, and dealer tactics tracked as they're actually happening out there right now -- not a guide written once and left to go stale. The market moves. So do we.<br/><br/>
               Don't sign. Counter.</>}
             </p>
             <div className="mission-sig">{lang==="es"?"-- El Equipo CNTROFR - Hecho Para Compradores - Sin Financiamiento de Nadie":"-- The CNTROFR Team - Built For Buyers - Funded By None"}</div>
