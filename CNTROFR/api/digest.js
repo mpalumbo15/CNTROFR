@@ -1,4 +1,7 @@
-export const config = { runtime: "edge" };
+// Node.js runtime (not Edge) -- this cron does two parallel web-search AI
+// calls plus Supabase writes, which routinely exceeds Edge Runtime's hard
+// 25-second response-start limit. Node.js runtime respects the maxDuration
+// (60s) configured for this file in vercel.json; Edge Runtime does not.
 
 const DIGEST_PROMPT = `You are a market intelligence analyst for CNTROFR, a car-buyer advocacy platform. Generate this week's intelligence digest for the CNTROFR team (Mike, founder -- former automotive sales and F&I, now building tools to help buyers counter dealer tactics).
 
