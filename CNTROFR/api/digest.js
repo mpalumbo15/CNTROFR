@@ -29,19 +29,28 @@ async function getDigest() {
     tools: [{ type: "web_search_20250305", name: "web_search" }],
   };
 
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": process.env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify(body),
-  });
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify(body),
+    });
 
-  const data = await r.json();
-  const textBlocks = (data.content || []).filter(b => b.type === "text").map(b => b.text);
-  return textBlocks.join("\n\n") || "No digest content returned.";
+    const data = await r.json();
+    if (!r.ok || data.error) {
+      console.error("getDigest: Anthropic API error", r.status, data.error);
+      return "_Market intelligence unavailable this week (API error)._";
+    }
+    const textBlocks = (data.content || []).filter(b => b.type === "text").map(b => b.text);
+    return textBlocks.join("\n\n") || "No digest content returned.";
+  } catch (e) {
+    console.error("getDigest threw:", e.message);
+    return "_Market intelligence unavailable this week (request failed)._";
+  }
 }
 
 // ── News ticker candidates ────────────────────────────────────────────────
@@ -79,14 +88,33 @@ Return ONLY a JSON array, no markdown, no preamble, no explanation:
       }),
     });
     const data = await r.json();
+    if (!r.ok || data.error) {
+      console.error("getTickerCandidates: Anthropic API error", r.status, data.error);
+      return [];
+    }
     const textBlocks = (data.content || []).filter(b => b.type === "text").map(b => b.text);
     const combined = textBlocks.join("\n");
     const jsonMatch = combined.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) return [];
-    const items = JSON.parse(jsonMatch[0]);
-    if (!Array.isArray(items)) return [];
-    return items.filter(it => it.headline && it.source && it.published_date);
+    if (!jsonMatch) {
+      console.error("getTickerCandidates: no JSON array found in response:", combined.slice(0, 500));
+      return [];
+    }
+    let items;
+    try {
+      items = JSON.parse(jsonMatch[0]);
+    } catch (parseErr) {
+      console.error("getTickerCandidates: JSON parse failed:", parseErr.message, jsonMatch[0].slice(0, 500));
+      return [];
+    }
+    if (!Array.isArray(items)) {
+      console.error("getTickerCandidates: parsed result is not an array:", items);
+      return [];
+    }
+    const filtered = items.filter(it => it.headline && it.source && it.published_date);
+    console.log(`getTickerCandidates: found ${items.length} raw, ${filtered.length} valid after filtering`);
+    return filtered;
   } catch (e) {
+    console.error("getTickerCandidates threw:", e.message);
     return [];
   }
 }
@@ -103,7 +131,7 @@ async function saveTickerCandidates(items) {
       published_date: it.published_date,
       status: "pending",
     }));
-    await fetch(`${url}/rest/v1/news_ticker`, {
+    const resp = await fetch(`${url}/rest/v1/news_ticker`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -113,8 +141,14 @@ async function saveTickerCandidates(items) {
       },
       body: JSON.stringify(rows),
     });
+    if (!resp.ok) {
+      const errBody = await resp.text().catch(() => "");
+      console.error("news_ticker insert failed:", resp.status, errBody);
+      return 0;
+    }
     return rows.length;
   } catch (e) {
+    console.error("news_ticker insert threw:", e.message);
     return 0;
   }
 }
@@ -271,13 +305,35 @@ export default async function handler(req) {
   }
 
   try {
-    const [digest, stats, tacticStats, tickerCandidates] = await Promise.all([getDigest(), getToolRunStats(), getTacticStats(), getTickerCandidates()]);
+    const results = await Promise.allSettled([getDigest(), getToolRunStats(), getTacticStats(), getTickerCandidates()]);
+    const [digestR, statsR, tacticR, tickerR] = results;
+
+    results.forEach((r, i) => {
+      if (r.status === "rejected") {
+        const names = ["getDigest", "getToolRunStats", "getTacticStats", "getTickerCandidates"];
+        console.error(`${names[i]} rejected:`, r.reason);
+      }
+    });
+
+    const digest = digestR.status === "fulfilled" ? digestR.value : "_Market intelligence unavailable this week._";
+    const stats = statsR.status === "fulfilled" ? statsR.value : null;
+    const tacticStats = tacticR.status === "fulfilled" ? tacticR.value : null;
+    const tickerCandidates = tickerR.status === "fulfilled" ? tickerR.value : [];
+
     const statsMd = statsToMarkdown(stats);
     const tacticMd = tacticStatsToMarkdown(tacticStats);
     const savedCount = await saveTickerCandidates(tickerCandidates);
-    await sendDigestEmail(digest, statsMd, tacticMd, savedCount);
+
+    try {
+      await sendDigestEmail(digest, statsMd, tacticMd, savedCount);
+    } catch (emailErr) {
+      console.error("sendDigestEmail threw:", emailErr.message);
+      return new Response(`Email send failed: ${emailErr.message}`, { status: 500 });
+    }
+
     return new Response("OK", { status: 200 });
   } catch (e) {
+    console.error("digest handler threw:", e.message);
     return new Response(`Error: ${e.message}`, { status: 500 });
   }
 }
