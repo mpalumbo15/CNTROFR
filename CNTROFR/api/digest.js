@@ -299,12 +299,12 @@ async function sendDigestEmail(digestMd, statsMd, tacticMd, tickerCount = 0) {
   });
 }
 
-export default async function handler(req) {
+export default async function handler(req, res) {
   // Optional: protect with a secret so randoms can't trigger it
-  const authHeader = req.headers.get("authorization");
+  const authHeader = req.headers.authorization;
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return new Response("Unauthorized", { status: 401 });
+    return res.status(401).send("Unauthorized");
   }
 
   try {
@@ -331,12 +331,12 @@ export default async function handler(req) {
       await sendDigestEmail(digest, statsMd, tacticMd, savedCount);
     } catch (emailErr) {
       console.error("sendDigestEmail threw:", emailErr.message);
-      return new Response(`Email send failed: ${emailErr.message}`, { status: 500 });
+      return res.status(500).send(`Email send failed: ${emailErr.message}`);
     }
 
-    return new Response("OK", { status: 200 });
+    return res.status(200).send("OK");
   } catch (e) {
     console.error("digest handler threw:", e.message);
-    return new Response(`Error: ${e.message}`, { status: 500 });
+    return res.status(500).send(`Error: ${e.message}`);
   }
 }
