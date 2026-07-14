@@ -399,12 +399,12 @@ const S = `
   @keyframes plateGleam { 0% { left: -60%; } 45% { left: 130%; } 100% { left: 130%; } }
 
   /* == NEWS TICKER == */
-  .news-ticker { display: flex; align-items: center; gap: 12px; background: var(--bg3); border-bottom: 1px solid var(--b1); padding: 7px 20px; overflow: hidden; }
-  .news-ticker-badge { font-family: 'Bebas Neue'; font-size: 10px; letter-spacing: 2px; color: var(--y); flex-shrink: 0; }
-  .news-ticker-item { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; text-decoration: none; animation: tickerFade .5s ease; overflow: hidden; }
-  .news-ticker-source { font-size: 11px; font-weight: 900; color: var(--muted); flex-shrink: 0; }
-  .news-ticker-headline { font-size: 12px; font-weight: 700; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .news-ticker-date { font-size: 10px; font-weight: 700; color: var(--muted); flex-shrink: 0; margin-left: auto; padding-left: 10px; }
+  .news-ticker { display: flex; align-items: center; justify-content: center; gap: 14px; background: var(--bg3); border-bottom: 1px solid var(--b1); padding: 10px 20px; overflow: hidden; }
+  .news-ticker-badge { font-family: 'Bebas Neue'; font-size: 12px; letter-spacing: 2px; color: var(--y); flex-shrink: 0; }
+  .news-ticker-item { display: flex; align-items: center; justify-content: center; gap: 12px; max-width: min(900px, 82vw); min-width: 0; text-decoration: none; animation: tickerFade .5s ease; overflow: hidden; }
+  .news-ticker-source { font-size: 13px; font-weight: 900; color: var(--muted); flex-shrink: 0; }
+  .news-ticker-headline { font-size: 14px; font-weight: 700; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .news-ticker-date { font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; padding-left: 4px; }
   @keyframes tickerFade { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) { .news-ticker-item { animation: none; } }
   @media (max-width: 600px) { .news-ticker-date { display: none; } }
