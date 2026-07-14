@@ -1286,7 +1286,7 @@ IMPORTANT ON DATES: For each listing, note when it was actually posted or last u
 ## BOTTOM LINE -- What should this buyer realistically expect to pay based on current market data?`, true);
       setM(mkt);
     }
-    setL(false); setLM("");
+    setLM("");
     // ── Live Financing Rate Intelligence ──────────────────────────────────
     let liveFinRate = null;
     try {
