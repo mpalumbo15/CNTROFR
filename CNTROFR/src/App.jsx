@@ -90,6 +90,7 @@ const S = `
   .sticky-upgrade-wrap { position: relative; display: inline-block; }
   .sticky-tooltip { display: none; position: absolute; bottom: calc(100% + 10px); right: 0; background: var(--bg2); border: 1px solid var(--y); border-radius: 10px; padding: 12px 14px; width: 220px; font-size: 11px; color: var(--text2); font-weight: 700; line-height: 1.5; white-space: normal; z-index: 600; }
   .sticky-upgrade-wrap:hover .sticky-tooltip { display: block; }
+  .session-warn-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; }
   .session-warn-box { background: var(--bg2); border: 2px solid var(--y); border-radius: 16px; max-width: 480px; width: 100%; padding: 32px 28px; text-align: center; }
   .session-warn-icon { font-size: 36px; margin-bottom: 12px; }
   .session-warn-title { font-family: 'Bebas Neue'; font-size: 26px; letter-spacing: 2px; color: var(--y); margin-bottom: 8px; }
