@@ -1233,8 +1233,9 @@ ${condition!=="custom" && condition!=="buyout" ? `## VEHICLE PRICE -- Is this pr
 ## YOUR COUNTER -- 3-4 word-for-word scripts the buyer can say out loud. Make them specific dollar offers, not questions.
 ## RED FLAGS -- Call out any dealer pressure tactics, illegal practices, unsupported claims, or anything that should only be agreed to in writing.
 ${paid ? `## FINANCING INTELLIGENCE -- Based on current market rates for ${condition==="new"||condition==="custom"?"new":condition==="cpo"?"certified pre-owned":condition==="buyout"?"lease buyout":"used"} vehicles:
-- What credit tier does the dealer's quoted rate of ${f.offer?"(see deal terms)":"[not provided]"} suggest the buyer is being placed in?
-- Is the quoted rate above market average for any credit tier? If so, how much above and what is that costing the buyer monthly and over the loan term?
+${f.apr ? `The buyer was quoted ${f.apr}% APR${f.term?` over ${f.term} months`:""}. Use this exact rate in your analysis below -- never say a rate wasn't provided.` : "The buyer did not provide a quoted rate. Note this plainly and explain why getting a rate quote before signing matters."}
+- What credit tier does a rate of ${f.apr?`${f.apr}%`:"[not provided]"} suggest the buyer is being placed in?
+- Is this rate above market average for any credit tier? If so, how much above, and what is that costing the buyer monthly and over the loan term?
 - What should the buyer say if the dealer tries to change the rate after they've agreed on a price?
 - One sentence recommendation on external pre-approval.` : ""}
 ${ftb ? `## FIRST TIME BUYER GUIDE
@@ -1651,6 +1652,11 @@ Return this exact JSON structure:
           <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,marginTop:10,lineHeight:1.65,padding:"8px 0",borderTop:"1px solid var(--b1)"}}>
             📌 <strong style={{color:"var(--text2)"}}>Optional.</strong> If financing, drop in the rate and term from your quote and we'll run the real math against live rate data -- exact dollars, not vibes. We don't do credit -- this is arithmetic on the numbers you give us, not a credit decision.
           </div>
+          {res && (
+            <div style={{marginTop:10,background:"rgba(255,68,68,.08)",border:"1px solid rgba(255,68,68,.3)",borderRadius:8,padding:"10px 14px",fontSize:11,fontWeight:800,color:"var(--red)",lineHeight:1.5}}>
+              ⚠ Your results below were generated before this rate/term was added. Scroll down and hit "Update My Results" to include it.
+            </div>
+          )}
         </div>
 
       </div>
@@ -1703,7 +1709,7 @@ Return this exact JSON structure:
           <div className="hcaptcha-wrap">
             <div ref={captchaRef} className="h-captcha" data-sitekey={HCAPTCHA_KEY} data-callback="onHcVerify" data-expired-callback="onHcExpire" />
           </div>
-          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)||!hcToken}>{loading ? loadMsg||"Working..." : finalOffer ? "→ Get My Final Counter" : f.zip && paid ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
+          <button className="go-btn" onClick={run} disabled={loading||(!f.vehicle&&!f.offer)||!hcToken}>{loading ? loadMsg||"Working..." : res ? "↺ Update My Results With New Info" : finalOffer ? "→ Get My Final Counter" : f.zip && paid ? "→ Get My Counter + Market Scan" : "→ Get My Counter"}</button>
         </div>
       </div>
       </div>{/* end field lock wrapper */}
@@ -1888,7 +1894,7 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Documentation 
             <div className="fld"><label>State</label><input placeholder="TX" value={f.state} onChange={s("state")} /></div>
             <div className="fld"><label><JargonTip term="Doc Fee" /> $</label><input placeholder="799" value={f.fee} onChange={s("fee")} /></div>
           </div>
-          <button className="go-btn" onClick={run} disabled={loading||!f.state||!f.fee}>{loading?"Researching...":"→ Analyze This Fee"}</button>
+          <button className="go-btn" onClick={run} disabled={loading||!f.state||!f.fee}>{loading?"Researching...":res?"↺ Update My Results With New Info":"→ Analyze This Fee"}</button>
         </div>
       </div>
       </div>
@@ -2212,7 +2218,7 @@ If any product or fee in this list is something you cannot fully evaluate or hav
               )}
             </div>
           ))}</div>
-          <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Decoding...":`→ Decode ${picked.length} Product${picked.length!==1?"s":""}`}</button>
+          <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Decoding...":res?"↺ Update My Results With New Info":`→ Decode ${picked.length} Product${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
       </div>{/* end field lock wrapper */}
@@ -2283,7 +2289,7 @@ If any add-on in this list is something you cannot fully evaluate or have not en
               {sel[a.id]&&<input className="pi" placeholder="$ dealer price" value={prices[a.id]||""} onChange={e=>{e.stopPropagation();setP(pr=>({...pr,[a.id]:e.target.value}))}} onClick={e=>e.stopPropagation()} />}
             </div>
           ))}</div>
-          <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Arming you up...":`→ Fight ${picked.length} Add-On${picked.length!==1?"s":""}`}</button>
+          <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Arming you up...":res?"↺ Update My Results With New Info":`→ Fight ${picked.length} Add-On${picked.length!==1?"s":""}`}</button>
         </div>
       </div>
       </div>{/* end field lock wrapper */}
