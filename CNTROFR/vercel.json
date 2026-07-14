@@ -11,6 +11,9 @@
     },
     "api/tactic-answer.js": {
       "maxDuration": 30
+    },
+    "api/resend-webhook.js": {
+      "maxDuration": 15
     }
   },
   "crons": [
