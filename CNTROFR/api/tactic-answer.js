@@ -1,4 +1,6 @@
-export const config = { runtime: "edge" };
+// Node.js runtime (not Edge -- Edge Functions are deprecated on Vercel).
+// Classic Vercel Node.js handler signature: (req, res). crypto.subtle is a
+// Node.js global (Web Crypto API) so the hashing logic is unchanged.
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -14,9 +16,15 @@ async function sha256Hex(str) {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-export default async function handler(req) {
+function sendJson(res, status, obj) {
+  res.writeHead(status, { ...CORS, "Content-Type": "application/json" });
+  res.end(JSON.stringify(obj));
+}
+
+export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS });
+    res.writeHead(204, CORS);
+    return res.end();
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -24,39 +32,28 @@ export default async function handler(req) {
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
   if (!apiKey || !supabaseUrl || !supabaseKey) {
-    return new Response(
-      JSON.stringify({ error: { message: "Server not configured." } }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 500, { error: { message: "Server not configured." } });
   }
 
-  let body;
+  let body = req.body;
   try {
-    body = await req.json();
+    if (typeof body === "string") body = JSON.parse(body);
+    if (!body || typeof body !== "object") throw new Error("empty body");
   } catch {
-    return new Response(
-      JSON.stringify({ error: { message: "Invalid request." } }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 400, { error: { message: "Invalid request." } });
   }
 
   const { question, tool, gated, lang } = body;
   if (!question || typeof question !== "string" || question.length > 2000) {
-    return new Response(
-      JSON.stringify({ error: { message: "Invalid question." } }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 400, { error: { message: "Invalid question." } });
   }
   if (!["counter_guide", "ftb"].includes(tool)) {
-    return new Response(
-      JSON.stringify({ error: { message: "Invalid tool." } }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 400, { error: { message: "Invalid tool." } });
   }
 
   const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    req.headers.get("cf-connecting-ip") ||
+    (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
+    req.headers["cf-connecting-ip"] ||
     "unknown";
   const ipHash = await sha256Hex(ip + "|" + tool);
 
@@ -71,10 +68,7 @@ export default async function handler(req) {
       );
       const existing = await checkResp.json();
       if (Array.isArray(existing) && existing.length > 0) {
-        return new Response(
-          JSON.stringify({ gated_out: true, message: "Free sample already used." }),
-          { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
-        );
+        return sendJson(res, 200, { gated_out: true, message: "Free sample already used." });
       }
     } catch {
       // If the gate check itself fails, fail closed-ish: still allow the call through
@@ -116,10 +110,7 @@ What's happening: "${question}"${langInstruction}`;
 
     const data = await response.json();
     if (!response.ok) {
-      return new Response(
-        JSON.stringify({ error: { message: data?.error?.message || "Anthropic API error" } }),
-        { status: response.status, headers: { ...CORS, "Content-Type": "application/json" } }
-      );
+      return sendJson(res, response.status, { error: { message: data?.error?.message || "Anthropic API error" } });
     }
 
     const textBlock = data.content?.find(b => b.type === "text");
@@ -141,14 +132,8 @@ What's happening: "${question}"${langInstruction}`;
       body: JSON.stringify({ ip_hash: ipHash, tool, tactic_tag: tacticTag, was_gated: !!gated }),
     }).catch(() => {});
 
-    return new Response(
-      JSON.stringify({ answer, tactic_tag: tacticTag }),
-      { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 200, { answer, tactic_tag: tacticTag });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: { message: error.message || "Unknown error" } }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 500, { error: { message: error.message || "Unknown error" } });
   }
 }

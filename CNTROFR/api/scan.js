@@ -1,4 +1,6 @@
-export const config = { runtime: "edge" };
+// Node.js runtime (not Edge -- Edge Functions are deprecated on Vercel).
+// Classic Vercel Node.js handler signature: (req, res), not Fetch API
+// Request/Response. See claude.js and digest.js for the same pattern.
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -9,35 +11,35 @@ const CORS = {
 const ALLOWED_MODEL = "claude-sonnet-4-6";
 const MAX_BODY_BYTES = 10_000_000; // 10MB for image/document uploads
 
-export default async function handler(req) {
+function sendJson(res, status, obj) {
+  res.writeHead(status, { ...CORS, "Content-Type": "application/json" });
+  res.end(JSON.stringify(obj));
+}
+
+export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS });
+    res.writeHead(204, CORS);
+    return res.end();
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return new Response(
-      JSON.stringify({ error: { message: "API key not configured." } }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 500, { error: { message: "API key not configured." } });
   }
 
-  let body;
+  // Pre-check size via Content-Length before touching the (already-parsed) body,
+  // same intent as the old byte-length check.
+  const contentLength = parseInt(req.headers["content-length"] || "0", 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return sendJson(res, 413, { error: { message: "File too large. Please use a PDF export or smaller image." } });
+  }
+
+  let body = req.body;
   try {
-    const buffer = await req.arrayBuffer();
-    if (buffer.byteLength > MAX_BODY_BYTES) {
-      return new Response(
-        JSON.stringify({ error: { message: "File too large. Please use a PDF export or smaller image." } }),
-        { status: 413, headers: { ...CORS, "Content-Type": "application/json" } }
-      );
-    }
-    const text = new TextDecoder().decode(buffer);
-    body = JSON.parse(text);
+    if (typeof body === "string") body = JSON.parse(body);
+    if (!body || typeof body !== "object") throw new Error("empty body");
   } catch {
-    return new Response(
-      JSON.stringify({ error: { message: "Invalid request." } }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 400, { error: { message: "Invalid request." } });
   }
 
   // Force correct model, no streaming for JSON extraction
@@ -58,21 +60,11 @@ export default async function handler(req) {
     const data = await response.json();
 
     if (!response.ok) {
-      return new Response(
-        JSON.stringify({ error: { message: data?.error?.message || "Anthropic API error" } }),
-        { status: response.status, headers: { ...CORS, "Content-Type": "application/json" } }
-      );
+      return sendJson(res, response.status, { error: { message: data?.error?.message || "Anthropic API error" } });
     }
 
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: { ...CORS, "Content-Type": "application/json" },
-    });
-
+    return sendJson(res, 200, data);
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: { message: error.message || "Unknown error" } }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 500, { error: { message: error.message || "Unknown error" } });
   }
 }

@@ -1,4 +1,10 @@
-export const config = { runtime: "edge" };
+// Node.js runtime (not Edge -- Edge Functions are deprecated on Vercel).
+// Classic Vercel Node.js handler signature: (req, res). The one real
+// wrinkle vs. scan.js/tactic-answer.js: this streams the Anthropic response
+// through to the client, and fetch()'s response.body is a Web ReadableStream,
+// not a Node stream -- Readable.fromWeb() bridges the two.
+
+import { Readable } from "node:stream";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -7,7 +13,7 @@ const CORS = {
 };
 
 // ── Concurrency limiter ──────────────────────────────────────────────────────
-// Caps simultaneous Anthropic calls within this edge instance.
+// Caps simultaneous Anthropic calls within this instance.
 // Protects against rate limit hammering at Tier 2 and keeps costs predictable.
 const MAX_CONCURRENT = 3;
 let activeRequests = 0;
@@ -41,70 +47,57 @@ const ALLOWED_MODEL = "claude-sonnet-4-6";
 const MAX_BODY_BYTES_TEXT = 32_000;
 const MAX_BODY_BYTES_IMAGE = 10_000_000;
 
-export default async function handler(req) {
+function sendJson(res, status, obj) {
+  res.writeHead(status, { ...CORS, "Content-Type": "application/json" });
+  res.end(JSON.stringify(obj));
+}
+
+export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS });
+    res.writeHead(204, CORS);
+    return res.end();
   }
 
   // ── API key check ────────────────────────────────────────────────────────
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return new Response(
-      JSON.stringify({ error: { message: "API key not configured." } }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 500, { error: { message: "API key not configured." } });
   }
 
   // ── Per-IP rate limit ────────────────────────────────────────────────────
   const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    req.headers.get("cf-connecting-ip") ||
+    (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
+    req.headers["cf-connecting-ip"] ||
     "unknown";
 
   if (!checkIpLimit(ip)) {
-    return new Response(
-      JSON.stringify({ error: { message: "Too many requests. Please wait a moment and try again." } }),
-      { status: 429, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 429, { error: { message: "Too many requests. Please wait a moment and try again." } });
   }
 
   // ── Payload size guard + body parse ─────────────────────────────────────
-  let body;
-  let rawText;
+  let body = req.body;
   try {
-    const buffer = await req.arrayBuffer();
-    const bytes = buffer.byteLength;
-    rawText = new TextDecoder().decode(buffer);
-    const isImageRequest = rawText.includes('"type":"image"') || rawText.includes('"type":"document"');
+    if (typeof body === "string") body = JSON.parse(body);
+    if (!body || typeof body !== "object") throw new Error("empty body");
+    const bodyStr = JSON.stringify(body);
+    const isImageRequest = bodyStr.includes('"type":"image"') || bodyStr.includes('"type":"document"');
     const maxBytes = isImageRequest ? MAX_BODY_BYTES_IMAGE : MAX_BODY_BYTES_TEXT;
-    if (bytes > maxBytes) {
-      return new Response(
-        JSON.stringify({ error: { message: "Request too large." } }),
-        { status: 413, headers: { ...CORS, "Content-Type": "application/json" } }
-      );
+    const contentLength = parseInt(req.headers["content-length"] || String(bodyStr.length), 10);
+    if (contentLength > maxBytes) {
+      return sendJson(res, 413, { error: { message: "Request too large." } });
     }
-    body = JSON.parse(rawText);
   } catch {
-    return new Response(
-      JSON.stringify({ error: { message: "Invalid request body." } }),
-      { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 400, { error: { message: "Invalid request body." } });
   }
 
   // ── Concurrency check ────────────────────────────────────────────────────
   if (activeRequests >= MAX_CONCURRENT) {
-    return new Response(
-      JSON.stringify({ error: { message: "Server is busy. Please try again in a few seconds." } }),
-      { status: 503, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 503, { error: { message: "Server is busy. Please try again in a few seconds." } });
   }
 
   // ── Model whitelist enforcement ──────────────────────────────────────────
   if (body.model && body.model !== ALLOWED_MODEL) {
-    return new Response(
-      JSON.stringify({ error: { message: "Model not permitted." } }),
-      { status: 403, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    return sendJson(res, 403, { error: { message: "Model not permitted." } });
   }
   body.model = ALLOWED_MODEL;
   body.stream = true;
@@ -122,19 +115,24 @@ export default async function handler(req) {
       body: JSON.stringify(body),
     });
 
-    return new Response(response.body, {
-      status: response.status,
-      headers: {
-        ...CORS,
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-      },
+    res.writeHead(response.status, {
+      ...CORS,
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
     });
+
+    if (!response.body) {
+      return res.end();
+    }
+
+    const nodeStream = Readable.fromWeb(response.body);
+    nodeStream.on("error", () => res.end());
+    nodeStream.pipe(res);
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: { message: error.message || "Unknown error" } }),
-      { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }
-    );
+    if (!res.headersSent) {
+      return sendJson(res, 500, { error: { message: error.message || "Unknown error" } });
+    }
+    res.end();
   } finally {
     activeRequests--;
   }
