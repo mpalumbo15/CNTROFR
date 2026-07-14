@@ -231,7 +231,10 @@ function markdownToHtml(md) {
 
 async function sendDigestEmail(digestMd, statsMd, tacticMd, tickerCount = 0) {
   const resendKey = process.env.RESEND_API_KEY;
-  if (!resendKey) return;
+  if (!resendKey) {
+    console.error("sendDigestEmail: RESEND_API_KEY is not set -- no email sent.");
+    return;
+  }
 
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const tickerReminderHtml = tickerCount > 0
@@ -283,20 +286,27 @@ async function sendDigestEmail(digestMd, statsMd, tacticMd, tickerCount = 0) {
 
   const text = `CNTROFR Weekly Intelligence Digest -- ${today}\n\n${tickerCount > 0 ? `${tickerCount} new ticker headline(s) awaiting review in Supabase (news_ticker table, status=pending).\n\n` : ""}Platform Activity (7 days):\n${statsMd}\n\nTop Tactics This Week:\n${tacticMd}\n\nMarket Intelligence:\n${digestMd}`;
 
-  await fetch("https://api.resend.com/emails", {
+  const resendResp = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${resendKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "CNTROFR <onboarding@resend.dev>",
+      from: "CNTROFR Digest <digest@cntrofr.com>",
       to: ["info@cntrofr.com"],
       subject: `CNTROFR Weekly Digest -- ${today}`,
       html,
       text,
     }),
   });
+
+  if (!resendResp.ok) {
+    const errBody = await resendResp.text().catch(() => "");
+    console.error("Resend API call failed:", resendResp.status, errBody);
+    throw new Error(`Resend API returned ${resendResp.status}: ${errBody.slice(0, 300)}`);
+  }
+  console.log("Digest email sent successfully via Resend.");
 }
 
 export default async function handler(req, res) {
