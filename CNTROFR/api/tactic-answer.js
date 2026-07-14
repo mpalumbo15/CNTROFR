@@ -92,7 +92,9 @@ export default async function handler(req) {
 
   const prompt = `${framing}
 
-Also, on a final line by itself, output a normalized tactic category tag in this exact format: TACTIC_TAG: [category] -- choose the single best-fitting category from: add_on_pressure, trade_in_lowball, payment_packing, rate_markup, hidden_fees, high_pressure_close, otd_price_dodge, warranty_upsell, general_question, other.
+Relevant fact if it applies: the FTC has alleged (in a contested complaint against a major dealer group, not yet finally resolved) that some dealerships have buyers sign on electronic tablets showing only the signature line, not the full document -- making it easy to miss add-ons never agreed to. If the buyer mentions signing on a tablet or device, tell them to ask the F&I manager to scroll through the full document on screen (not just the signature boxes) or request a printed copy -- a normal, reasonable ask.
+
+Also, on a final line by itself, output a normalized tactic category tag in this exact format: TACTIC_TAG: [category] -- choose the single best-fitting category from: add_on_pressure, trade_in_lowball, payment_packing, rate_markup, hidden_fees, high_pressure_close, otd_price_dodge, warranty_upsell, digital_signing_concern, general_question, other.
 
 What's happening: "${question}"${langInstruction}`;
 
