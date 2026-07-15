@@ -992,6 +992,7 @@ function computeLoanSavings(f, finRate) {
 
 function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }) {
   const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"", packages:"", apr:"", term:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
+  const [lastGenApr, setLastGenApr] = useState(""); const [lastGenTerm, setLastGenTerm] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState(""); const [finRate, setFR] = useState(null);
   const [hcToken, setHcToken] = useState("");
   const [finalOffer, setFinalOffer] = useState(false);
@@ -1197,6 +1198,7 @@ Extraction rules:
   const run = async () => {
     setL(true); setR(null); setM(null); setV("ANALYZING");
     setLM("Analyzing your deal...");
+    setLastGenApr(f.apr); setLastGenTerm(f.term);
     if (window.hcaptcha) window.hcaptcha.reset(); setHcToken("");
     const t = await ai(`Car deal analyst. You are writing for a regular car buyer -- not a car industry professional. Use plain, direct language. Never use industry jargon without immediately explaining it in the same sentence. Be direct -- state facts, give scripts, move on. No hedging.
 
@@ -1685,9 +1687,14 @@ Return this exact JSON structure:
           <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,marginTop:10,lineHeight:1.65,padding:"8px 0",borderTop:"1px solid var(--b1)"}}>
             📌 <strong style={{color:"var(--text2)"}}>Optional.</strong> If financing, drop in the rate and term from your quote and we'll run the real math against live rate data -- exact dollars, not vibes. We don't do credit -- this is arithmetic on the numbers you give us, not a credit decision.
           </div>
-          {res && (
-            <div style={{marginTop:10,background:"rgba(255,68,68,.08)",border:"1px solid rgba(255,68,68,.3)",borderRadius:8,padding:"10px 14px",fontSize:11,fontWeight:800,color:"var(--red)",lineHeight:1.5}}>
-              ⚠ Your results below were generated before this rate/term was added. Scroll down and hit "Update My Results" to include it.
+          {res && (f.apr !== lastGenApr || f.term !== lastGenTerm) && (
+            <div style={{marginTop:10,background:"rgba(255,68,68,.08)",border:"1px solid rgba(255,68,68,.3)",borderRadius:8,padding:"10px 14px"}}>
+              <div style={{fontSize:11,fontWeight:800,color:"var(--red)",lineHeight:1.5,marginBottom:8}}>
+                ⚠ Your results below don't include this rate/term yet.
+              </div>
+              <button className="hbtn-y" style={{width:"100%",padding:"9px",fontSize:12}} onClick={run} disabled={loading}>
+                {loading ? (loadMsg||"Updating...") : "↺ Update My Results Now"}
+              </button>
             </div>
           )}
         </div>
