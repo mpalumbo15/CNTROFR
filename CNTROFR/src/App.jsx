@@ -620,7 +620,7 @@ async function ai(prompt, web = false, onChunk = null) {
     const finalPrompt = CURRENT_LANG === "es"
       ? `${prompt}\n\nIMPORTANT: Respond entirely in Spanish (Español). Translate all headers, labels, and analysis into natural, conversational Spanish suitable for a Spanish-speaking car buyer in the US. Keep dollar amounts and proper nouns (brand/model names) as-is.`
       : prompt;
-    const body = { model: "claude-sonnet-4-6", max_tokens: 2000, stream: true, messages: [{ role: "user", content: finalPrompt }] };
+    const body = { model: "claude-sonnet-4-6", max_tokens: 4000, stream: true, messages: [{ role: "user", content: finalPrompt }] };
     if (web) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
 
     const controller = new AbortController();
@@ -651,7 +651,7 @@ async function ai(prompt, web = false, onChunk = null) {
       );
       const body2 = {
         model: "claude-sonnet-4-6",
-        max_tokens: 2000,
+        max_tokens: 4000,
         stream: true,
         tools: [{ type: "web_search_20250305", name: "web_search" }],
         messages: [
@@ -1250,6 +1250,7 @@ ${condition==="buyout"?"VERDICT: For lease buyouts, skip the GO/NEGOTIATE/WALK v
 - Use "## CAUTION" for a single clearly negotiable item in the ~$400-1,500 range, or a pattern worth pushing back on (e.g. a financing rate markup of 1-2 points above buy rate).
 - Use "## EXTREME WARNING" only for stacked red flags, predatory F&I markup (2+ point rate markup, warranties marked up 300%+), illegal practices, or a single item exceeding ~$1,500 or ~2% of vehicle price. This should be rare -- reserve it for something a buyer would genuinely regret missing.
 If nothing rises even to "slightly above average," omit this section entirely.
+WITHIN whichever section you write, order the issues by dollar impact, biggest first. Never open with the smallest-dollar item and work up to the largest -- that buries the thing that actually matters most behind something minor, and undersells the real severity right when you need the buyer's full attention. Lead with whatever costs the most money, then work down to smaller items.
 ## OVERALL VERDICT -- GO, NEGOTIATE, or WALK AWAY. One sentence in plain English.
 ${f.dealerName ? `## DEALER INTEL -- If you recognize this dealer as part of a major corporate group (AutoNation, Lithia, Asbury, Penske, Sonic, Holman, or similar), briefly note it in one plain sentence and explain what corporate-owned dealerships typically means for the buyer's negotiating experience. If you do not recognize the dealer or cannot confirm the parent company, skip this section entirely.` : ""}
 ${condition!=="custom" && condition!=="buyout" ? `## VEHICLE PRICE -- Is this price fair? How much room is left to negotiate? If mileage is high, explain how that affects the vehicle's value in plain terms.` : condition==="custom" ? "## DELIVERY & FEES -- What fees are standard at delivery for a custom order and which are negotiable? Flag anything that should have been agreed to in writing before the order was placed." : "## FORCE ADDS -- List every dealer-installed add-on or accessory the buyer is being charged for. Is each one mandatory or negotiable? What is the dealer's actual cost vs. what they are charging?"}
