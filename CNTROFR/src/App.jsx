@@ -38,7 +38,7 @@ const S = `
   .bmenu-divider { height: 1px; background: var(--b1); margin: 4px 8px; }
   .hero { max-width: 900px; margin: 0 auto; padding: 12px 24px 60px; text-align: center; position: relative; }
   .hero-road { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: repeating-linear-gradient(90deg, var(--y) 0px, var(--y) 40px, transparent 40px, transparent 80px); opacity: .3; }
-  .hero-center-plate { display: flex; justify-content: center; margin-bottom: 24px; }
+  .hero-center-plate { display: flex; justify-content: center; margin-bottom: 8px; }
   .hero-plate { background: var(--y); border: 6px solid #B8A000; border-radius: 12px; padding: 10px 32px 12px; box-shadow: 0 6px 0 #8A7800, 0 10px 40px rgba(255,214,0,.35); position: relative; display: inline-flex; flex-direction: column; align-items: center; }
   .hero-plate::before, .hero-plate::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); font-size: 10px; color: rgba(0,0,0,.3); }
   .hero-plate::before { left: 10px; } .hero-plate::after { right: 10px; }
@@ -49,7 +49,7 @@ const S = `
   .hero-h1 .y { color: var(--y); }
   .hero-tagline { font-family: 'Bebas Neue'; font-size: clamp(14px, 3vw, 22px); letter-spacing: 6px; color: var(--y); margin-bottom: 14px; }
   .hero-sub { font-size: 15px; color: var(--text2); max-width: 500px; margin: 0 auto 36px; line-height: 1.75; font-weight: 600; }
-  .hero-cta-line { font-family: 'Bebas Neue'; font-size: clamp(20px, 4vw, 26px); letter-spacing: 1px; color: var(--text); margin-bottom: 18px; }
+  .hero-cta-line { font-family: 'Bebas Neue'; font-size: clamp(20px, 4vw, 26px); letter-spacing: 1px; color: var(--y); margin-bottom: 18px; }
   .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .btn-lg { background: var(--y); color: #111; border: none; padding: 16px 40px; font-family: Nunito; font-size: 16px; font-weight: 900; cursor: pointer; border-radius: 12px; transition: all .2s; box-shadow: 0 4px 22px rgba(255,214,0,.3); width: 100%; } @media(min-width:600px){ .btn-lg { width: auto; } }
   .btn-lg:hover { background: var(--yd); transform: translateY(-1px); }
@@ -391,7 +391,7 @@ const S = `
   .mission-page strong { color: var(--text); font-weight: 900; }
 
   /* == HERO PLATE -- glow, shadow, gleam == */
-  .hero-plate-wrap { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 24px 0 8px; }
+  .hero-plate-wrap { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; padding: 4px 0 4px; }
   .hero-plate-glow { position: absolute; width: 70%; max-width: 720px; height: 60%; max-height: 380px; background: radial-gradient(ellipse at center, rgba(255,214,0,.38) 0%, rgba(255,214,0,.14) 45%, rgba(255,214,0,0) 75%); filter: blur(4px); animation: platePulse 3.4s ease-in-out infinite; pointer-events: none; z-index: 0; }
   @keyframes platePulse { 0%,100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
   .hero-plate-imgwrap { position: relative; width: 100%; max-width: min(880px,96vw); z-index: 1; }
@@ -3046,7 +3046,7 @@ export default function App() {
         <div className="hero">
           <div className="hero-road" />
           <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
-          <div className="sec-eye" style={{marginBottom:14}}>{lang==="es"?"TU CONSULTOR DE BOLSILLO PARA AUTOS":"YOUR POCKET CAR CONSULTANT"}</div>
+          <div className="sec-eye" style={{marginBottom:4}}>{lang==="es"?"TU CONSULTOR DE BOLSILLO PARA AUTOS":"YOUR POCKET CAR CONSULTANT"}</div>
           <div className="hero-center-plate">
             <HeroPlateScene />
           </div>
