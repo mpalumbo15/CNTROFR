@@ -59,7 +59,7 @@ const S = `
   .stat-n { font-family: 'Bebas Neue'; font-size: 40px; color: var(--y); letter-spacing: 1px; }
   .stat-l { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; letter-spacing: .5px; }
   /* == SAVINGS CALLOUT & BREAKDOWN == */
-  .savings-callout { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,214,0,.08); border: 1px solid rgba(255,214,0,.3); border-radius: 100px; padding: 10px 22px; margin-bottom: 18px; font-family: Nunito; font-weight: 800; font-size: clamp(12px, 2.6vw, 15px); color: var(--text2); }
+  .savings-callout { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,214,0,.08); border: 1px solid rgba(255,214,0,.3); border-radius: 100px; padding: 10px 22px; margin-top: 28px; margin-bottom: 18px; font-family: Nunito; font-weight: 800; font-size: clamp(12px, 2.6vw, 15px); color: var(--text2); }
   .savings-callout .sc-icon { font-size: 18px; }
   .savings-callout .y { color: var(--y); font-family: 'Bebas Neue'; font-size: clamp(15px, 3.2vw, 19px); letter-spacing: .5px; }
   .savings-breakdown { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--b1); }
