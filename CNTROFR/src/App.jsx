@@ -947,17 +947,40 @@ function fmtMoney(n) {
   if (!isFinite(n)) return "--";
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
+// Hard guarantee against ever showing "null" to a user. Catches the exact
+// string "null", empty/whitespace values, and -- the actual bug this was
+// built for -- strings the AI prefixed with "null" before adding real prose
+// (e.g. "null — Porsche Financial Services offers..."). If the leading
+// content is null-ish, the whole thing gets treated as absent rather than
+// trying to salvage whatever comes after; showing nothing beats showing
+// "null" partway through a sentence, even if real info follows it.
+function isNullish(v) {
+  if (v === null || v === undefined) return true;
+  const s = String(v).trim();
+  if (!s) return true;
+  return /^null(?![a-z])/i.test(s);
+}
 // Shared by the results card render AND the run() save-to-Supabase logic,
 // so the displayed number and the catalogued number can never drift apart.
 function computeLoanSavings(f, finRate) {
   if (!finRate || !f.apr || !f.term) return null;
   const num = v => parseFloat(String(v||"0").replace(/[$,]/g,"")) || 0;
-  const parsePct = str => { const m = String(str||"").match(/[\d.]+/); return m ? parseFloat(m[0]) : null; };
+  const parsePct = str => {
+    if (!str) return null;
+    // Require the % sign directly after the digits -- matches how a real rate is
+    // always formatted ("0.9%", "8.5%"). Without this, a stray number elsewhere
+    // in the string (a model year, a dollar figure) can get misread as the rate.
+    const m = String(str).match(/(\d+(?:\.\d+)?)\s*%/);
+    if (!m) return null;
+    const val = parseFloat(m[1]);
+    // Sanity bound -- real auto loan APRs don't run above ~30%, even subprime.
+    return (val > 0 && val < 30) ? val : null;
+  };
   const principal = Math.max(0, num(f.offer) - (num(f.tradeIn) - num(f.tradeOwed)));
   const aprNum = parseFloat(f.apr);
   const termNum = parseInt(f.term, 10);
   if (!principal || !aprNum || !termNum) return null;
-  const oemNum = finRate.oem_rate && finRate.oem_rate !== "null" ? parsePct(finRate.oem_rate) : null;
+  const oemNum = !isNullish(finRate.oem_rate) ? parsePct(finRate.oem_rate) : null;
   const greenNum = finRate.green ? parsePct(finRate.green.avg) : null;
   const compareRate = oemNum ?? greenNum;
   const compareLabel = oemNum ? "Manufacturer Incentive Rate" : "Excellent Credit Average";
@@ -1272,10 +1295,16 @@ The dealer has stated this is their best price or the buyer is about to enter th
       dealer_city: f.dealerCity || null,
       dealer_state: f.dealerState || null,
     });
-    if (f.zip && f.year && f.vehicle && condition !== "buyout") {
-      setLM("Scanning nearby dealer prices...");
-      await new Promise(r => setTimeout(r, 3000));
-      const mkt = await ai(`Car market pricing analyst. You are writing for a regular car buyer who wants to know if the price they are being quoted is fair compared to what other dealers are charging. Use plain language. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
+    // ── Market Scan + Live Financing Rate Intelligence -- run in parallel ──
+    // These two live web-search calls don't depend on each other, so running
+    // them sequentially was pure wasted wall-clock time. Also dropped a
+    // hardcoded 3-second artificial delay that served no functional purpose.
+    setLM(f.zip && f.year && f.vehicle && condition !== "buyout" ? "Scanning market prices & pulling financing rates..." : "Pulling live financing rates...");
+
+    const runMarketScan = async () => {
+      if (!(f.zip && f.year && f.vehicle && condition !== "buyout")) return;
+      try {
+        const mkt = await ai(`Car market pricing analyst. You are writing for a regular car buyer who wants to know if the price they are being quoted is fair compared to what other dealers are charging. Use plain language. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
 Search for current ${condition==="new"||condition==="custom"?"new":condition==="cpo"?"certified pre-owned":"used"} ${f.year} ${f.vehicle}${f.trim ? " "+f.trim : ""} listings near zip code ${f.zip}. Find 3-5 dealer listings within 150 miles${f.mileage ? ", with similar mileage to "+f.mileage : ""}.
 
 IMPORTANT ON DATES: For each listing, note when it was actually posted or last updated if that information is available in the search results. A listing that's been sitting for months carries less weight as "current market pricing" than one posted recently -- if a listing's age can't be determined, or it looks stale, say so plainly rather than presenting it with the same confidence as a fresh one.
@@ -1284,19 +1313,18 @@ IMPORTANT ON DATES: For each listing, note when it was actually posted or last u
 ## COMPARABLE LISTINGS -- List each comparable vehicle found: dealer name, city, price, mileage, and how recent the listing appears to be (or note if that can't be determined). Plain and readable.
 ## HOW TO USE THIS -- The exact words the buyer can say at the dealership to use these comparisons as negotiating leverage.
 ## BOTTOM LINE -- What should this buyer realistically expect to pay based on current market data?`, true);
-      setM(mkt);
-    }
-    setLM("");
-    // ── Live Financing Rate Intelligence ──────────────────────────────────
-    let liveFinRate = null;
-    try {
-      setLM("Pulling live financing rates...");
-      const vehicle = `${f.year||""} ${f.vehicle||""}`.trim();
-      const isNew = condition==="new"||condition==="custom";
-      const isCPO = condition==="cpo";
-      const isBuyout = condition==="buyout";
-      const make = f.vehicle ? f.vehicle.split(" ")[0] : "";
-      const ratePrompt = `You are a live auto financing rate analyst. Search for current auto loan rates and manufacturer incentive programs. Return ONLY a JSON object, no markdown, no preamble.
+        setM(mkt);
+      } catch { setM(null); }
+    };
+
+    const runFinancingIntel = async () => {
+      try {
+        const vehicle = `${f.year||""} ${f.vehicle||""}`.trim();
+        const isNew = condition==="new"||condition==="custom";
+        const isCPO = condition==="cpo";
+        const isBuyout = condition==="buyout";
+        const make = f.vehicle ? f.vehicle.split(" ")[0] : "";
+        const ratePrompt = `You are a live auto financing rate analyst. Search for current auto loan rates and manufacturer incentive programs. Return ONLY a JSON object, no markdown, no preamble.
 
 Vehicle context: ${vehicle || "unknown"}, ${condition} condition, asking price $${f.offer || "unknown"}
 ${f.offer && parseFloat(f.offer) > 100000 ? "IMPORTANT: This is a high-value specialty/luxury/exotic vehicle. Lenders treat these differently — rates are typically 1-3% higher than standard used vehicles, some lenders cap loan amounts or require larger down payments, and specialty lenders (JM Associates, Woodside Credit, USAA, PenFed) may offer better terms than traditional banks for collector/performance vehicles." : ""}
@@ -1307,6 +1335,8 @@ Search for:
 3. ${isBuyout&&make?`${make} lease buyout financing policy -- does ${make} require buyout through their captive lender or allow outside financing?`:""}
 
 IMPORTANT ON DATES: Don't just report today's date as "as_of" -- report when the RATE DATA ITSELF was actually last updated, based on what your search results show (e.g. a Bankrate or NerdWallet rate table's own "last updated" date). If you cannot find rate data from the last 30-45 days, say so explicitly in the disclaimer rather than presenting older data as if it's current.
+
+IMPORTANT ON THE oem_rate FIELD: it must contain ONLY a number followed by a % sign (e.g. "0.9%"), nothing else -- no model years, no extra words. If there is no current incentive, the value must be EXACTLY the four characters null and absolutely nothing else -- no dash, no explanation, no follow-up sentence. The same rule applies to oem_program, buyout_restriction, and buyout_note: when not applicable, output the bare word null with zero additional text, even if you have relevant context to share -- there is nowhere else in this JSON to put that context, so it must be omitted entirely rather than appended after "null".
 
 Return this exact JSON structure:
 {
@@ -1323,25 +1353,28 @@ Return this exact JSON structure:
   "credit_score_note": "The score you see on Credit Karma or similar free apps is usually a VantageScore, not the FICO Auto Score most auto lenders actually pull. These can differ by 20-40+ points, sometimes more -- know your real tier before you trust one a dealer quotes you."
 }`;
 
-      const rateBody = {
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        tools: [{ type: "web_search_20250305", name: "web_search" }],
-        messages: [{ role: "user", content: ratePrompt }]
-      };
-      const rateResp = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(rateBody) });
-      if (rateResp.ok) {
-        const rateData = await rateResp.json();
-        const textBlock = rateData.content?.find(b => b.type === "text");
-        const rateRaw = textBlock?.text || "";
-        try {
+        const rateBody = {
+          model: "claude-sonnet-4-6",
+          max_tokens: 1000,
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
+          messages: [{ role: "user", content: ratePrompt }]
+        };
+        const rateResp = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(rateBody) });
+        if (rateResp.ok) {
+          const rateData = await rateResp.json();
+          const textBlock = rateData.content?.find(b => b.type === "text");
+          const rateRaw = textBlock?.text || "";
           const clean = rateRaw.replace(/```json|```/g, "").trim();
           const parsed = JSON.parse(clean);
           setFR(parsed);
-          liveFinRate = parsed;
-        } catch { setFR(null); }
-      }
-    } catch { setFR(null); }
+          return parsed;
+        }
+      } catch { setFR(null); }
+      return null;
+    };
+
+    const [, liveFinRate] = await Promise.all([runMarketScan(), runFinancingIntel()]);
+
     setLM(""); setL(false);
     // Catalog realized savings (not the raw APR/term inputs themselves) for future reporting.
     const savings = paid ? computeLoanSavings(f, liveFinRate) : null;
@@ -1733,19 +1766,19 @@ Return this exact JSON structure:
               </div>
 
               {/* OEM incentive rate — paid only */}
-              {paid && finRate.oem_rate && finRate.oem_rate !== "null" && (
+              {paid && !isNullish(finRate.oem_rate) && (
                 <div style={{background:"rgba(0,201,107,.07)",border:"1px solid rgba(0,201,107,.25)",borderRadius:10,padding:"10px 14px",marginBottom:12,fontSize:12,fontWeight:700,color:"#80E8B0",lineHeight:1.6}}>
                   <div style={{fontSize:11,fontWeight:900,color:"var(--green)",letterSpacing:.5,marginBottom:4}}>🏭 MANUFACTURER INCENTIVE RATE</div>
                   <strong style={{fontSize:15,color:"var(--green)"}}>{finRate.oem_rate}</strong>
-                  {finRate.oem_program && finRate.oem_program !== "null" && <div style={{marginTop:4,fontSize:11,color:"var(--text2)"}}>{finRate.oem_program}</div>}
+                  {!isNullish(finRate.oem_program) && <div style={{marginTop:4,fontSize:11,color:"var(--text2)"}}>{finRate.oem_program}</div>}
                 </div>
               )}
 
               {/* Buyout restriction warning — paid only */}
-              {paid && condition==="buyout" && finRate.buyout_restriction !== null && finRate.buyout_restriction !== "null" && (
+              {paid && condition==="buyout" && !isNullish(finRate.buyout_restriction) && (
                 <div style={{background: finRate.buyout_restriction==="true"||finRate.buyout_restriction===true?"rgba(255,68,68,.07)":"rgba(0,201,107,.07)", border:`1px solid ${finRate.buyout_restriction==="true"||finRate.buyout_restriction===true?"rgba(255,68,68,.25)":"rgba(0,201,107,.25)"}`,borderRadius:10,padding:"10px 14px",marginBottom:12,fontSize:12,fontWeight:700,lineHeight:1.6,color:finRate.buyout_restriction==="true"||finRate.buyout_restriction===true?"#FF9999":"#80E8B0"}}>
                   <div style={{fontSize:11,fontWeight:900,letterSpacing:.5,marginBottom:4}}>{finRate.buyout_restriction==="true"||finRate.buyout_restriction===true?"⚠ CAPTIVE LENDER REQUIRED":"✓ OUTSIDE FINANCING ALLOWED"}</div>
-                  {finRate.buyout_note && finRate.buyout_note !== "null" && <div style={{fontSize:11,color:"var(--text2)"}}>{finRate.buyout_note}</div>}
+                  {!isNullish(finRate.buyout_note) && <div style={{fontSize:11,color:"var(--text2)"}}>{finRate.buyout_note}</div>}
                 </div>
               )}
 
