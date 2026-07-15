@@ -49,6 +49,7 @@ const S = `
   .hero-h1 .y { color: var(--y); }
   .hero-tagline { font-family: 'Bebas Neue'; font-size: clamp(14px, 3vw, 22px); letter-spacing: 6px; color: var(--y); margin-bottom: 14px; }
   .hero-sub { font-size: 15px; color: var(--text2); max-width: 500px; margin: 0 auto 36px; line-height: 1.75; font-weight: 600; }
+  .hero-cta-line { font-family: 'Bebas Neue'; font-size: clamp(20px, 4vw, 26px); letter-spacing: 1px; color: var(--text); margin-bottom: 18px; }
   .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .btn-lg { background: var(--y); color: #111; border: none; padding: 16px 40px; font-family: Nunito; font-size: 16px; font-weight: 900; cursor: pointer; border-radius: 12px; transition: all .2s; box-shadow: 0 4px 22px rgba(255,214,0,.3); width: 100%; } @media(min-width:600px){ .btn-lg { width: auto; } }
   .btn-lg:hover { background: var(--yd); transform: translateY(-1px); }
@@ -2422,7 +2423,7 @@ function PrivacyPolicy() {
   return (
     <div className="tos-wrap">
       <h1>Privacy Policy</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: June 24, 2026</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: July 15, 2026</div>
 
       <h2>Our Philosophy</h2>
       <p>CNTROFR was built to keep your money in your pocket -- and your data is no different. We collect the absolute minimum required to operate. We do not sell it, share it, broker it, or monetize it in any way. Full stop.</p>
@@ -2436,6 +2437,8 @@ function PrivacyPolicy() {
         <li><strong>Anonymous deal data</strong> -- when you run a Deal Analyzer (whether filled manually or pre-filled via Quote Scanner and reviewed by you), we log a small set of anonymous, non-identifiable data points (vehicle make, model, year, condition, zip code, and asking price) to build market intelligence over time. This data is never linked to your identity, your payment, or any personal information. No name, no email, no device ID -- ever.</li>
         <li><strong>Access codes</strong> -- when a purchase is made, an access code is generated and stored to validate your session. No personal data is attached to the code.</li>
         <li><strong>Anonymous gap flags</strong> -- when our tools encounter a product, fee, or add-on they cannot fully evaluate, a brief anonymous description is logged for our internal review. This contains only the item name and a note -- no deal data, no personal information, and no connection to your session.</li>
+        <li><strong>"What's Happening Right Now?" question tool</strong> (Counter Guide and First Time Buyer) -- if you're not yet a paying customer, we hash your IP address (a one-way transformation -- your actual IP is never stored) to enforce a limit of one free question per tool every 30 days. The text of your question itself is never stored. We do log which tool you used and a general category tag describing the type of question (e.g. "add-on pressure," "rate markup") so we can track which dealer tactics are most common -- this tag is never linked to your IP, your identity, or any other information about you.</li>
+        <li><strong>Estimated savings</strong> -- when a paid analysis identifies a financing rate that appears marked up compared to live market data, we may log an anonymous, aggregate dollar estimate of the difference. This is not linked to your identity, your specific vehicle, or your session -- it exists only to track platform-wide impact over time.</li>
       </ul>
       <p>The deal information you enter into our tools is sent directly to the Anthropic Claude API to generate your analysis. Beyond the anonymous data points described above, <strong>we do not retain your full deal inputs, trade-in details, add-on information, or uploaded quote documents on our servers.</strong></p>
       <p>A note on dealer quotes: dealer quote photos or PDFs sometimes contain your name, address, or other personal details printed by the dealership. We do not extract, store, or retain this information -- our Quote Scanner is designed to pull only vehicle and pricing fields, and the source file itself is discarded after processing.</p>
@@ -2486,7 +2489,7 @@ function TermsOfService() {
   return (
     <div className="tos-wrap">
       <h1>Terms of Service</h1>
-      <div className="tos-date">Effective Date: March 2025 - Last Updated: June 24, 2026</div>
+      <div className="tos-date">Effective Date: March 2025 - Last Updated: July 15, 2026</div>
 
       <h2>1. About CNTROFR</h2>
       <p>CNTROFR ("we," "us," or "our") is an independent consumer information platform operated by CNTROFR LLC, a Colorado limited liability company. We provide AI-assisted tools to help automobile buyers analyze vehicle deals, compare fees, audit dealer reviews, decode F&I products, fight add-on markups, and prepare negotiation strategies.</p>
@@ -3043,20 +3046,21 @@ export default function App() {
         <div className="hero">
           <div className="hero-road" />
           <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
+          <div className="sec-eye" style={{marginBottom:14}}>{lang==="es"?"TU CONSULTOR DE BOLSILLO PARA AUTOS":"YOUR POCKET CAR CONSULTANT"}</div>
           <div className="hero-center-plate">
             <HeroPlateScene />
           </div>
-          <div className="sec-eye" style={{marginBottom:14}}>{lang==="es"?"TU CONSULTOR DE BOLSILLO PARA AUTOS":"YOUR POCKET CAR CONSULTANT"}</div>
-          <div className="savings-callout">
-            <span className="sc-icon">💰</span>
-            <span className="sc-text">{lang==="es"?<>Los compradores encuentran hasta <span className="y">$8,300</span> escondidos en su oferta.</>:<>Buyers find up to <span className="y">$8,300</span> hiding in their deal.</>}</span>
-          </div>
+          <div className="hero-cta-line">{lang==="es"?"Sube tu oferta. Obtén respuestas. Ahorra dinero.":"Upload Your Deal. Get Answers. Save Money."}</div>
           <h2 className="hero-h1">{lang==="es"?<>El Concesionario Ha Hecho<br/>Esto <span className="y">10,000 Veces.</span><br/>Tú No.</>:<>The Dealer Has Done<br/>This <span className="y">10,000 Times.</span><br/>You Haven't.</>}</h2>
           <div className="hero-tagline">{lang==="es"?"No Firmes. Contraataca.":"Don't Sign. Counter."}</div>
           <p className="hero-sub">{lang==="es"?"CNTROFR es el consultor de bolsillo que los compradores de autos siempre quisieron -- inteligencia privilegiada del concesionario, entregada antes de que firmes cualquier cosa. Sin cuenta. Sin inicio de sesión. Solo respuestas.":"CNTROFR is the pocket consultant every car buyer deserves -- insider dealer intelligence delivered before you sign anything. No account. No login. Just answers."}</p>
           <div className="hero-btns">
             <button className="btn-lg" onClick={()=>buy(PLANS[2])}>{lang==="es"?"Desbloquea Pro -- $49":"Unlock Pro -- $49"}</button>
             <button className="btn-lg-ghost" onClick={()=>{setView("tools");setTab("deal")}}>{lang==="es"?"Prueba el Analizador Gratis":"Try Free Deal Analyzer"}</button>
+          </div>
+          <div className="savings-callout">
+            <span className="sc-icon">💰</span>
+            <span className="sc-text">{lang==="es"?<>Los compradores encuentran hasta <span className="y">$8,300</span> escondidos en su oferta.</>:<>Buyers find up to <span className="y">$8,300</span> hiding in their deal.</>}</span>
           </div>
           <div className="savings-breakdown">
             <div className="sb-grid">
