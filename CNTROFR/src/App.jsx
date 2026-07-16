@@ -982,9 +982,15 @@ function computeLoanSavings(f, finRate) {
   const termNum = parseInt(f.term, 10);
   if (!principal || !aprNum || !termNum) return null;
   const oemNum = !isNullish(finRate.oem_rate) ? parsePct(finRate.oem_rate) : null;
-  const greenNum = finRate.green ? parsePct(finRate.green.avg) : null;
-  const compareRate = oemNum ?? greenNum;
-  const compareLabel = oemNum ? "Manufacturer Incentive Rate" : "Excellent Credit Average";
+  // Use the buyer's self-reported credit tier if given; default to "Good" (the
+  // middle tier) rather than "Excellent" when unknown -- comparing everyone's
+  // quote against the best possible rate overstated savings for anyone who
+  // doesn't actually qualify for top-tier credit, which is most buyers.
+  const tierKey = f.creditTier === "excellent" ? "green" : f.creditTier === "fair" ? "red" : "yellow";
+  const tierNum = finRate[tierKey] ? parsePct(finRate[tierKey].avg) : null;
+  const compareRate = oemNum ?? tierNum;
+  const tierLabelMap = { green: "Excellent Credit Average", yellow: "Good Credit Average", red: "Fair Credit Average" };
+  const compareLabel = oemNum ? "Manufacturer Incentive Rate" : tierLabelMap[tierKey];
   if (!compareRate) return null;
   const yours = loanMath({ principal, aprPct: aprNum, termMonths: termNum });
   const best = loanMath({ principal, aprPct: compareRate, termMonths: termNum });
@@ -992,7 +998,7 @@ function computeLoanSavings(f, finRate) {
 }
 
 function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }) {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"", packages:"", apr:"", term:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"", packages:"", apr:"", term:"", creditTier:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
   const [lastGenApr, setLastGenApr] = useState(""); const [lastGenTerm, setLastGenTerm] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState(""); const [finRate, setFR] = useState(null);
   const [hcToken, setHcToken] = useState("");
@@ -1686,6 +1692,15 @@ Return this exact JSON structure:
               </select>
             </div>
           </div>
+          <div className="fld" style={{marginTop:10}}>
+            <label>Your Credit Range <span style={{fontWeight:600,color:"var(--muted)"}}>(optional, but makes the comparison accurate)</span></label>
+            <select value={f.creditTier||""} onChange={s("creditTier")} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
+              <option value="">Not sure -- compare me to Good credit</option>
+              <option value="excellent">Excellent (750+)</option>
+              <option value="good">Good (680-749)</option>
+              <option value="fair">Fair/Building (580-679)</option>
+            </select>
+          </div>
           <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,marginTop:10,lineHeight:1.65,padding:"8px 0",borderTop:"1px solid var(--b1)"}}>
             📌 <strong style={{color:"var(--text2)"}}>Optional.</strong> If financing, drop in the rate and term from your quote and we'll run the real math against live rate data -- exact dollars, not vibes. We don't do credit -- this is arithmetic on the numbers you give us, not a credit decision.
           </div>
@@ -1914,9 +1929,14 @@ Dealer: ${f.dealer} | ${f.city}, ${f.state} | Brand: ${f.brand} | Documentation 
 ## WHAT THIS FEE COVERS -- The legitimate work the dealer does to justify this charge. Be specific.
 ## WHAT IT DOES NOT JUSTIFY -- Any portion of this fee that is pure profit padding with no real service behind it.
 ## WHAT TO SAY -- The exact words to push back on this fee at the dealership.
-## HOW TO USE THIS AS LEVERAGE -- If a competing dealer charges less, explain exactly how to use that information to negotiate a better deal.`, true, chunk => setR(chunk));
-    setR(t); setL(false);
-    saveToolRun({ tool: "fee_comparison", tier, state: f.state||null });
+## HOW TO USE THIS AS LEVERAGE -- If a competing dealer charges less, explain exactly how to use that information to negotiate a better deal.
+
+On the very last line, by itself, output exactly: SAVINGS_ESTIMATE: $XXX -- your best-estimate dollar amount this fee is padded above what's fair/legal in this state (the realistic negotiable amount, not the full fee). If the verdict is FAIR, output SAVINGS_ESTIMATE: $0. No other text on that line.`, true, chunk => setR(chunk));
+    const tagMatch = t.match(/SAVINGS_ESTIMATE:\s*\$?([\d,]+)/i);
+    const savedAmount = tagMatch ? parseInt(tagMatch[1].replace(/,/g, ""), 10) : null;
+    const displayText = t.replace(/SAVINGS_ESTIMATE:\s*\$?[\d,]+\s*$/i, "").trim();
+    setR(displayText); setL(false);
+    saveToolRun({ tool: "fee_comparison", tier, state: f.state||null, money_saved: savedAmount||null });
     if (tier === "single") setSubmitted(true);
   };
   return (
@@ -2192,9 +2212,13 @@ For EACH product WITHOUT A PRICE (prep mode):
 ## HOW THEY SELL IT -- Finance managers will discount everything if you push back. Explain that "I want to think about it" and "I need to see that in writing" always work.
 ## MAINTENANCE NOTE -- If the vehicle or driving habits suggest the buyer may be choosing the wrong product, flag it plainly.
 ## OPENING LINE -- The exact first words to say when sitting down in the finance office.
-If any product or fee in this list is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [item name] -- [brief reason you could not fully evaluate it]`, false, chunk => setR(chunk));
-    setR(t); setL(false); parseAndFlagGaps(t);
-    saveToolRun({ tool: "fi_decoder", tier, vehicle: veh||null });
+If any product or fee in this list is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [item name] -- [brief reason you could not fully evaluate it]
+On the very last line, by itself, output exactly: SAVINGS_ESTIMATE: $XXX -- your best-estimate total dollar amount this buyer could save across all products, combining removal savings and negotiated-price savings. If nothing here is overpriced, output SAVINGS_ESTIMATE: $0. No other text on that line.`, false, chunk => setR(chunk));
+    const savingsMatch = t.match(/SAVINGS_ESTIMATE:\s*\$?([\d,]+)/i);
+    const savedAmount = savingsMatch ? parseInt(savingsMatch[1].replace(/,/g, ""), 10) : null;
+    const displayText = t.replace(/SAVINGS_ESTIMATE:\s*\$?[\d,]+\s*$/i, "").trim();
+    setR(displayText); setL(false); parseAndFlagGaps(displayText);
+    saveToolRun({ tool: "fi_decoder", tier, vehicle: veh||null, money_saved: savedAmount||null });
     if (tier === "single") setSubmitted(true);
   };
   return (
@@ -2304,9 +2328,13 @@ For EACH add-on:
 - If it is already physically installed on the vehicle, what to say in that situation
 ## BATTLE PLAN -- Step by step instructions for removing flagged items, or negotiating the price down on any you want to keep. What to say if the dealer claims it cannot be removed or the price cannot move.
 ## TOTAL POTENTIAL SAVINGS -- Estimated dollar amount from removing flagged items, plus estimated savings from successfully negotiating down the price on any marked KEEP or NEGOTIATE.
-If any add-on in this list is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [add-on name] -- [brief reason you could not fully evaluate it]`, false, chunk => setR(chunk));
-    setR(t); setL(false); parseAndFlagGaps(t);
-    saveToolRun({ tool: "addon_fighter", tier, vehicle: veh||null });
+If any add-on in this list is something you cannot fully evaluate or have not encountered before, include a line formatted exactly as: GAP: [add-on name] -- [brief reason you could not fully evaluate it]
+On the very last line, by itself, output exactly: SAVINGS_ESTIMATE: $XXX -- your best-estimate total dollar amount from the TOTAL POTENTIAL SAVINGS section above, as a single number. If nothing here is overpriced, output SAVINGS_ESTIMATE: $0. No other text on that line.`, false, chunk => setR(chunk));
+    const savingsMatch = t.match(/SAVINGS_ESTIMATE:\s*\$?([\d,]+)/i);
+    const savedAmount = savingsMatch ? parseInt(savingsMatch[1].replace(/,/g, ""), 10) : null;
+    const displayText = t.replace(/SAVINGS_ESTIMATE:\s*\$?[\d,]+\s*$/i, "").trim();
+    setR(displayText); setL(false); parseAndFlagGaps(displayText);
+    saveToolRun({ tool: "addon_fighter", tier, vehicle: veh||null, money_saved: savedAmount||null });
     if (tier === "single") setSubmitted(true);
   };
   const lc = l => l===true?"var(--green)":l===false?"var(--red)":"var(--y)";
@@ -2905,6 +2933,7 @@ const PATH_TO_VIEW = {
   "/blog/how-to-negotiate-car-add-ons": "blog_addons",
   "/blog/car-shopper-vs-car-buyer": "blog_shopper",
   "/blog/fico-score-vs-credit-karma": "blog_credit_score",
+  "/blog/lease-catch-22-turn-in-guide": "blog_lease",
 };
 const VIEW_TO_PATH = {
   home: "/",
@@ -2921,6 +2950,7 @@ const VIEW_TO_PATH = {
   blog_addons: "/blog/how-to-negotiate-car-add-ons",
   blog_shopper: "/blog/car-shopper-vs-car-buyer",
   blog_credit_score: "/blog/fico-score-vs-credit-karma",
+  blog_lease: "/blog/lease-catch-22-turn-in-guide",
   admin: "/", // admin stays hidden, never reflected in URL
 };
 const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review-purity", fi:"fi-decoder", addons:"add-on-fighter", guide:"counter-guide" };
@@ -2937,6 +2967,7 @@ const PAGE_META = {
   blog_addons: { title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want) | CNTROFR", desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to remove them." },
   blog_shopper: { title:"Car Shopper vs. Car Buyer — Which One Are You? | CNTROFR", desc:"The most expensive car mistake isn't overpaying. It's overpaying for the wrong car. Know your driving habits, match your vehicle to your life, and walk in ready to buy — not browse." },
   blog_credit_score: { title:"FICO Auto Score vs. Credit Karma — Why Your Score Isn't What the Dealer Sees | CNTROFR", desc:"Credit Karma shows a VantageScore. Most auto lenders pull a FICO Auto Score instead. The gap can be 20-40+ points -- here's why, and how to know your real number before you sit down to negotiate." },
+  blog_lease: { title:"The Lease Catch-22s Nobody Explains (Plus Your Full Turn-In Playbook) | CNTROFR", desc:"Leasing gets sold as the simple option. Here's what actually happens at turn-in -- excess wear, mileage overages, the insurance claim decision, lease-end protection, and why CNTROFR doesn't analyze lease deals." },
   contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
   privacy: { title:"Privacy Policy -- CNTROFR", desc:"CNTROFR's privacy policy. We never sell your data or refer you to dealers." },
   tos: { title:"Terms of Use -- CNTROFR", desc:"Terms of use for CNTROFR's car deal analysis tools." },
@@ -3379,6 +3410,7 @@ export default function App() {
             <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.7,marginBottom:40}}>Written by a certified automotive insider with 15 years of dealership sales and F&I experience. No dealer affiliations. No ads. Just the playbook.</p>
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
               {[
+                {view:"blog_lease",title:"The Lease Catch-22s Nobody Explains (Plus Your Full Turn-In Playbook)",desc:"Leasing gets sold as the simple option. Here's what actually happens at turn-in -- excess wear, mileage overages, the insurance claim decision, lease-end protection, and why CNTROFR doesn't analyze lease deals.",tag:"Leasing",date:"July 2026",time:"8 min read"},
                 {view:"blog_credit_score",title:"FICO Auto Score vs. Credit Karma — Why Your Score Isn't What the Dealer Sees",desc:"Credit Karma shows a VantageScore. Most auto lenders pull a FICO Auto Score instead. The gap can be 20-40+ points -- here's why, and how to know your real number before you sit down to negotiate.",tag:"Financing",date:"July 2026",time:"6 min read"},
                 {view:"blog_doc_fees",title:"What Is a Dealer Doc Fee — And Is Yours Too High?",desc:"Doc fees vary wildly by state. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price.",tag:"Fees",date:"June 2026",time:"5 min read"},
                 {view:"blog_fi",title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay",desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's genuinely worth to you, and how to negotiate it fairly if you want it.",tag:"F&I",date:"June 2026",time:"7 min read"},
@@ -3581,6 +3613,71 @@ export default function App() {
               <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🔍 Check If Your Quoted Rate Is Fair</div>
               <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>CNTROFR's free Deal Analyzer includes live financing rate intelligence and an APR/term calculator — plug in what you were quoted and see it stacked against real current-market rates before you decide if it's actually a good deal.</p>
               <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{setView("tools");setTab("deal");window.scrollTo(0,0)}}>Try the Free Deal Analyzer</button>
+            </div>
+          </div>
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Blog Post: Lease Catch-22s & Turn-In Guide ──────────────────── */}
+      {view==="blog_lease"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("blog");window.scrollTo(0,0)}}>← All Guides</button>
+          </div>
+          <div style={{maxWidth:760,margin:"0 auto",padding:"48px 24px"}}>
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:16}}>
+              <span style={{background:"rgba(255,214,0,.12)",color:"var(--y)",fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,letterSpacing:.5}}>LEASING</span>
+              <span style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>July 2026 · 8 min read · By a Certified Automotive Insider</span>
+            </div>
+            <h1 style={{fontSize:30,fontWeight:900,color:"var(--text)",marginBottom:16,lineHeight:1.2}}>The Lease Catch-22s Nobody Explains (Plus Your Full Turn-In Playbook)</h1>
+            <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Leasing gets sold as the simple option — lower payment, always under warranty, hand back the keys and walk away clean. Here's what doesn't make it into that pitch: most of the real cost of a lease shows up months after you signed, not at the dealership. This is the part nobody explains up front.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Catch-22s</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}><strong style={{color:"var(--text)"}}>You don't own it, but you're on the hook like you do.</strong> Insurance requirements, mileage limits, wear-and-tear standards — all while building zero equity in the vehicle. At the end of your loan, you have a car. At the end of your lease, you have a decision to make and a bill to settle first.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}><strong style={{color:"var(--text)"}}>The "low payment forever" trap.</strong> Re-leasing every 2-3 years can genuinely cost more over a decade than buying something and driving it into the ground. A low monthly payment that never ends isn't actually low — it's just spread out.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}><strong style={{color:"var(--text)"}}>Strong credit is still the price of entry.</strong> The money factor — a lease's version of an interest rate — is priced by credit tier just like a loan is. Same gatekeeping problem we cover on the financing side, just less understood because "money factor" doesn't sound like a rate.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}><strong style={{color:"var(--text)"}}>Mileage is a bet you make blind.</strong> Almost nobody actually knows their driving pattern three years out. Guess low and pay for miles you don't use. Guess high and hope you don't blow past your limit — because the overage charge waits for you at turn-in, not when you cross the line.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Real Benefits — Leasing Isn't Always Wrong</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>To be fair about it: you're always under factory warranty, the payment is typically lower than financing the same car, you get a built-in refresh cycle if you like driving something current, and the dealer eats the steepest depreciation years instead of you. If you genuinely turn over vehicles every few years anyway, leasing can be the more rational math — not the naive one.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Why CNTROFR Doesn't Analyze Lease Deals</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Straight answer: lease math runs on money factor and residual value, not APR — a completely different pricing model. And the tiering behind it comes from captive lessors (Toyota Financial, Honda Financial, and the like) using proprietary criteria that's genuinely harder to independently verify than a standard loan credit tier. We'd rather tell you what we can't fully verify than pretend to cover it anyway. This guide exists because the turn-in process itself — the part that actually costs people real money — has nothing to do with that math, and that part we can absolutely walk you through.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>60-90 Days Before Turn-In: The Free Inspection Nobody Uses</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Most manufacturers offer a free wear-and-tear pre-inspection 60-90 days before your lease ends. Almost nobody schedules it. That inspection is the single highest-leverage move available to you — it tells you exactly what you'll be charged for while you still have time to fix it yourself, usually for a fraction of what the dealer or lessor would charge at turn-in. Skip it, and you find out what you owe the same day you're handing over the keys, with zero time to do anything about it.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Three Charges Nobody Explains Upfront</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}><strong style={{color:"var(--text)"}}>Excess wear and tear</strong> — damage beyond what's considered normal use. Standards vary by lessor, which is exactly why the pre-inspection matters.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}><strong style={{color:"var(--text)"}}>Mileage overage</strong> — a per-mile charge for every mile past your contracted limit, typically somewhere in the 15-30 cents/mile range depending on the lessor.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}><strong style={{color:"var(--text)"}}>Disposition fee</strong> — a flat fee just for the administrative cost of taking the car back, often several hundred dollars. Worth asking directly: this fee is sometimes waived if you lease or buy your next vehicle from the same brand.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Insurance Claim Decision</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}>Here's the actual test, and it's simpler than people make it: <strong style={{color:"var(--text)"}}>if you'd file a claim on this damage if the car were yours to keep, it needs to get fixed.</strong> If you'd just live with it on your own car, that's your answer too.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}>Manufacturers don't expect showroom condition at turn-in — normal wear is built into their standards. But real damage is real damage. A bumper that's barely hanging on, wheels that look like saw blades — that's getting charged one way or another, whether you pay it directly or run it through insurance.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>The actual decision is a real cost comparison: weigh the repair cost against your deductible, and against the realistic chance and size of a rate increase from filing. Sometimes just paying the wear-and-tear charge directly is cheaper than touching your insurance history for a car you're about to hand back anyway. Sometimes the damage is big enough that insurance is still the right call. Run the numbers honestly both ways instead of defaulting to either one on autopilot.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Is Lease-End Protection Worth It?</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}>Lease-end protection is an add-on that covers excess wear charges up to a set limit. Run the actual self-assessment instead of guessing: do you park in a garage or on the street? Street parking means real exposure to door dings and curb rash on your wheels — a garage cuts that risk way down. Do you drive dense city streets or mostly open road? Are you commuting during traditional rush hour, stop-and-go, bumper to bumper, day after day for three years straight? Someone garage-parking with an easy highway commute has genuinely different risk than someone street-parking in a dense city with a daily rush-hour grind — and the honest answer to those questions should drive the decision, not a gut feeling.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}>Here's the part worth saying plainly: even if you end up paying a little more for it than your actual risk strictly justifies, it still absorbs a real chunk of turn-in cost — and tying back to the insurance conversation above, it keeps all of that off your insurance history entirely. For a first-time lessee especially, that trade is usually worth making. Spend the money, buy yourself some real turn-in peace of mind instead of guessing wrong and getting surprised at the end.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Just don't overpay for it. Know the actual price before you say yes, and don't let it get bundled in at a markup just because it sounds reassuring in the moment. 😉</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Thinking Ahead: What Happens When It Ends</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>You've got three paths: buy it out, walk away into something new, or re-lease. Find out your buyout price early — sometimes it's a genuinely good deal, since it's a used car whose exact condition and history you already know better than anyone. Start weighing these options 4-6 months before your lease ends, not the week it's due. Your leverage and your options both shrink the closer you get to the deadline.</p>
+
+            <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:14,padding:"20px 24px",marginTop:32,marginBottom:16}}>
+              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🎓 First Time Considering a Lease?</div>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>A low lease payment can feel like an easy first step into car ownership — but the same fundamentals apply here as anywhere else: know your real budget, understand what "affordable" means beyond just the monthly number, and don't let a low payment substitute for financial readiness. CNTROFR's First Time Buyer package covers exactly this kind of decision, plus live answers to whatever's actually confusing you.</p>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>buy(PLANS[0])}>See First Time Buyer — $25</button>
             </div>
           </div>
           <div className="footer">
