@@ -3077,7 +3077,7 @@ export default function App() {
         <div className="hero">
           <div className="hero-road" />
           <h1 style={{position:"absolute",width:1,height:1,padding:0,margin:-1,overflow:"hidden",clip:"rect(0,0,0,0)",whiteSpace:"nowrap",border:0}}>CNTROFR — Car Deal Analyzer | Expose Dealer Markups, Counter Offers & F&I Tactics | Built for Car Buyers</h1>
-          <div className="sec-eye" style={{marginBottom:4}}>{lang==="es"?"TU CONSULTOR DE BOLSILLO PARA AUTOS":"YOUR POCKET CAR CONSULTANT"}</div>
+          <div className="sec-eye" style={{marginBottom:4}}>{lang==="es"?"TU CONSULTOR PERSONAL DE BOLSILLO PARA AUTOS":"YOUR PERSONAL POCKET CAR CONSULTANT"}</div>
           <div className="hero-center-plate">
             <HeroPlateScene />
           </div>
