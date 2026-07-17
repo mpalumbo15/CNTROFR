@@ -43,13 +43,20 @@ export default async function handler(req, res) {
     return sendJson(res, 400, { error: { message: "Invalid request." } });
   }
 
-  const { question, tool, gated, lang } = body;
+  const { question, tool, gated, lang, dealerGroup } = body;
   if (!question || typeof question !== "string" || question.length > 2000) {
     return sendJson(res, 400, { error: { message: "Invalid question." } });
   }
   if (!["counter_guide", "ftb"].includes(tool)) {
     return sendJson(res, 400, { error: { message: "Invalid tool." } });
   }
+
+  // Whitelist -- only known, publicly-traded dealer groups. Never accept a
+  // free-text dealer name here: naming a specific, individually identifiable
+  // local business carries real defamation exposure that a well-documented
+  // public company does not. See ARCHITECTURE.md note on this decision.
+  const KNOWN_GROUPS = ["asbury", "lithia", "autonation", "holman", "penske", "sonic", "group1", "independent"];
+  const safeGroup = KNOWN_GROUPS.includes(String(dealerGroup || "").toLowerCase()) ? String(dealerGroup).toLowerCase() : null;
 
   const ip =
     (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
@@ -84,9 +91,17 @@ export default async function handler(req, res) {
     ? `You are a former automotive finance manager and dealership insider, talking to a first-time car buyer. They may be asking a general question, describing something confusing, or describing active pressure from a salesperson or finance manager -- it could be before, during, or after a dealership visit. Give them a short, warm, direct answer: (1) answer their actual question in plain English, explaining any industry term the moment you use it, (2) if it involves a dealer tactic, name it and explain briefly why dealers do it, (3) if there's something they should say or do, give them the exact words or next step. Keep the whole answer under 150 words. No question is too basic -- never make them feel silly for asking. Do not pad with disclaimers or preamble.`
     : `You are a former automotive finance manager and dealership insider. A car buyer is describing a specific tactic or pressure they are experiencing RIGHT NOW, in real time -- possibly while sitting at the dealership. Give them a short, direct, actionable answer: (1) name the tactic in plain English if there is one, (2) explain in 1-2 sentences why the dealer is doing this, (3) give them an exact word-for-word script to say back, right now. Keep the whole answer under 150 words -- this needs to be readable in seconds, not a full article. Do not pad with disclaimers or preamble. Get straight to the script.`;
 
+  const GROUP_NAMES = { asbury: "Asbury Automotive", lithia: "Lithia Motors", autonation: "AutoNation", holman: "Holman", penske: "Penske Automotive", sonic: "Sonic Automotive", group1: "Group 1 Automotive" };
+
+  const groupContext = safeGroup && safeGroup !== "independent"
+    ? `\n\nThe buyer identified this as a ${GROUP_NAMES[safeGroup]}-owned store. Public Pulse context (state this as general reported pattern, never as a specific accusation against this exact location): large, publicly-traded dealer groups like this typically run centralized, standardized sales and F&I training across every store they own -- meaning what the buyer is experiencing is more likely a company-wide playbook than one manager's personal approach. Frame it that way if relevant: "this tends to be how ${GROUP_NAMES[safeGroup]}-trained stores are taught to run this," not "this specific store is doing something wrong." Never state anything as a confirmed fact about this individual location -- only about how large corporate groups generally train and operate.`
+    : safeGroup === "independent"
+    ? `\n\nThe buyer identified this as an independent, non-corporate dealership. Note if relevant: independent stores don't have the same centralized corporate training structure, so tactics vary more by individual owner or manager rather than a standardized company-wide playbook.`
+    : "";
+
   const prompt = `${framing}
 
-Relevant fact if it applies: the FTC has alleged (in a contested complaint against a major dealer group, not yet finally resolved) that some dealerships have buyers sign on electronic tablets showing only the signature line, not the full document -- making it easy to miss add-ons never agreed to. If the buyer mentions signing on a tablet or device, tell them to ask the F&I manager to scroll through the full document on screen (not just the signature boxes) or request a printed copy -- a normal, reasonable ask.
+Relevant fact if it applies: the FTC has alleged (in a contested complaint against a major dealer group, not yet finally resolved) that some dealerships have buyers sign on electronic tablets showing only the signature line, not the full document -- making it easy to miss add-ons never agreed to. If the buyer mentions signing on a tablet or device, tell them to ask the F&I manager to scroll through the full document on screen (not just the signature boxes) or request a printed copy -- a normal, reasonable ask.${groupContext}
 
 Also, on a final line by itself, output a normalized tactic category tag in this exact format: TACTIC_TAG: [category] -- choose the single best-fitting category from: add_on_pressure, trade_in_lowball, payment_packing, rate_markup, hidden_fees, high_pressure_close, otd_price_dodge, warranty_upsell, digital_signing_concern, general_question, other.
 
