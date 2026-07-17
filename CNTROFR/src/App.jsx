@@ -3728,8 +3728,8 @@ export default function App() {
             </div>
 
             <div style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:14,padding:"20px 24px",marginTop:16}}>
-              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🔍 Know Before You're Sitting There</div>
-              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>F&I Decoder tells you, product by product, what's actually worth paying for on your specific deal — before you're the one being pitched.</p>
+              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🔍 Know Before or While You're Sitting There</div>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>F&I Decoder tells you, product by product, what's actually worth paying for on your specific deal before you walk in. And if you're already sitting there when something gets pitched, the live Q&A tool gives you the script in real time — no need to leave the room.</p>
               <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button>
             </div>
           </div>
