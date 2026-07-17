@@ -93,11 +93,22 @@ export default async function handler(req, res) {
 
   const GROUP_NAMES = { asbury: "Asbury Automotive", lithia: "Lithia Motors", autonation: "AutoNation", holman: "Holman", penske: "Penske Automotive", sonic: "Sonic Automotive", group1: "Group 1 Automotive" };
 
-  const groupContext = safeGroup && safeGroup !== "independent"
-    ? `\n\nThe buyer identified this as a ${GROUP_NAMES[safeGroup]}-owned store. Public Pulse context (state this as general reported pattern, never as a specific accusation against this exact location): large, publicly-traded dealer groups like this typically run centralized, standardized sales and F&I training across every store they own -- meaning what the buyer is experiencing is more likely a company-wide playbook than one manager's personal approach. Frame it that way if relevant: "this tends to be how ${GROUP_NAMES[safeGroup]}-trained stores are taught to run this," not "this specific store is doing something wrong." Never state anything as a confirmed fact about this individual location -- only about how large corporate groups generally train and operate.`
-    : safeGroup === "independent"
-    ? `\n\nThe buyer identified this as an independent, non-corporate dealership. Note if relevant: independent stores don't have the same centralized corporate training structure, so tactics vary more by individual owner or manager rather than a standardized company-wide playbook.`
-    : "";
+  const groupContext = (() => {
+    if (!safeGroup) return "";
+    const isKnownGroup = safeGroup !== "independent";
+    if (tool === "ftb") {
+      // First-time buyers often treat "what does the internet say" as gospel
+      // without knowing how to weigh it. Keep this simple and specifically
+      // teach the calibration: one bad review is noise, a repeated pattern
+      // is signal -- never confirm/deny anything about this exact store.
+      return isKnownGroup
+        ? `\n\nThe buyer identified this as a ${GROUP_NAMES[safeGroup]}-owned store. Since they're a first-time buyer, help them read online reviews the right way, in plain simple language: big companies like this get reviewed constantly, so a few bad reviews don't automatically mean something's wrong. But if the SAME complaint keeps showing up again and again, that's worth taking seriously -- large groups like this train every store the same way, so a repeated pattern is more likely a company-wide habit than one bad location. Simple rule to give them if relevant: one bad review is noise, a repeated pattern is signal. Never confirm or deny anything about this specific store -- just help them think about what they're reading the right way.`
+        : `\n\nThe buyer identified this as an independent, family-owned dealership. Help them understand simply: smaller independent stores don't have a company-wide playbook like big chains do, so what they read online about one location doesn't necessarily predict how this specific owner or team operates -- it really can vary a lot store to store here.`;
+    }
+    return isKnownGroup
+      ? `\n\nThe buyer identified this as a ${GROUP_NAMES[safeGroup]}-owned store. Public Pulse context (state this as general reported pattern, never as a specific accusation against this exact location): large, publicly-traded dealer groups like this typically run centralized, standardized sales and F&I training across every store they own -- meaning what the buyer is experiencing is more likely a company-wide playbook than one manager's personal approach. Frame it that way if relevant: "this tends to be how ${GROUP_NAMES[safeGroup]}-trained stores are taught to run this," not "this specific store is doing something wrong." Never state anything as a confirmed fact about this individual location -- only about how large corporate groups generally train and operate.`
+      : `\n\nThe buyer identified this as an independent, non-corporate dealership. Note if relevant: independent stores don't have the same centralized corporate training structure, so tactics vary more by individual owner or manager rather than a standardized company-wide playbook.`;
+  })();
 
   const prompt = `${framing}
 
