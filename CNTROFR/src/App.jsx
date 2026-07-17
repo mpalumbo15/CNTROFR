@@ -2934,6 +2934,7 @@ const PATH_TO_VIEW = {
   "/blog/car-shopper-vs-car-buyer": "blog_shopper",
   "/blog/fico-score-vs-credit-karma": "blog_credit_score",
   "/blog/lease-catch-22-turn-in-guide": "blog_lease",
+  "/blog/finance-office-what-happens-while-you-wait": "blog_finance_wait",
 };
 const VIEW_TO_PATH = {
   home: "/",
@@ -2951,6 +2952,7 @@ const VIEW_TO_PATH = {
   blog_shopper: "/blog/car-shopper-vs-car-buyer",
   blog_credit_score: "/blog/fico-score-vs-credit-karma",
   blog_lease: "/blog/lease-catch-22-turn-in-guide",
+  blog_finance_wait: "/blog/finance-office-what-happens-while-you-wait",
   admin: "/", // admin stays hidden, never reflected in URL
 };
 const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review-purity", fi:"fi-decoder", addons:"add-on-fighter", guide:"counter-guide" };
@@ -2968,6 +2970,7 @@ const PAGE_META = {
   blog_shopper: { title:"Car Shopper vs. Car Buyer — Which One Are You? | CNTROFR", desc:"The most expensive car mistake isn't overpaying. It's overpaying for the wrong car. Know your driving habits, match your vehicle to your life, and walk in ready to buy — not browse." },
   blog_credit_score: { title:"FICO Auto Score vs. Credit Karma — Why Your Score Isn't What the Dealer Sees | CNTROFR", desc:"Credit Karma shows a VantageScore. Most auto lenders pull a FICO Auto Score instead. The gap can be 20-40+ points -- here's why, and how to know your real number before you sit down to negotiate." },
   blog_lease: { title:"The Lease Catch-22s Nobody Explains (Plus Your Full Turn-In Playbook) | CNTROFR", desc:"Leasing gets sold as the simple option. Here's what actually happens at turn-in -- excess wear, mileage overages, the insurance claim decision, lease-end protection, and why CNTROFR doesn't analyze lease deals." },
+  blog_finance_wait: { title:"What's Actually Happening While You Wait in the Finance Office | CNTROFR", desc:"That wait isn't nothing. Here's what's really happening back there -- why some paperwork still needs a wet-ink signature, and the four things being worked on while you sit in the lobby." },
   contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
   privacy: { title:"Privacy Policy -- CNTROFR", desc:"CNTROFR's privacy policy. We never sell your data or refer you to dealers." },
   tos: { title:"Terms of Use -- CNTROFR", desc:"Terms of use for CNTROFR's car deal analysis tools." },
@@ -3410,10 +3413,10 @@ export default function App() {
             <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.7,marginBottom:40}}>Written by a certified automotive insider with 15 years of dealership sales and F&I experience. No dealer affiliations. No ads. Just the playbook.</p>
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
               {[
+                {view:"blog_finance_wait",title:"What's Actually Happening While You Wait in the Finance Office",desc:"That wait isn't nothing. Here's what's really going on back there -- why some paperwork still needs a wet-ink signature, and the four things being worked on while you sit in the lobby.",tag:"F&I",date:"July 2026",time:"6 min read"},
                 {view:"blog_lease",title:"The Lease Catch-22s Nobody Explains (Plus Your Full Turn-In Playbook)",desc:"Leasing gets sold as the simple option. Here's what actually happens at turn-in -- excess wear, mileage overages, the insurance claim decision, lease-end protection, and why CNTROFR doesn't analyze lease deals.",tag:"Leasing",date:"July 2026",time:"8 min read"},
                 {view:"blog_credit_score",title:"FICO Auto Score vs. Credit Karma — Why Your Score Isn't What the Dealer Sees",desc:"Credit Karma shows a VantageScore. Most auto lenders pull a FICO Auto Score instead. The gap can be 20-40+ points -- here's why, and how to know your real number before you sit down to negotiate.",tag:"Financing",date:"July 2026",time:"6 min read"},
                 {view:"blog_doc_fees",title:"What Is a Dealer Doc Fee — And Is Yours Too High?",desc:"Doc fees vary wildly by state. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price.",tag:"Fees",date:"June 2026",time:"5 min read"},
-                {view:"blog_fi",title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay",desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's genuinely worth to you, and how to negotiate it fairly if you want it.",tag:"F&I",date:"June 2026",time:"7 min read"},
                 {view:"blog_addons",title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want)",desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to fight back.",tag:"Add-Ons",date:"June 2026",time:"6 min read"},
                 {view:"blog_shopper",title:"Car Shopper vs. Car Buyer — Which One Are You?",desc:"The most expensive car mistake isn't overpaying. It's overpaying for the wrong car. Know your driving habits, match your vehicle to your life, and walk in ready to buy.",tag:"Car Buying 101",date:"June 2026",time:"6 min read"},
               ].map((post,i)=>(
@@ -3678,6 +3681,56 @@ export default function App() {
               <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🎓 First Time Considering a Lease?</div>
               <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>A low lease payment can feel like an easy first step into car ownership — but the same fundamentals apply here as anywhere else: know your real budget, understand what "affordable" means beyond just the monthly number, and don't let a low payment substitute for financial readiness. CNTROFR's First Time Buyer package covers exactly this kind of decision, plus live answers to whatever's actually confusing you.</p>
               <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>buy(PLANS[0])}>See First Time Buyer — $25</button>
+            </div>
+          </div>
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Blog Post: What Happens While You Wait ──────────────────────── */}
+      {view==="blog_finance_wait"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("blog");window.scrollTo(0,0)}}>← All Guides</button>
+          </div>
+          <div style={{maxWidth:760,margin:"0 auto",padding:"48px 24px"}}>
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:16}}>
+              <span style={{background:"rgba(255,214,0,.12)",color:"var(--y)",fontSize:10,fontWeight:900,padding:"3px 10px",borderRadius:20,letterSpacing:.5}}>F&I</span>
+              <span style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>July 2026 · 6 min read · By a Certified Automotive Insider</span>
+            </div>
+            <h1 style={{fontSize:30,fontWeight:900,color:"var(--text)",marginBottom:16,lineHeight:1.2}}>What's Actually Happening While You Wait in the Finance Office</h1>
+            <p style={{fontSize:15,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>You agreed on a price. The salesperson shook your hand, said "let me get you over to finance," and now you're sitting in a lobby chair for twenty minutes with no idea what's actually happening on the other side of that door. That wait isn't nothing — here's what's really going on back there.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>Why Some of This Still Needs a Wet-Ink Signature</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>In a world where you can open a bank account from your couch, it's fair to wonder why a car purchase still involves a stack of paper and an actual pen. The honest answer: your lender, your state's title and registration process, and federal lending disclosure rules all still require physical, wet-ink signatures on specific documents — this isn't the dealership being old-fashioned, it's compliance. Some of what you're signing genuinely can't be replaced with a tap on a screen yet, no matter how digital everything else about the process feels.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>The Four Things Happening While You Wait</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}><strong style={{color:"var(--text)"}}>1. Shopping your credit application to lenders.</strong> This is the step that matters most, and most buyers never think about it. The dealer submits your application to multiple lenders, gets back approvals with a buy rate for each, and picks one to present to you — often with room added on top. This is exactly where rate markup gets built in, and it's happening while you're still in the lobby.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}><strong style={{color:"var(--text)"}}>2. Finalizing the numbers and printing your contract package.</strong> Every figure you agreed on — price, trade value, fees, tax — gets loaded into the system and turned into the actual paperwork you're about to sign. This is also where a number quietly moving from what you thought you agreed to is most likely to happen, which is exactly why it's worth re-checking every figure against what you actually negotiated before you sign anything.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:12}}><strong style={{color:"var(--text)"}}>3. Double-checking your front-end paperwork.</strong> Your trade title, your ID, your proof of insurance — all of it gets verified before you're brought back. Missing or mismatched paperwork here is one of the most common reasons a "quick finance appointment" turns into an hour.</p>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}><strong style={{color:"var(--text)"}}>4. Deciding what to pitch you.</strong> The finance manager is looking at your deal and your profile and deciding which products make sense to offer first — and in what order. This isn't random. It's a deliberate sequence built to get you saying yes early and often before you've had a chance to think through what you actually need.</p>
+
+            <h2 style={{fontSize:20,fontWeight:900,color:"var(--y)",marginBottom:10,marginTop:32}}>What To Actually Do With This Wait</h2>
+            <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:24}}>Use it. This is the one part of the entire process where nobody's asking you a question or waiting on an answer — which makes it the best possible time to mentally reset before you're sitting across from someone whose whole job is finding you a yes. Decide now, before you're back there, which products you're even willing to consider and what you're not entertaining regardless of how it's pitched. Walking in with that decided beats trying to figure it out in real time while someone across the desk is actively working to change your mind.</p>
+
+            <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:14,padding:"20px 24px",marginTop:32,marginBottom:16}}>
+              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>📋 Want the Full Line-Item Breakdown?</div>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>This post covers the process. If you want the deeper dive — what each specific F&I product actually costs the dealer, what it's genuinely worth, and how to negotiate each one by name — we've got a full breakdown of that too.</p>
+              <button className="ghost-btn" style={{padding:"10px 24px",fontSize:13}} onClick={()=>{setView("blog_fi");window.scrollTo(0,0)}}>Read the Full F&I Product Guide →</button>
+            </div>
+
+            <div style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:14,padding:"20px 24px",marginTop:16}}>
+              <div style={{fontSize:13,fontWeight:900,color:"var(--y)",marginBottom:8}}>🔍 Know Before You're Sitting There</div>
+              <p style={{fontSize:13,color:"var(--text2)",fontWeight:700,lineHeight:1.6,marginBottom:16}}>F&I Decoder tells you, product by product, what's actually worth paying for on your specific deal — before you're the one being pitched.</p>
+              <button className="hbtn-y" style={{padding:"10px 24px",fontSize:13}} onClick={()=>buy(PLANS[2])}>Unlock Pro — $49</button>
             </div>
           </div>
           <div className="footer">
