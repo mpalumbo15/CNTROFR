@@ -852,6 +852,7 @@ function Loading({ msg, web }) {
 // gated=false: always answers, no limit (FTB customers already paid for this).
 function TacticAnswerBlock({ tool, gated, onBuy, lang }) {
   const [q, setQ] = useState("");
+  const [dealerGroup, setDealerGroup] = useState("");
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState(null);
   const [lockedOut, setLockedOut] = useState(false);
@@ -864,7 +865,7 @@ function TacticAnswerBlock({ tool, gated, onBuy, lang }) {
       const r = await fetch("https://cntrofr.com/api/tactic-answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q.trim(), tool, gated, lang }),
+        body: JSON.stringify({ question: q.trim(), tool, gated, lang, dealerGroup: dealerGroup||undefined }),
       });
       const data = await r.json();
       if (data.gated_out) { setLockedOut(true); }
@@ -894,6 +895,21 @@ function TacticAnswerBlock({ tool, gated, onBuy, lang }) {
         <div style={{fontSize:12,color:"var(--muted)",fontWeight:700,marginBottom:10,lineHeight:1.5}}>
           {copy.sub}
         </div>
+        <select
+          value={dealerGroup}
+          onChange={e=>setDealerGroup(e.target.value)}
+          style={{width:"100%",background:"var(--bg)",border:"2px solid var(--b1)",borderRadius:8,color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",outline:"none",marginBottom:10}}
+        >
+          <option value="">{lang==="es"?"Grupo del concesionario (opcional)":"Dealer group (optional)"}</option>
+          <option value="asbury">Asbury Automotive</option>
+          <option value="lithia">Lithia Motors</option>
+          <option value="autonation">AutoNation</option>
+          <option value="holman">Holman</option>
+          <option value="penske">Penske Automotive</option>
+          <option value="sonic">Sonic Automotive</option>
+          <option value="group1">Group 1 Automotive</option>
+          <option value="independent">{lang==="es"?"Independiente / Familiar":"Independent / Family-Owned"}</option>
+        </select>
         <textarea
           value={q}
           onChange={e=>setQ(e.target.value)}
@@ -1968,10 +1984,10 @@ On the very last line, by itself, output exactly: SAVINGS_ESTIMATE: $XXX -- your
 }
 
 function ReviewPurity() {
-  const [f, setF] = useState({ dealer:"", city:"", state:"", reviews:"" });
-  const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [v, setV] = useState(""); const [eV, setEV] = useState(""); const [kV, setKV] = useState("");
-  const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false);
-  const [cooldownER, setCoolER] = useState(0); const [cooldownKR, setCoolKR] = useState(0);
+  const [f, setF] = useState({ dealer:"", city:"", state:"", reviews:"", parentCompany:"" });
+  const [customerRes, setCR] = useState(null); const [employeeRes, setER] = useState(null); const [complaintRes, setKR] = useState(null); const [pulseRes, setPP] = useState(null); const [v, setV] = useState(""); const [eV, setEV] = useState(""); const [kV, setKV] = useState(""); const [pV, setPV] = useState("");
+  const [loadingCR, setLCR] = useState(false); const [loadingER, setLER] = useState(false); const [loadingKR, setLKR] = useState(false); const [loadingPP, setLPP] = useState(false);
+  const [cooldownER, setCoolER] = useState(0); const [cooldownKR, setCoolKR] = useState(0); const [cooldownPP, setCoolPP] = useState(0);
   const startCooldown = (setter, seconds=8) => {
     setter(seconds);
     const tick = setInterval(() => {
@@ -2044,10 +2060,38 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
     setLKR(false);
   };
 
+  const GROUP_NAMES = { asbury: "Asbury Automotive", lithia: "Lithia Motors", autonation: "AutoNation", holman: "Holman", penske: "Penske Automotive", sonic: "Sonic Automotive", group1: "Group 1 Automotive" };
+
+  const runPublicPulse = async () => {
+    if (!f.parentCompany || !GROUP_NAMES[f.parentCompany]) return;
+    setLPP(true); setPP(null);
+    const groupName = GROUP_NAMES[f.parentCompany];
+    try {
+      const p = await ai(`Corporate accountability researcher covering large publicly-traded auto dealer groups. Direct, no hedging, but genuinely disciplined about what counts as a real signal versus noise. Do not narrate your search process or thinking. Output ONLY the final structured analysis starting directly with the first ## header. No preamble, no process commentary.
+
+Search for recent, credible reporting on ${groupName}'s corporate sales and F&I practices -- trade press, consumer news coverage, official actions (FTC, state AG, CFPB), and patterns corroborated across multiple independent sources. This is about the CORPORATE GROUP in general, not the specific location "${f.dealer}" -- never state anything as a confirmed fact about this one store. Frame everything as a reported pattern for the corporate group, never as a confirmed fact about this specific location.
+
+CRITICAL FILTER -- apply this test to everything you find: is this a genuine account of something the dealer misrepresented, hid, or promised and failed to deliver (hidden fees, bait-and-switch pricing, undisclosed add-ons, yo-yo financing, discriminatory rate markup, refusing to honor an actual contractual term) -- or is it a garden-variety complaint about normal used-car risk economics that isn't actually a dealer failure (an old high-mileage vehicle needing a repair that was never covered, general buyer's remorse about price)? Only the first category is a real signal. Discard the second category entirely, even if there's a lot of it -- higher mileage and age mean inherently higher risk, and price differences exist for a reason. That is not a dealer failure.
+
+CRITICAL ON RECENCY -- prioritize reports from the last 12 months. If you cite anything older, say so explicitly and note that corporate practices can genuinely change (leadership changes, settlements, policy reform) -- never present outdated practices as if they reflect the company today.
+
+## PUBLIC PULSE VERDICT -- RECURRING PATTERN, MIXED SIGNAL, or NOTHING NOTABLE, based only on what survives the filter above.
+## WHAT'S BEING REPORTED -- Summarize the genuine post-filter signal. Attribute it as "reported" or "alleged," never as settled fact. If nothing solid exists, say so plainly rather than padding this section.
+## HOW RECENT -- State the actual timeframe of what you found. Flag anything older than 12 months as potentially outdated.
+## WHAT THIS MEANS FOR YOU -- One or two practical sentences on what to watch for at this specific store, given it's trained by ${groupName}, without asserting this store does any of it.`, true);
+      const err = isRateErr(p);
+      const m = !err && p.match(/(RECURRING PATTERN|MIXED SIGNAL|NOTHING NOTABLE)/i);
+      setPV(m ? m[1].trim().toUpperCase() : "ANALYZED");
+      setPP(err ? "## Temporarily Unavailable\nHigh demand right now. Hit Retry to try again." : p);
+    } catch(e) { setPP("## Scan Failed\nConnection issue. Hit Retry to try again."); }
+    setLPP(false);
+  };
+
   const vc = v => /AUTHENTIC/.test(v)?"bg":/HIGH BOT/.test(v)?"br":/SUSPICIOUS/.test(v)?"ba":"bb";
   const evc = v => /HEALTHY/.test(v)?"bg":/TOXIC/.test(v)?"br":/CONCERNING/.test(v)?"ba":"bb";
   const kvc = v => /CLEAN/.test(v)?"bg":/SIGNIFICANT/.test(v)?"br":/MINOR/.test(v)?"ba":"bb";
-  const reset = () => { setCR(null); setER(null); setKR(null); setV(""); setEV(""); setKV(""); setCoolER(0); setCoolKR(0); };
+  const ppvc = v => /NOTHING NOTABLE/.test(v)?"bg":/RECURRING/.test(v)?"br":/MIXED/.test(v)?"ba":"bb";
+  const reset = () => { setCR(null); setER(null); setKR(null); setPP(null); setV(""); setEV(""); setKV(""); setPV(""); setCoolER(0); setCoolKR(0); setCoolPP(0); };
 
   return (
     <div>
@@ -2061,6 +2105,19 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
             <div className="fld"><label>State</label><input placeholder="NC" value={f.state} onChange={s("state")} /></div>
           </div>
           <div className="sp" />
+          <div className="sp" />
+          <div className="fld"><label>Parent Company <span style={{fontWeight:600,color:"var(--muted)"}}>(optional -- unlocks the Public Pulse scan)</span></label>
+            <select value={f.parentCompany} onChange={s("parentCompany")} style={{background:"var(--bg)",border:"2px solid var(--b1)",color:"var(--text)",fontFamily:"Nunito",fontSize:13,padding:"9px 12px",borderRadius:8,outline:"none",width:"100%"}}>
+              <option value="">Not sure / Independent dealer</option>
+              <option value="asbury">Asbury Automotive</option>
+              <option value="lithia">Lithia Motors</option>
+              <option value="autonation">AutoNation</option>
+              <option value="holman">Holman</option>
+              <option value="penske">Penske Automotive</option>
+              <option value="sonic">Sonic Automotive</option>
+              <option value="group1">Group 1 Automotive</option>
+            </select>
+          </div>
           <div className="fld"><label>Your Experience (optional -- makes results sharper)</label><textarea style={{minHeight:90}} placeholder={"Things you liked:\n-- Salesperson was upfront on pricing\n\nThings that felt off:\n-- Tried to add $800 in extras at signing"} value={f.reviews} onChange={s("reviews")} /></div>
           <div style={{fontSize:11,color:"var(--muted)",marginTop:6,fontWeight:700}}>Three separate scans -- read each result before moving to the next for best results.</div>
           <button className="go-btn" onClick={runCustomer} disabled={loadingCR||!f.dealer}>
@@ -2157,6 +2214,58 @@ Search BBB, State AG (${f.state}), CFPB, local news for: "${f.dealer}", ${f.city
           ) : (
             <>
               <MD text={complaintRes} />
+              {f.parentCompany && !pulseRes && !loadingPP && (
+                <div style={{padding:"16px 20px",borderTop:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+                  <div style={{fontSize:11,color:"var(--muted)",fontWeight:700}}>Read the results above, then check the corporate-level Public Pulse when ready.</div>
+                  {cooldownPP > 0
+                    ? <button className="hbtn-y" disabled style={{padding:"10px 24px",fontSize:12,opacity:.5,cursor:"not-allowed"}}>Refueling... {cooldownPP}s</button>
+                    : <button className="hbtn-y" style={{padding:"10px 24px",fontSize:12}} onClick={runPublicPulse}>Continue to Public Pulse</button>
+                  }
+                </div>
+              )}
+              {loadingPP && (
+                <div style={{padding:"20px",borderTop:"1px solid var(--b1)",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
+                  <div className="spin" style={{width:20,height:20,borderWidth:2}} />
+                  <span style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Checking corporate-level Public Pulse...</span>
+                </div>
+              )}
+              {(!f.parentCompany || pulseRes) && !loadingPP && (
+                <>
+                  <div style={{background:"rgba(0,201,107,.06)",border:"1px solid rgba(0,201,107,.15)",borderRadius:10,margin:"0 20px 16px",padding:"14px 16px",fontSize:12,color:"var(--text2)",lineHeight:1.75,fontWeight:600}}>
+                    <strong style={{color:"var(--green)",display:"block",marginBottom:4}}>A note on responsible spending —</strong>
+                    CNTROFR exists to expose greed, not to burn down the industry. The profit pressure that makes car buying miserable doesn't come from the floor — it comes from ownership and management structures. Your salesperson often sees none of it.<br/><br/>
+                    <strong style={{color:"var(--text)"}}>If you had a great experience — say so.</strong> Leave your salesperson a five-star review on Google, DealerRater, and Cars.com. Mention them by name. That review feeds their family and builds their career. The greed at the top doesn't get to take that from them.
+                  </div>
+                  <div style={{padding:"14px 20px",borderTop:"1px solid var(--b1)",textAlign:"center"}}>
+                    <div style={{fontSize:11,color:"var(--green)",fontWeight:800}}>Full Purity Audit Complete</div>
+                    <button className="ghost-btn" style={{marginTop:8}} onClick={reset}>Start New Audit</button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {(pulseRes || loadingPP) && (
+        <div className="card ranim">
+          <div className="vstrip">
+            <span style={{fontFamily:"Nunito",fontSize:9,fontWeight:900,letterSpacing:2,textTransform:"uppercase",color:"var(--muted)"}}>PUBLIC PULSE -- {GROUP_NAMES[f.parentCompany]}</span>
+            <span className={`badge ${ppvc(pV)}`}>{pV||"CORPORATE-LEVEL SCAN"}</span>
+            <div style={{flex:1}}/>
+            {!loadingPP && <button className="ghost-btn" onClick={runPublicPulse}>Retry</button>}
+          </div>
+          {loadingPP ? (
+            <div style={{padding:"32px",textAlign:"center",display:"flex",alignItems:"center",gap:12,justifyContent:"center"}}>
+              <div className="spin" />
+              <span style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>Checking corporate-level Public Pulse...</span>
+            </div>
+          ) : (
+            <>
+              <MD text={pulseRes} />
+              <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.2)",borderRadius:10,margin:"0 20px 16px",padding:"12px 16px",fontSize:11,color:"var(--text2)",lineHeight:1.6,fontWeight:600}}>
+                📊 This reflects reported patterns for {GROUP_NAMES[f.parentCompany]} as a corporate group, based on publicly available reporting — not a confirmed fact about this specific location. Corporate practices can change over time.
+              </div>
               <div style={{background:"rgba(0,201,107,.06)",border:"1px solid rgba(0,201,107,.15)",borderRadius:10,margin:"0 20px 16px",padding:"14px 16px",fontSize:12,color:"var(--text2)",lineHeight:1.75,fontWeight:600}}>
                 <strong style={{color:"var(--green)",display:"block",marginBottom:4}}>A note on responsible spending —</strong>
                 CNTROFR exists to expose greed, not to burn down the industry. The profit pressure that makes car buying miserable doesn't come from the floor — it comes from ownership and management structures. Your salesperson often sees none of it.<br/><br/>
@@ -3529,7 +3638,7 @@ export default function App() {
             <p style={{fontSize:14,color:"var(--text2)",fontWeight:700,lineHeight:1.8,marginBottom:16}}>Finance managers are paid on backend gross profit — meaning the more they sell you and the higher the markup, the more they make. They're trained to present products in a way that makes them feel essential, urgent, and reasonably priced. Most are not. Here's the breakdown:</p>
 
             {[
-              {name:"Extended Warranty (VSC)",cost:"$600-1,200 (standard, in-warranty)",retail:"$1,500-4,000+ (same scope)",verdict:"SOMETIMES WORTH IT",color:"var(--y)",note:"This is priced on a real sliding scale, not a flat number -- mileage, year, trim, and complex components (air suspension, turbos, hybrid/EV drivetrains) all push the price up. The numbers above reflect a standard, non-luxury vehicle still under manufacturer coverage. Outside of warranty, or on a premium/luxury vehicle (think a used BMW), dealer cost can start at $4,300+ before markup — a genuinely different number, not just a bigger version of the same one. If you're buying used with high mileage and no manufacturer coverage, a third-party VSC can make sense. Never buy from the dealer — shop Endurance, CARCHEX, or your credit union. Dealer markup on these typically runs 200-400%."},
+              {name:"Extended Warranty (VSC)",cost:"$600-1,200 (standard, in-warranty)",retail:"$1,500-4,000+ (same scope)",verdict:"SOMETIMES WORTH IT",color:"var(--y)",note:"This is priced on a real sliding scale, not a flat number -- mileage, year, trim, and complex components (air suspension, turbos, hybrid/EV drivetrains) all push the price up. The numbers above reflect a standard, non-luxury vehicle still under manufacturer coverage. Outside of warranty, or on a premium/luxury vehicle (think a used BMW), dealer cost can start at $4,300+ before markup — a genuinely different number, not just a bigger version of the same one. The real leverage isn't finding somewhere else to buy it -- it's knowing the real dealer cost before you're quoted a price, so you can negotiate the markup down directly instead of just accepting whatever number lands in front of you. Dealer markup on these typically runs 200-400%, which is exactly what F&I Decoder checks against your specific deal before you sit down."},
               {name:"GAP Insurance",cost:"$50-200 dealer cost",retail:"$400-900 retail",verdict:"SOMETIMES WORTH IT",color:"var(--y)",note:"If you're financing more than 80% of the vehicle's value, GAP covers the difference if it's totaled. But never buy from the dealer — your insurance company or credit union sells the same coverage for $20-40/year. Dealer markup is 500%+."},
               {name:"Credit Life / Disability Insurance",cost:"Varies",retail:"$500-2,000+",verdict:"ALMOST NEVER WORTH IT",color:"var(--red)",note:"Pays your car loan if you die or become disabled. Your existing life/disability insurance likely already covers this. A standalone term life policy costs a fraction of what dealers charge."},
               {name:"Paint & Fabric Protection",cost:"$50-100 dealer cost",retail:"$300-800 retail",verdict:"NOT WORTH IT",color:"var(--red)",note:"A can of Scotchgard from any hardware store ($8) does the same thing as dealer fabric protection. Paint sealant is applied by a detailer — the dealer pays them $30-50 and charges you $400+."},
