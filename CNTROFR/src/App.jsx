@@ -2815,34 +2815,38 @@ function Contact() {
   );
 }
 
-function MissionPage() {
+function MissionPage({ lang }) {
   return (
     <div className="mission-page">
-      <h1>Our Mission</h1>
-      <div className="mp-date">CNTROFR LLC - Denver, Colorado - Built For Buyers</div>
+      <h1>{lang==="es"?"Nuestra Misión":"Our Mission"}</h1>
+      <div className="mp-date">{lang==="es"?"CNTROFR LLC - Denver, Colorado - Hecho Para Compradores":"CNTROFR LLC - Denver, Colorado - Built For Buyers"}</div>
 
-      <h2>Who Built This — And Why Should You Trust It?</h2>
-      <p>Fair question. You're about to hand a dealership tens of thousands of dollars. You should be skeptical of everyone in the room — including us.</p>
-      <p>CNTROFR was built by someone who spent years inside automotive retail — on the sales floor and in the finance office. That means sitting in the training sessions dealers run to maximize profit per deal. Learning the objection scripts. Watching how buyers get moved from price negotiation to payment negotiation without realizing it. Seeing firsthand which add-ons have real value and which ones exist purely to pad gross.</p>
-      <p><strong>That experience is the intelligence layer behind every tool on this platform.</strong> Not a blog post. Not scraped data. Actual dealership knowledge — flipped to work for you instead of against you.</p>
+      <h2>{lang==="es"?"¿Quién Hizo Esto — Y Por Qué Deberías Confiar En Ello?":"Who Built This — And Why Should You Trust It?"}</h2>
+      <p>{lang==="es"?"Pregunta justa. Estás a punto de entregarle a un concesionario decenas de miles de dólares. Deberías desconfiar de todos en esa sala — incluyéndonos a nosotros.":"Fair question. You're about to hand a dealership tens of thousands of dollars. You should be skeptical of everyone in the room — including us."}</p>
+      <p>{lang==="es"?"CNTROFR fue creado por alguien que pasó años dentro de las ventas de autos — en el piso de ventas y en la oficina de finanzas. Eso significa sentarse en las sesiones de entrenamiento que los concesionarios usan para maximizar la ganancia por cada trato. Aprender los guiones para cada objeción. Ver cómo mueven a los compradores de la negociación del precio a la negociación del pago sin que se den cuenta. Ver de primera mano qué extras tienen valor real y cuáles existen solo para inflar la ganancia.":"CNTROFR was built by someone who spent years inside automotive retail — on the sales floor and in the finance office. That means sitting in the training sessions dealers run to maximize profit per deal. Learning the objection scripts. Watching how buyers get moved from price negotiation to payment negotiation without realizing it. Seeing firsthand which add-ons have real value and which ones exist purely to pad gross."}</p>
+      <p><strong>{lang==="es"?"Esa experiencia es la capa de inteligencia detrás de cada herramienta en esta plataforma.":"That experience is the intelligence layer behind every tool on this platform."}</strong> {lang==="es"?"No es un blog. No son datos extraídos de internet. Es conocimiento real del concesionario — volteado para trabajar para ti, no en tu contra.":"Not a blog post. Not scraped data. Actual dealership knowledge — flipped to work for you instead of against you."}</p>
 
-      <h2>Why We Built This</h2>
-      <p>The dealership has lawyers, trainers, and ten thousand deals worth of experience working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you. They have scripts for every objection. They know when you're nervous. They know when you're in love with the car.</p>
-      <p>We studied the same playbooks. We sat in the same training sessions. <strong>Now you do too.</strong></p>
-      <p>CNTROFR was built because that information gap is fixable — and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $999 and still share your information with dealers. Not the "free" tools that sell your data the moment you click submit.</p>
+      <h2>{lang==="es"?"Por Qué Construimos Esto":"Why We Built This"}</h2>
+      <p>{lang==="es"?"El concesionario tiene abogados, entrenadores, y experiencia de diez mil tratos trabajando en tu contra todos los días. Sus gerentes de finanzas van a la escuela para aprender cómo sacar la máxima ganancia de cada comprador que se sienta frente a ese escritorio — incluyéndote a ti. Tienen guiones para cada objeción. Saben cuándo estás nervioso. Saben cuándo te has enamorado del auto.":"The dealership has lawyers, trainers, and ten thousand deals worth of experience working against you every single day. Their F&I managers go to school on how to extract maximum profit from every buyer that sits across that desk — including you. They have scripts for every objection. They know when you're nervous. They know when you're in love with the car."}</p>
+      <p>{lang==="es"?"Estudiamos los mismos manuales. Nos sentamos en las mismas sesiones de entrenamiento.":"We studied the same playbooks. We sat in the same training sessions."} <strong>{lang==="es"?"Ahora tú también.":"Now you do too."}</strong></p>
+      <p>{lang==="es"?'CNTROFR fue creado porque esa brecha de información se puede corregir — y nadie la estaba corrigiendo. No los sitios de comparación financiados por concesionarios. No los servicios de conserjería que cobran $999 y aún así comparten tu información con concesionarios. No las herramientas "gratis" que venden tus datos en el momento en que las usas.':'CNTROFR was built because that information gap is fixable — and nobody was fixing it. Not the dealer-funded comparison sites. Not the concierge services that charge $999 and still share your information with dealers. Not the "free" tools that sell your data the moment you click submit.'}</p>
 
-      <h2>Zero Dealer Affiliations. Ever.</h2>
-      <p>CNTROFR has no financial relationships with any dealership, manufacturer, lender, or advertising network — and never will. Our only revenue comes from buyers who use the platform. The moment we take dealer money, the platform is worthless. We built the entire business model around that fact.</p>
-      <p>No ads. No lead generation. No referral fees. If it conflicts with the buyer's interest, it doesn't exist here.</p>
+      <h2>{lang==="es"?"No Estás Solo en Esa Silla":"You're Not Alone in That Chair"}</h2>
+      <p>{lang==="es"?<>Justo antes de firmar, hay un tipo específico de soledad. Estás sentado en un lugar del que no puedes irte fácilmente, con números moviéndose frente a ti, y la única persona que puede explicarte todo eso también se beneficia de que tú no lo entiendas completamente. No quieres traer a otra persona, reunir más opiniones, o tomarte otro día para pensarlo. Solo quieres saber una cosa, ahora mismo: <strong>¿es esto justo, y realmente necesitas lo que te están ofreciendo?</strong></>:<>Right before you sign, there's a specific kind of lonely. You're sitting somewhere you can't easily walk away from, numbers moving in front of you, and the one person who can explain any of it also profits from you not fully understanding it. You don't want to bring in another person, gather more opinions, or take another day to think it over. You just want to know one thing, right now: <strong>is this fair, and do you actually need what's being offered?</strong></>}</p>
+      <p>{lang==="es"?<>Ese es el momento para el que existe CNTROFR. No para hacerte más lento. No es otra persona más añadida al proceso. Respuestas puras, en el segundo que las necesites, sin nada patrocinado detrás — para que puedas decidir con verdadera confianza y seguir con tu vida. <strong>Ya no estás solo en esa silla.</strong></>:<>That's the moment CNTROFR exists for. Not to slow you down. Not another body added to the process. Pure answers, the second you need them, with nothing sponsored standing behind them — so you can decide with real confidence and get on with your life. <strong>You are not alone in that chair anymore.</strong></>}</p>
 
-      <h2>Real-Time Market Intelligence</h2>
-      <p>Every deal analyzed makes the platform smarter. Every submission logs anonymous data — make, model, year, condition, zip, asking price — to build a real-time intelligence layer. No personal information. No tracking. No identity. Just market truth that gets sharper every day.</p>
-      <p><strong>That's the mission: make the deal fair, one anonymous data point at a time.</strong></p>
+      <h2>{lang==="es"?"Cero Afiliaciones con Concesionarios. Nunca.":"Zero Dealer Affiliations. Ever."}</h2>
+      <p>{lang==="es"?"CNTROFR no tiene relaciones financieras con ningún concesionario, fabricante, prestamista, o red publicitaria — y nunca las tendrá. Nuestro único ingreso viene de los compradores que usan la plataforma. El momento en que aceptemos dinero de un concesionario, la plataforma pierde todo su valor. Construimos todo el modelo de negocio alrededor de ese hecho.":"CNTROFR has no financial relationships with any dealership, manufacturer, lender, or advertising network — and never will. Our only revenue comes from buyers who use the platform. The moment we take dealer money, the platform is worthless. We built the entire business model around that fact."}</p>
+      <p>{lang==="es"?"Sin anuncios. Sin generación de clientes potenciales. Sin comisiones por referidos. Si entra en conflicto con el interés del comprador, no existe aquí.":"No ads. No lead generation. No referral fees. If it conflicts with the buyer's interest, it doesn't exist here."}</p>
 
-      <h2>For Buyers. Not Shoppers.</h2>
-      <p>We're not helping you find a car. We're making sure the one you already found doesn't cost you more than it should. Come back when you're ready to sign — we'll be ready to counter.</p>
-      <p style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,color:"var(--y)",marginTop:24}}>"I built the tool I wish my customers had."</p>
-      <p style={{color:"var(--muted)",fontSize:12}}>-- The CNTROFR Team - Built in Denver, Colorado</p>
+      <h2>{lang==="es"?"Inteligencia de Mercado en Tiempo Real":"Real-Time Market Intelligence"}</h2>
+      <p>{lang==="es"?"Cada trato analizado hace la plataforma más inteligente. Cada envío registra datos anónimos — marca, modelo, año, condición, código postal, precio pedido — para construir una capa de inteligencia en tiempo real. Sin información personal. Sin rastreo. Sin identidad. Solo la verdad del mercado, cada día más precisa.":"Every deal analyzed makes the platform smarter. Every submission logs anonymous data — make, model, year, condition, zip, asking price — to build a real-time intelligence layer. No personal information. No tracking. No identity. Just market truth that gets sharper every day."}</p>
+      <p><strong>{lang==="es"?"Esa es la misión: hacer el trato justo, un dato anónimo a la vez.":"That's the mission: make the deal fair, one anonymous data point at a time."}</strong></p>
+
+      <h2>{lang==="es"?"Para Compradores. No Para Curiosos.":"For Buyers. Not Shoppers."}</h2>
+      <p>{lang==="es"?"No te ayudamos a encontrar un auto. Nos aseguramos de que el que ya encontraste no te cueste más de lo que debería. Vuelve cuando estés listo para firmar — nosotros estaremos listos para contraatacar.":"We're not helping you find a car. We're making sure the one you already found doesn't cost you more than it should. Come back when you're ready to sign — we'll be ready to counter."}</p>
+      <p style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,color:"var(--y)",marginTop:24}}>{lang==="es"?'"Construí la herramienta que hubiera querido que mis clientes tuvieran."':'"I built the tool I wish my customers had."'}</p>
+      <p style={{color:"var(--muted)",fontSize:12}}>{lang==="es"?"-- El Equipo CNTROFR - Hecho en Denver, Colorado":"-- The CNTROFR Team - Built in Denver, Colorado"}</p>
     </div>
   );
 }
@@ -3459,7 +3463,7 @@ export default function App() {
           <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
             <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
           </div>
-          <MissionPage />
+          <MissionPage lang={lang} />
           <div className="footer">
             <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
             <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
