@@ -1,0 +1,24 @@
+# CNTROFR
+
+> CNTROFR is an AI-powered car deal analyzer and buyer protection platform, built by a former automotive F&I insider. It exposes dealer markups, inflated fees, junk add-ons, and F&I product tactics before a buyer signs -- with zero dealer, manufacturer, or lender affiliations.
+
+CNTROFR gives car buyers the same playbook dealerships use: real dealer cost data, current fee norms, and word-for-word counter scripts, generated instantly from AI trained on real F&I floor experience.
+
+## Tools
+
+- [Deal Analyzer](https://cntrofr.com/tools/deal-analyzer): Analyzes a car deal's numbers -- price, fees, add-ons, financing -- and returns a GO/NEGOTIATE/WALK verdict.
+- [Fee Comparison](https://cntrofr.com/tools/fee-comparison): Compares a dealership's quoted fees against typical and state-legal ranges.
+- [Review Purity](https://cntrofr.com/tools/review-purity): Screens dealer reviews for authenticity and corporate-group patterns.
+- [F&I Decoder](https://cntrofr.com/tools/fi-decoder): Explains finance-office products (VSC, GAP, etc.), real dealer cost vs. retail price, and cancellation rights.
+- [Add-On Fighter](https://cntrofr.com/tools/add-on-fighter): Identifies pre-installed dealer add-ons and their real market value, with scripts to negotiate or remove them.
+
+## Guides
+
+- [Dealer doc fees explained](https://cntrofr.com/blog/dealer-doc-fees-explained)
+- [F&I products decoded](https://cntrofr.com/blog/fi-products-decoded)
+- [How to negotiate car add-ons](https://cntrofr.com/blog/how-to-negotiate-car-add-ons)
+- [Car shopper vs. car buyer](https://cntrofr.com/blog/car-shopper-vs-car-buyer)
+
+## About
+
+- [Our mission](https://cntrofr.com/mission): Why CNTROFR exists and why it has zero dealer affiliations.
