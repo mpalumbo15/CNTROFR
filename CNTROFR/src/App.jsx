@@ -3066,6 +3066,19 @@ const VIEW_TO_PATH = {
 const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review-purity", fi:"fi-decoder", addons:"add-on-fighter", guide:"counter-guide" };
 const SLUG_TO_TAB = Object.fromEntries(Object.entries(TAB_TO_SLUG).map(([k,v])=>[v,k]));
 
+// Per-tool title/description -- keyed by tab id (see TABS above). Used instead of
+// the generic PAGE_META.tools entry when view === "tools", so each of the 6
+// /tools/<slug> URLs has its own distinct <title>/description rather than all
+// six sharing identical tags (which reads as near-duplicate content to crawlers).
+const TOOL_META = {
+  deal: { title:"Free Car Deal Analyzer -- CNTROFR", desc:"Run your numbers -- price, fees, add-ons, financing -- through CNTROFR's free AI Deal Analyzer for an instant GO/NEGOTIATE/WALK verdict." },
+  fee: { title:"Dealer Fee Comparison Tool -- CNTROFR", desc:"Compare a dealer's quoted fees against typical and state-legal ranges. Spot inflated doc fees before you sign." },
+  review: { title:"Review Purity -- Dealer Review Checker -- CNTROFR", desc:"Screen dealer reviews for authenticity and corporate-group sales patterns before you commit to a store." },
+  fi: { title:"F&I Decoder -- Finance Office Product Checker -- CNTROFR", desc:"Decode VSCs, GAP, and F&I add-ons -- real dealer cost vs. what you're quoted, plus your cancellation rights." },
+  addons: { title:"Add-On Fighter -- CNTROFR", desc:"Identify pre-installed dealer add-ons and their real market value, with word-for-word scripts to negotiate or remove them." },
+  guide: { title:"Counter Guide -- Word-for-Word Negotiation Scripts -- CNTROFR", desc:"Get exact word-for-word counter scripts for every stage of the deal, from first offer to F&I office." },
+};
+
 const PAGE_META = {
   home: { title:"CNTROFR -- AI Car Deal Analyzer & Pocket Consultant", desc:"CNTROFR: the AI deal analyzer that exposes dealer markups, fees, and add-ons -- built by an F&I insider. Don't sign. Counter." },
   tools: { title:"Free Deal Analyzer & Tools -- CNTROFR", desc:"Run your deal through CNTROFR's AI tools -- Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter." },
@@ -3124,7 +3137,7 @@ export default function App() {
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
-    const meta = PAGE_META[view] || PAGE_META.home;
+    const meta = (view === "tools" ? TOOL_META[tab] : null) || PAGE_META[view] || PAGE_META.home;
     document.title = meta.title;
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
