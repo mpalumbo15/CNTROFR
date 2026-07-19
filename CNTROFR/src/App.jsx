@@ -2840,7 +2840,7 @@ function MissionPage({ lang }) {
 
       <h2>{lang==="es"?"Para Compradores. No Para Curiosos.":"For Buyers. Not Shoppers."}</h2>
       <p>{lang==="es"?"No te ayudamos a encontrar un auto. Nos aseguramos de que el que ya encontraste no te cueste más de lo que debería. Vuelve cuando estés listo para firmar — nosotros estaremos listos para contraatacar.":"We're not helping you find a car. We're making sure the one you already found doesn't cost you more than it should. Come back when you're ready to sign — we'll be ready to counter."}</p>
-      <p style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,color:"var(--y)",marginTop:24}}>{lang==="es"?'"Construí la herramienta que hubiera querido que mis clientes tuvieran."':'"I built the tool I wish my customers had."'}</p>
+      <p style={{fontFamily:"'Bebas Neue'",fontSize:32,letterSpacing:2,color:"var(--y)",marginTop:24,lineHeight:1.1}}>{lang==="es"?"No Firmes. Contraataca.":"Don't Sign. Counter."}</p>
       <p style={{color:"var(--muted)",fontSize:12}}>{lang==="es"?"-- El Equipo CNTROFR - Hecho en Denver, Colorado":"-- The CNTROFR Team - Built in Denver, Colorado"}</p>
     </div>
   );
@@ -3067,7 +3067,7 @@ const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review
 const SLUG_TO_TAB = Object.fromEntries(Object.entries(TAB_TO_SLUG).map(([k,v])=>[v,k]));
 
 const PAGE_META = {
-  home: { title:"CNTROFR -- AI Car Deal Analyzer & Pocket Consultant", desc:"Your pocket consultant for car buying. AI-powered deal analysis, fee breakdowns, F&I decoding, dealer review audits, and word-for-word counter scripts. No account needed." },
+  home: { title:"CNTROFR -- AI Car Deal Analyzer & Pocket Consultant", desc:"CNTROFR: the AI deal analyzer that exposes dealer markups, fees, and add-ons -- built by an F&I insider. Don't sign. Counter." },
   tools: { title:"Free Deal Analyzer & Tools -- CNTROFR", desc:"Run your deal through CNTROFR's AI tools -- Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter." },
   arsenal: { title:"What Each Tool Actually Does -- CNTROFR", desc:"A full breakdown of CNTROFR's six tools -- Quote Scanner, Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter -- and exactly what each one catches." },
   mission: { title:"Our Mission -- CNTROFR", desc:"CNTROFR was built by an automotive insider to give car buyers the same playbook dealers use. Zero dealer kickbacks. Ever." },
@@ -3133,6 +3133,32 @@ export default function App() {
       document.head.appendChild(metaDesc);
     }
     metaDesc.setAttribute("content", meta.desc);
+
+    // FAQPage JSON-LD -- built from the real FAQS array (see FAQS const above),
+    // so this always matches what's actually rendered in the accordion.
+    // Applied on /faq (full list) and home (top FAQS shown in the FAQ section there).
+    const existingSchema = document.getElementById("faq-schema");
+    if (view === "faq" || view === "home") {
+      const schema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: FAQS.map(f => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      };
+      let script = existingSchema;
+      if (!script) {
+        script = document.createElement("script");
+        script.id = "faq-schema";
+        script.type = "application/ld+json";
+        document.head.appendChild(script);
+      }
+      script.textContent = JSON.stringify(schema);
+    } else if (existingSchema) {
+      existingSchema.remove();
+    }
   }, [view, tab]);
 
   // Handle browser back/forward buttons -- read the new URL and update state to match.
