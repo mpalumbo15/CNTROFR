@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { PATH_TO_VIEW, VIEW_TO_PATH, TAB_TO_SLUG, SLUG_TO_TAB, TOOL_META, PAGE_META } from "./seo-meta.js";
 
 const S = `
 
@@ -699,7 +698,7 @@ function MD({ text }) {
   return <div className="aout">{els}</div>;
 }
 
-function Res({ verdict, vc, text, onReset }) {
+function Res({ verdict, vc, text, recallData, onReset }) {
   const [copied, setCopied] = useState(false);
   const displayVerdict = verdict === "GO" ? "GTG" : verdict === "WALK AWAY" ? "WALK AWAY" : verdict === "NEGOTIATE" ? "NEGOTIATE" : verdict === "ANALYZING" ? "Analyzing..." : verdict;
   const copyResults = () => { navigator.clipboard.writeText(text||"").then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2000); }); };
@@ -716,6 +715,11 @@ function Res({ verdict, vc, text, onReset }) {
         <div className={`verdict-badge-lg ${vc}`}>{displayVerdict}</div>
         <button className="verdict-new-btn" onClick={onReset}>← Run Another Deal</button>
       </div>
+      {recallData && recallData.count > 0 && (
+        <div style={{padding:"12px 20px",background:"rgba(255,68,68,.08)",borderBottom:"1px solid var(--b1)",fontSize:12,fontWeight:700,color:"var(--text2)",lineHeight:1.6}}>
+          ⚠️ <strong style={{color:"var(--red)"}}>{recallData.count} open NHTSA recall{recallData.count===1?"":"s"}</strong> on this model{recallData.recalls?.some(r=>r.parkIt||r.parkOutside) ? " -- including a Park It / Park Outside safety notice" : ""} — ask the dealer to confirm {recallData.count===1?"it was":"all were"} completed before you sign. <span style={{color:"var(--muted)",fontWeight:600}}>(Source: NHTSA.gov, public recall data)</span>
+        </div>
+      )}
       <MD text={text} />
       {text && (
         <div style={{display:"flex",gap:10,padding:"12px 20px",borderTop:"1px solid var(--b1)",flexWrap:"wrap"}}>
@@ -1015,7 +1019,7 @@ function computeLoanSavings(f, finRate) {
 }
 
 function DealAnalyzer({ ftb = false, paid = false, tier = "free", onBuy = null }) {
-  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"", packages:"", apr:"", term:"", creditTier:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState("");
+  const [f, setF] = useState({ year:"", vehicle:"", msrp:"", offer:"", trim:"", mileage:"", tradeIn:"", tradeOwed:"", addons:"", notes:"", zip:"", owners:"", packages:"", apr:"", term:"", creditTier:"" }); const [condition, setCondition] = useState("used"); const [accidentReported, setAccidentReported] = useState(false); const [accidentSeverity, setAccidentSeverity] = useState(""); const [recallData, setRecallData] = useState(null);
   const [lastGenApr, setLastGenApr] = useState(""); const [lastGenTerm, setLastGenTerm] = useState("");
   const [loading, setL] = useState(false); const [loadMsg, setLM] = useState(""); const [res, setR] = useState(null); const [market, setM] = useState(null); const [v, setV] = useState(""); const [finRate, setFR] = useState(null);
   const [hcToken, setHcToken] = useState("");
@@ -1400,7 +1404,59 @@ Return this exact JSON structure:
       return null;
     };
 
-    const [, liveFinRate] = await Promise.all([runMarketScan(), runFinancingIntel()]);
+    // ── Make/model splitting for multi-word makes ────────────────────────
+    // Verified these exact spellings live against NHTSA's own vPIC make
+    // list before writing this -- they're picky about space vs. hyphen
+    // (e.g. "ALFA ROMEO" with a space, but "ROLLS-ROYCE" hyphenated).
+    // Checked longest-match-first so "Land Rover Range Rover" doesn't
+    // accidentally match on a shorter false-positive.
+    const MULTI_WORD_MAKES = [
+      { match: "land rover", make: "Land Rover" },
+      { match: "alfa romeo", make: "Alfa Romeo" },
+      { match: "aston martin", make: "Aston Martin" },
+      { match: "rolls-royce", make: "Rolls-Royce" },
+      { match: "rolls royce", make: "Rolls-Royce" },
+      { match: "mercedes-benz", make: "Mercedes-Benz" },
+      { match: "mercedes benz", make: "Mercedes-Benz" },
+      { match: "am general", make: "AM General" },
+    ].sort((a, b) => b.match.length - a.match.length);
+    // Common single-word shorthand people actually type, mapped to the make
+    // NHTSA's API actually recognizes.
+    const MAKE_ALIASES = { mercedes: "Mercedes-Benz", vw: "Volkswagen", chevy: "Chevrolet" };
+
+    function splitMakeModel(raw) {
+      const trimmed = (raw || "").trim();
+      const lower = trimmed.toLowerCase();
+      for (const entry of MULTI_WORD_MAKES) {
+        if (lower === entry.match || lower.startsWith(entry.match + " ")) {
+          return { make: entry.make, model: trimmed.slice(entry.match.length).trim() };
+        }
+      }
+      const [firstWord, ...rest] = trimmed.split(" ");
+      const make = MAKE_ALIASES[firstWord?.toLowerCase()] || firstWord;
+      return { make, model: rest.join(" ") };
+    }
+
+    // ── NHTSA Recall Check -- free, public, official government data ────────
+    // Runs alongside the other two live lookups.
+    const runRecallCheck = async () => {
+      if (!(f.year && f.vehicle)) return null;
+      try {
+        const { make, model } = splitMakeModel(f.vehicle);
+        if (!make || !model) return null;
+        const resp = await fetch("/api/recalls", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ make, model, modelYear: f.year }),
+        });
+        if (!resp.ok) { setRecallData(null); return null; }
+        const data = await resp.json();
+        setRecallData(data);
+        return data;
+      } catch { setRecallData(null); return null; }
+    };
+
+    const [, liveFinRate] = await Promise.all([runMarketScan(), runFinancingIntel(), runRecallCheck()]);
 
     setLM(""); setL(false);
     // Catalog realized savings (not the raw APR/term inputs themselves) for future reporting.
@@ -1790,7 +1846,7 @@ Return this exact JSON structure:
       {loading && !res && <Loading msg={loadMsg} web={!!f.zip} />}
       {res && (
         <>
-          <Res verdict={v} vc={vc(v)} text={res} onReset={()=>{setR(null);setM(null);setFR(null);}} />
+          <Res verdict={v} vc={vc(v)} text={res} recallData={recallData} onReset={()=>{setR(null);setM(null);setFR(null);setRecallData(null);}} />
           {(condition==="used"||condition==="cpo") && !loading && (
             <div style={{background:"rgba(255,214,0,.04)",border:"1px solid rgba(255,214,0,.12)",borderRadius:10,padding:"10px 16px",fontSize:11,color:"var(--muted)",fontWeight:700,lineHeight:1.65,marginBottom:8}}>
               ⚠ <strong style={{color:"var(--text2)"}}>Not all pre-owned vehicles are created equal.</strong> This analysis reflects the information you provided. A <JargonTip term="PPI" /> from an independent mechanic before signing is always worth the $100-150.
@@ -3026,9 +3082,79 @@ const TABS = [
   {id:"guide",label:"Counter Guide",free:false,component:CounterGuide},
 ];
 
-// Route <-> view mapping and per-page SEO metadata now live in src/seo-meta.js,
-// shared with scripts/prerender.mjs so the build-time static files and this
-// client-side effect can never drift out of sync.
+// Maps URL paths <-> view state. /tools also encodes the active tab as a sub-path.
+const PATH_TO_VIEW = {
+  "/": "home",
+  "/mission": "mission",
+  "/contact": "contact",
+  "/privacy": "privacy",
+  "/terms": "tos",
+  "/tools": "tools",
+  "/faq": "faq",
+  "/blog": "blog",
+  "/the-arsenal": "arsenal",
+  "/blog/dealer-doc-fees-explained": "blog_doc_fees",
+  "/blog/fi-products-decoded": "blog_fi",
+  "/blog/how-to-negotiate-car-add-ons": "blog_addons",
+  "/blog/car-shopper-vs-car-buyer": "blog_shopper",
+  "/blog/fico-score-vs-credit-karma": "blog_credit_score",
+  "/blog/lease-catch-22-turn-in-guide": "blog_lease",
+  "/blog/finance-office-what-happens-while-you-wait": "blog_finance_wait",
+};
+const VIEW_TO_PATH = {
+  home: "/",
+  mission: "/mission",
+  contact: "/contact",
+  privacy: "/privacy",
+  faq: "/faq",
+  tos: "/terms",
+  tools: "/tools",
+  blog: "/blog",
+  arsenal: "/the-arsenal",
+  blog_doc_fees: "/blog/dealer-doc-fees-explained",
+  blog_fi: "/blog/fi-products-decoded",
+  blog_addons: "/blog/how-to-negotiate-car-add-ons",
+  blog_shopper: "/blog/car-shopper-vs-car-buyer",
+  blog_credit_score: "/blog/fico-score-vs-credit-karma",
+  blog_lease: "/blog/lease-catch-22-turn-in-guide",
+  blog_finance_wait: "/blog/finance-office-what-happens-while-you-wait",
+  admin: "/", // admin stays hidden, never reflected in URL
+};
+const TAB_TO_SLUG = { deal:"deal-analyzer", fee:"fee-comparison", review:"review-purity", fi:"fi-decoder", addons:"add-on-fighter", guide:"counter-guide" };
+const SLUG_TO_TAB = Object.fromEntries(Object.entries(TAB_TO_SLUG).map(([k,v])=>[v,k]));
+
+// Per-tool title/description -- keyed by tab id (see TABS above). Used instead of
+// the generic PAGE_META.tools entry when view === "tools", so each of the 6
+// /tools/<slug> URLs has its own distinct <title>/description rather than all
+// six sharing identical tags (which reads as near-duplicate content to crawlers).
+const TOOL_META = {
+  deal: { title:"Free Car Deal Analyzer -- CNTROFR", desc:"Run your numbers -- price, fees, add-ons, financing -- through CNTROFR's free AI Deal Analyzer for an instant GO/NEGOTIATE/WALK verdict." },
+  fee: { title:"Dealer Fee Comparison Tool -- CNTROFR", desc:"Compare a dealer's quoted fees against typical and state-legal ranges. Spot inflated doc fees before you sign." },
+  review: { title:"Review Purity -- Dealer Review Checker -- CNTROFR", desc:"Screen dealer reviews for authenticity and corporate-group sales patterns before you commit to a store." },
+  fi: { title:"F&I Decoder -- Finance Office Product Checker -- CNTROFR", desc:"Decode VSCs, GAP, and F&I add-ons -- real dealer cost vs. what you're quoted, plus your cancellation rights." },
+  addons: { title:"Add-On Fighter -- CNTROFR", desc:"Identify pre-installed dealer add-ons and their real market value, with word-for-word scripts to negotiate or remove them." },
+  guide: { title:"Counter Guide -- Word-for-Word Negotiation Scripts -- CNTROFR", desc:"Get exact word-for-word counter scripts for every stage of the deal, from first offer to F&I office." },
+};
+
+const PAGE_META = {
+  home: { title:"CNTROFR -- AI Car Deal Analyzer & Pocket Consultant", desc:"CNTROFR: the AI deal analyzer that exposes dealer markups, fees, and add-ons -- built by an F&I insider. Don't sign. Counter." },
+  tools: { title:"Free Deal Analyzer & Tools -- CNTROFR", desc:"Run your deal through CNTROFR's AI tools -- Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter." },
+  arsenal: { title:"What Each Tool Actually Does -- CNTROFR", desc:"A full breakdown of CNTROFR's six tools -- Quote Scanner, Deal Analyzer, Fee Comparison, Review Purity, F&I Decoder, and Add-On Fighter -- and exactly what each one catches." },
+  mission: { title:"Our Mission -- CNTROFR", desc:"CNTROFR was built by an automotive insider to give car buyers the same playbook dealers use. Zero dealer kickbacks. Ever." },
+  blog: { title:"Car Buying Guides & Resources -- CNTROFR", desc:"Expert car buying guides from a certified automotive insider. Doc fees, F&I products, add-on tactics, and everything dealers hope you never learn." },
+  blog_doc_fees: { title:"What Is a Dealer Doc Fee — And Is Yours Too High? | CNTROFR", desc:"Doc fees vary wildly by state and dealer. Here's what's normal, what's inflated, and exactly how to use a high doc fee as leverage on your vehicle price." },
+  blog_fi: { title:"Every F&I Product Decoded — Dealer Cost vs. What You Pay | CNTROFR", desc:"Finance office products decoded by a certified F&I insider. What each product actually costs the dealer, what it's genuinely worth to you, and how to negotiate it fairly if you want it." },
+  blog_addons: { title:"How to Negotiate Dealer Add-Ons (And Remove the Ones You Don't Want) | CNTROFR", desc:"Dealers pre-install add-ons hoping you'll just pay. Here's how to identify force adds, what they're actually worth, and word-for-word scripts to remove them." },
+  blog_shopper: { title:"Car Shopper vs. Car Buyer — Which One Are You? | CNTROFR", desc:"The most expensive car mistake isn't overpaying. It's overpaying for the wrong car. Know your driving habits, match your vehicle to your life, and walk in ready to buy — not browse." },
+  blog_credit_score: { title:"FICO Auto Score vs. Credit Karma — Why Your Score Isn't What the Dealer Sees | CNTROFR", desc:"Credit Karma shows a VantageScore. Most auto lenders pull a FICO Auto Score instead. The gap can be 20-40+ points -- here's why, and how to know your real number before you sit down to negotiate." },
+  blog_lease: { title:"The Lease Catch-22s Nobody Explains (Plus Your Full Turn-In Playbook) | CNTROFR", desc:"Leasing gets sold as the simple option. Here's what actually happens at turn-in -- excess wear, mileage overages, the insurance claim decision, lease-end protection, and why CNTROFR doesn't analyze lease deals." },
+  blog_finance_wait: { title:"What's Actually Happening While You're Waiting for the Finance Office | CNTROFR", desc:"That wait isn't nothing. Here's what's really happening back there -- why some paperwork still needs a wet-ink signature, and the four things being worked on while you wait it out." },
+  contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
+  privacy: { title:"Privacy Policy -- CNTROFR", desc:"CNTROFR's privacy policy. We never sell your data or refer you to dealers." },
+  tos: { title:"Terms of Use -- CNTROFR", desc:"Terms of use for CNTROFR's car deal analysis tools." },
+  faq: { title:"FAQ & Resources -- CNTROFR", desc:"Everything you need to know about car buying, dealer tactics, and how CNTROFR works as your pocket consultant." },
+  admin: { title:"CNTROFR", desc:"" },
+};
 
 function pathToInitialState() {
   if (window.location.hash === "#admin") return { view: "admin", tab: "deal" };
