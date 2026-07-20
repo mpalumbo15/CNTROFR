@@ -4,7 +4,7 @@
       "maxDuration": 90
     },
     "api/digest.js": {
-      "maxDuration": 60
+      "maxDuration": 180
     },
     "api/scan.js": {
       "maxDuration": 60
