@@ -8,9 +8,17 @@ const S = `
     --red: #FF4444; --green: #00C96B; --blue: #3B9EFF;
     --bg: #0E0E14; --bg2: #16161E; --bg3: #1E1E28;
     --b1: #28283A; --b2: #38385A;
-    --muted: #606080; --text: #EEEAF8; --text2: #A8A4C8;
+    /* --muted was #606080 (~3.2:1 on --bg -- fails WCAG AA). Desaturated brand gold
+       reads as "ghost/inactive" text on-brand while clearing AA (4.5:1+) on --bg/--bg2/--bg3. */
+    --muted: #9C8A4A; --text: #EEEAF8; --text2: #A8A4C8;
   }
   body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; overflow-x: hidden; }
+  /* Safety-net focus ring: several inputs/selects only swap border-color on focus (fine on its own),
+     but a few raw inline-styled fields set outline:none with no replacement at all. This guarantees
+     every focusable control gets a visible indicator without having to touch each one individually. */
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--y); outline-offset: 1px; }
+  .skip-link { position: absolute; top: -100px; left: 12px; z-index: 1000; background: var(--y); color: #111; font-family: Nunito; font-weight: 900; font-size: 13px; padding: 10px 18px; border-radius: 8px; text-decoration: none; transition: top .15s; }
+  .skip-link:focus { top: 12px; }
   .hdr { position: sticky; top: 0; z-index: 200; background: rgba(14,14,20,.96); backdrop-filter: blur(12px); border-bottom: 2px solid var(--b1); padding: 0 16px; display: flex; align-items: center; height: 64px; gap: 12px; }
   .hdr-logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
   .hdr-plate { background: var(--y); border: 2px solid #B8A000; border-radius: 5px; padding: 3px 10px; box-shadow: 0 2px 0 #8A7800, 0 3px 10px rgba(255,214,0,.25); font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 4px; color: #111; position: relative; }
@@ -18,12 +26,12 @@ const S = `
   .hdr-plate::before { left: 3px; } .hdr-plate::after { right: 3px; }
   .hdr-tagline { font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
   .hdr-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-  .lang-toggle { padding: 7px 14px; font-family: 'Bebas Neue'; letter-spacing: 2px; font-size: 13px; min-width: 44px; }
-  .hbtn { background: none; border: 2px solid var(--b2); color: var(--text2); padding: 7px 18px; font-family: Nunito; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 8px; transition: all .2s; }
+  .lang-toggle { padding: 7px 14px; font-family: 'Bebas Neue'; letter-spacing: 2px; font-size: 13px; min-width: 44px; min-height: 44px; }
+  .hbtn { background: none; border: 2px solid var(--b2); color: var(--text2); padding: 7px 18px; font-family: Nunito; font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 8px; transition: all .2s; min-height: 44px; }
   .hbtn:hover { border-color: var(--y); color: var(--y); }
-  .hbtn-y { background: var(--y); color: #111; border: none; padding: 8px 22px; font-family: Nunito; font-size: 12px; font-weight: 900; cursor: pointer; border-radius: 8px; transition: background .2s; box-shadow: 0 2px 12px rgba(255,214,0,.3); }
+  .hbtn-y { background: var(--y); color: #111; border: none; padding: 8px 22px; font-family: Nunito; font-size: 12px; font-weight: 900; cursor: pointer; border-radius: 8px; transition: background .2s; box-shadow: 0 2px 12px rgba(255,214,0,.3); min-height: 44px; }
   .hbtn-y:hover { background: var(--yd); }
-  .burger { background: none; border: none; cursor: pointer; padding: 8px; display: flex; flex-direction: column; gap: 5px; border-radius: 8px; transition: background .2s; }
+  .burger { background: none; border: none; cursor: pointer; padding: 8px; display: flex; flex-direction: column; justify-content: center; gap: 5px; border-radius: 8px; transition: background .2s; min-width: 44px; min-height: 44px; }
   .burger:hover { background: var(--bg3); }
   .burger span { display: block; width: 22px; height: 2px; background: var(--text2); border-radius: 2px; transition: all .3s; }
   .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); background: var(--y); }
@@ -115,7 +123,7 @@ const S = `
   .step-title { font-size: 14px; font-weight: 900; margin-bottom: 5px; }
   .step-desc { font-size: 12px; color: var(--text2); line-height: 1.6; font-weight: 600; }
   .tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 12px; }
-  .tc { background: var(--bg2); border: 2px solid var(--b1); border-radius: 14px; padding: 20px 18px; transition: all .2s; }
+  .tc { background: var(--bg2); border: 2px solid var(--b1); border-radius: 14px; padding: 20px 18px; transition: all .2s; width: 100%; text-align: left; font: inherit; }
   .tc:hover { border-color: var(--y); transform: translateY(-2px); }
   .tc-icon { font-size: 26px; margin-bottom: 8px; }
   .tc-name { font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 1px; color: var(--text); margin-bottom: 4px; }
@@ -134,7 +142,7 @@ const S = `
   .faq-list { display: flex; flex-direction: column; gap: 10px; }
   .faq-item { background: var(--bg2); border: 2px solid var(--b1); border-radius: 12px; overflow: hidden; transition: border-color .2s; }
   .faq-item.open { border-color: var(--y); }
-  .faq-q { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .faq-q { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; border: none; background: none; text-align: left; font: inherit; }
   .faq-q span { font-size: 14px; font-weight: 800; color: var(--text); }
   .faq-icon { font-family: 'Bebas Neue'; font-size: 20px; color: var(--y); flex-shrink: 0; transition: transform .2s; }
   .faq-item.open .faq-icon { transform: rotate(45deg); }
@@ -173,7 +181,7 @@ const S = `
   .cf-field label { font-size: 10px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
   .cf-field input, .cf-field textarea, .cf-field select { background: var(--bg); border: 2px solid var(--b1); color: var(--text); font-family: Nunito; font-size: 13px; padding: 9px 12px; border-radius: 8px; outline: none; transition: border-color .2s; width: 100%; font-weight: 600; }
   .cf-field input:focus, .cf-field textarea:focus, .cf-field select:focus { border-color: var(--y); }
-  .cf-field input::placeholder, .cf-field textarea::placeholder { color: var(--muted); }
+  .cf-field input::placeholder, .cf-field textarea::placeholder { color: var(--muted); opacity: 1; }
   .cf-field select option { background: #111; }
   .cf-field textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
   .cf-btn { width: 100%; background: var(--y); color: #111; border: none; padding: 12px; font-family: Nunito; font-size: 14px; font-weight: 900; cursor: pointer; border-radius: 10px; transition: background .2s; margin-top: 4px; }
@@ -185,7 +193,7 @@ const S = `
   @keyframes pop { from { opacity:0; transform:scale(.9); } to { opacity:1; transform:scale(1); } }
   .mtop { padding: 18px 22px; border-bottom: 1px solid var(--b1); display: flex; align-items: center; justify-content: space-between; }
   .mtop h3 { font-family: 'Bebas Neue'; font-size: 22px; letter-spacing: 2px; }
-  .mx { background: none; border: none; color: var(--muted); font-size: 26px; cursor: pointer; line-height: 1; }
+  .mx { background: none; border: none; color: var(--muted); font-size: 26px; cursor: pointer; line-height: 1; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
   .mx:hover { color: var(--text); }
   .mbody { padding: 20px 22px; }
   .order-sum { background: var(--bg3); border: 1px solid var(--b1); border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
@@ -196,7 +204,7 @@ const S = `
   .slbl { font-size: 9px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
   .sinput { background: var(--bg); border: 1px solid var(--b1); color: var(--text); font-family: 'JetBrains Mono'; font-size: 13px; padding: 9px 12px; border-radius: 8px; outline: none; width: 100%; margin-bottom: 10px; transition: border-color .2s; }
   .sinput:focus { border-color: var(--y); }
-  .sinput::placeholder { color: var(--muted); }
+  .sinput::placeholder { color: var(--muted); opacity: 1; }
   .srow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .paybtn { width: 100%; background: var(--y); color: #111; border: none; padding: 14px; font-family: Nunito; font-size: 15px; font-weight: 900; cursor: pointer; border-radius: 12px; box-shadow: 0 4px 18px rgba(255,214,0,.3); transition: background .2s; }
   .paybtn:hover { background: var(--yd); }
@@ -224,7 +232,7 @@ const S = `
   .fld label { font-size: 11px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
   .fld input, .fld select, .fld textarea { background: var(--bg); border: 2px solid var(--b1); color: var(--text); font-family: 'JetBrains Mono'; font-size: 16px; padding: 12px 14px; border-radius: 10px; outline: none; transition: border-color .2s; width: 100%; -webkit-appearance: none; } @media(min-width:600px){ .fld input, .fld select, .fld textarea { font-size: 13px; padding: 9px 12px; } }
   .fld input:focus, .fld select:focus, .fld textarea:focus { border-color: var(--y); }
-  .fld input::placeholder { color: var(--muted); }
+  .fld input::placeholder { color: var(--muted); opacity: 1; }
   .fld select option { background: #111; }
   .fld textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
   .sp { height: 14px; }
@@ -274,6 +282,8 @@ const S = `
   .pg { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 10px; margin-bottom: 16px; }
   .pc { background: var(--bg3); border: 2px solid var(--b1); border-radius: 12px; padding: 14px; cursor: pointer; transition: all .2s; position: relative; }
   .pc:hover { border-color: var(--b2); }
+  .pc:focus-visible { outline: 2px solid var(--y); outline-offset: 2px; }
+  [role="switch"]:focus-visible { outline: 2px solid var(--y); outline-offset: 2px; }
   .pc.sel { border-color: var(--y); background: rgba(255,214,0,.05); }
   .pc-chk { position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border: 2px solid var(--b2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; transition: all .2s; }
   .pc.sel .pc-chk { background: var(--y); border-color: var(--y); color: #111; }
@@ -281,7 +291,8 @@ const S = `
   .pc-desc { font-size: 11px; color: var(--muted); line-height: 1.45; font-weight: 600; }
   .pi { background: var(--bg); border: 2px solid var(--b1); color: var(--text); font-family: 'JetBrains Mono'; font-size: 12px; padding: 7px 10px; border-radius: 8px; outline: none; width: 100%; margin-top: 8px; }
   .pi:focus { border-color: var(--y); }
-  .pi::placeholder { color: var(--muted); }
+  .pi::placeholder { color: var(--muted); opacity: 1; }
+  .promo-input:focus { border-color: var(--y) !important; }
   .phd { margin-bottom: 22px; }
   .phd h2 { font-family: 'Bebas Neue'; font-size: 30px; letter-spacing: 2px; }
   .phd h2 span { color: var(--y); }
@@ -409,6 +420,7 @@ const S = `
   .news-ticker-date { font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; padding-left: 4px; }
   @keyframes tickerFade { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) { .news-ticker-item { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .hero-plate-glow, .hero-plate-gleam::before { animation: none; } }
   @media (max-width: 600px) { .news-ticker-date { display: none; } }
 `;
 
@@ -695,7 +707,7 @@ function MD({ text }) {
     } else if (!l.trim()) els.push(<div key={k++} style={{ height: 5 }} />);
     else els.push(<p key={k++}>{l}</p>);
   }
-  return <div className="aout">{els}</div>;
+  return <div className="aout" aria-live="polite" role="status">{els}</div>;
 }
 
 function Res({ verdict, vc, text, recallData, onReset }) {
@@ -1821,7 +1833,7 @@ Return this exact JSON structure:
       <div className="card">
         <div className="cb">
           {paid && (
-            <div onClick={()=>setFinalOffer(!finalOffer)} style={{cursor:"pointer",background:finalOffer?"rgba(255,214,0,.1)":"rgba(255,255,255,.03)",border:`2px solid ${finalOffer?"var(--y)":"var(--b1)"}`,borderRadius:10,padding:"12px 16px",marginBottom:14,transition:"all .2s"}}>
+            <div onClick={()=>setFinalOffer(!finalOffer)} role="switch" aria-checked={finalOffer} aria-label="Final Offer Mode" tabIndex={0} onKeyDown={e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();setFinalOffer(!finalOffer);}}} style={{cursor:"pointer",background:finalOffer?"rgba(255,214,0,.1)":"rgba(255,255,255,.03)",border:`2px solid ${finalOffer?"var(--y)":"var(--b1)"}`,borderRadius:10,padding:"12px 16px",marginBottom:14,transition:"all .2s"}}>
               <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
                 <span style={{fontSize:18}}>🏁</span>
                 <span style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:finalOffer?"var(--y)":"var(--text2)"}}>
@@ -2435,13 +2447,13 @@ On the very last line, by itself, output exactly: SAVINGS_ESTIMATE: $XXX -- your
         <div className="ch"><span className="clbl">Products Offered</span></div>
         <div className="cb">
           <div className="pg">{FI.map(p=>(
-            <div key={p.id} className={`pc ${sel[p.id]?"sel":""}`} onClick={()=>toggle(p.id)}>
-              <div className="pc-chk">{sel[p.id]?"✓":""}</div>
+            <div key={p.id} className={`pc ${sel[p.id]?"sel":""}`} onClick={()=>toggle(p.id)} role="checkbox" aria-checked={!!sel[p.id]} aria-label={p.name} tabIndex={0} onKeyDown={e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();toggle(p.id);}}}>
+              <div className="pc-chk" aria-hidden="true">{sel[p.id]?"✓":""}</div>
               <div className="pc-name">{p.name}</div>
               <div className="pc-desc">{p.desc}</div>
               {sel[p.id]&&(
                 <>
-                  {!noPrice[p.id]&&<input className="pi" placeholder="$ quoted" value={prices[p.id]||""} onChange={e=>{e.stopPropagation();setP(pr=>({...pr,[p.id]:e.target.value}))}} onClick={e=>e.stopPropagation()} />}
+                  {!noPrice[p.id]&&<input className="pi" placeholder="$ quoted" aria-label={`Price quoted for ${p.name}`} value={prices[p.id]||""} onChange={e=>{e.stopPropagation();setP(pr=>({...pr,[p.id]:e.target.value}))}} onClick={e=>e.stopPropagation()} />}
                   <label style={{display:"flex",alignItems:"center",gap:6,marginTop:8,fontSize:11,color:"var(--text2)",fontWeight:700,cursor:"pointer"}} onClick={e=>e.stopPropagation()}>
                     <input type="checkbox" checked={!!noPrice[p.id]} onChange={e=>{e.stopPropagation();setNoPrice(np=>({...np,[p.id]:e.target.checked}));if(e.target.checked)setP(pr=>({...pr,[p.id]:""}));}} onClick={e=>e.stopPropagation()} style={{cursor:"pointer"}} />
                     I want this coverage but don't have a price yet
@@ -2515,14 +2527,14 @@ On the very last line, by itself, output exactly: SAVINGS_ESTIMATE: $XXX -- your
         <div className="ch"><span className="clbl">Add-Ons On Your Deal</span></div>
         <div className="cb">
           <div className="pg">{AO.map(a=>(
-            <div key={a.id} className={`pc ${sel[a.id]?"sel":""}`} onClick={()=>toggle(a.id)}>
-              <div className="pc-chk">{sel[a.id]?"✓":""}</div>
+            <div key={a.id} className={`pc ${sel[a.id]?"sel":""}`} onClick={()=>toggle(a.id)} role="checkbox" aria-checked={!!sel[a.id]} aria-label={a.name} tabIndex={0} onKeyDown={e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();toggle(a.id);}}}>
+              <div className="pc-chk" aria-hidden="true">{sel[a.id]?"✓":""}</div>
               <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:6,marginBottom:3}}>
                 <div className="pc-name" style={{flex:1}}>{a.name}</div>
                 <span style={{fontFamily:"Nunito",fontSize:8,fontWeight:900,letterSpacing:1.5,textTransform:"uppercase",color:lc(a.legit),flexShrink:0,marginTop:2}}>{ll(a.legit)}</span>
               </div>
               <div className="pc-desc">{a.desc}</div>
-              {sel[a.id]&&<input className="pi" placeholder="$ dealer price" value={prices[a.id]||""} onChange={e=>{e.stopPropagation();setP(pr=>({...pr,[a.id]:e.target.value}))}} onClick={e=>e.stopPropagation()} />}
+              {sel[a.id]&&<input className="pi" placeholder="$ dealer price" aria-label={`Dealer price for ${a.name}`} value={prices[a.id]||""} onChange={e=>{e.stopPropagation();setP(pr=>({...pr,[a.id]:e.target.value}))}} onClick={e=>e.stopPropagation()} />}
             </div>
           ))}</div>
           <button className="go-btn" onClick={run} disabled={loading||!picked.length}>{loading?"Arming you up...":res?"↺ Update My Results With New Info":`→ Fight ${picked.length} Add-On${picked.length!==1?"s":""}`}</button>
@@ -2778,11 +2790,11 @@ function FAQ({ lang = "en" }) {
       <div className="faq-list">
         {visible.map((f,i)=>(
           <div key={i} className={`faq-item ${open===i?"open":""}`}>
-            <div className="faq-q" onClick={()=>setOpen(open===i?null:i)}>
+            <button className="faq-q" onClick={()=>setOpen(open===i?null:i)} aria-expanded={open===i} aria-controls={`faq-answer-${i}`} id={`faq-question-${i}`}>
               <span>{f.q}</span>
-              <span className="faq-icon">+</span>
-            </div>
-            {open===i && <div className="faq-a">{f.a}</div>}
+              <span className="faq-icon" aria-hidden="true">+</span>
+            </button>
+            {open===i && <div className="faq-a" id={`faq-answer-${i}`} role="region" aria-labelledby={`faq-question-${i}`}>{f.a}</div>}
           </div>
         ))}
       </div>
@@ -3043,7 +3055,7 @@ function PayModal({plan,onClose,onSuccess,lang="en"}) {
   return (
     <div className="mbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="mbox">
-        <div className="mtop"><h3>{lang==="es"?"Completar Compra":"Complete Purchase"}</h3><button className="mx" onClick={onClose}>×</button></div>
+        <div className="mtop"><h3>{lang==="es"?"Completar Compra":"Complete Purchase"}</h3><button className="mx" onClick={onClose} aria-label={lang==="es"?"Cerrar":"Close"}>×</button></div>
         <div className="mbody">
           <div className="order-sum">
             <div className="orow"><span style={{fontFamily:"Nunito",fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)"}}>{lang==="es"?"Total a Pagar":"Total Due"}</span><span className="oprice">${plan.price}</span></div>
@@ -3052,7 +3064,7 @@ function PayModal({plan,onClose,onSuccess,lang="en"}) {
           <div style={{marginBottom:16}}>
             <div style={{fontSize:11,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"var(--muted)",marginBottom:8}}>{lang==="es"?"¿Ya tienes un código de acceso?":"Already have an access code?"}</div>
             <div style={{display:"flex",gap:8}}>
-              <input value={promoCode} onChange={e=>setPromoCode(e.target.value)} placeholder={lang==="es"?"INGRESA TU CÓDIGO":"ENTER YOUR CODE"} style={{flex:1,background:"var(--bg)",border:"2px solid var(--b2)",color:"var(--text)",fontFamily:"JetBrains Mono",fontSize:15,fontWeight:700,padding:"12px 16px",borderRadius:8,outline:"none",textTransform:"uppercase",letterSpacing:2}} />
+              <input className="promo-input" value={promoCode} onChange={e=>setPromoCode(e.target.value)} placeholder={lang==="es"?"INGRESA TU CÓDIGO":"ENTER YOUR CODE"} aria-label={lang==="es"?"Código de acceso":"Access code"} style={{flex:1,background:"var(--bg)",border:"2px solid var(--b2)",color:"var(--text)",fontFamily:"JetBrains Mono",fontSize:15,fontWeight:700,padding:"12px 16px",borderRadius:8,outline:"none",textTransform:"uppercase",letterSpacing:2}} />
               <button onClick={applyPromo} style={{background:"var(--y)",color:"#111",border:"none",padding:"12px 22px",fontFamily:"Nunito",fontSize:13,fontWeight:900,cursor:"pointer",borderRadius:8,whiteSpace:"nowrap"}}>{lang==="es"?"Aplicar":"Apply"}</button>
             </div>
             {promoMsg&&<div style={{fontSize:12,fontWeight:800,marginTop:8,color:(promoMsg==="Checking..."||promoMsg==="Verificando...")?"var(--muted)":"var(--red)"}}>{promoMsg}</div>}
@@ -3177,6 +3189,12 @@ export default function App() {
   const [sessionWarning,setSessionWarning]=useState(false);
   const [lang,setLang]=useState("en");
   const toggleLang=()=>{const next=lang==="en"?"es":"en";setLang(next);setGlobalLang(next);};
+
+  // Keep the <html lang> attribute in sync so screen readers switch pronunciation/voice
+  // when the visible copy switches, instead of reading Spanish text with an English voice.
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
   const buy=plan=>setModal(plan);
   const onPaid=plan=>{setModal(null);setAccess(plan.unlocks||[]);if(plan.id==="single"){setSessionWarning(true);}else{const validTab=(plan.unlocks||[]).find(id=>TABS.find(t=>t.id===id));if(validTab){setView("tools");setTab(validTab);}else if((plan.unlocks||[]).includes("ftb")){setView("tools");setTab("deal");}}};
   const canUse=id=>TABS.find(t=>t.id===id)?.free||access.includes(id)||false;
@@ -3245,16 +3263,17 @@ export default function App() {
   return (
     <>
       <style>{S}</style>
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <CookieBanner />
       <NewsTicker />
       <div className="hdr">
         <button className={`burger ${menuOpen?"open":""}`} onClick={()=>setMenuOpen(m=>!m)} aria-label="Menu">
           <span/><span/><span/>
         </button>
-        <div className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}}>
-          <img src="/cntrofrplate.svg" alt="CNTROFR" style={{height:"40px",width:"auto",display:"block"}} />
+        <button className="hdr-logo" onClick={()=>{setView("home");setMenuOpen(false);}} style={{border:"none",background:"none",font:"inherit"}} aria-label={lang==="es"?"CNTROFR — Ir al inicio":"CNTROFR — Go to homepage"}>
+          <img src="/cntrofrplate.svg" alt="" style={{height:"40px",width:"auto",display:"block"}} />
           <div className="hdr-tagline">DON'T SIGN. COUNTER.</div>
-        </div>
+        </button>
         <div className="hdr-right">
           <button className="hbtn lang-toggle" onClick={toggleLang} aria-label="Toggle language" title={lang==="en"?"Switch to Spanish":"Switch to English"}>
             {lang==="en"?"ES":"EN"}
@@ -3279,6 +3298,7 @@ export default function App() {
 
       )}
 
+      <div id="main-content" tabIndex={-1} style={{outline:"none"}} />
       {view==="home"&&<>
 
         <div className="hero">
@@ -3340,12 +3360,12 @@ export default function App() {
           </div>
           <div className="tgrid">
             {(lang==="es"?[{id:"scan",icon:"📄",name:"Escáner de Cotización",desc:"¿Tienes tu cotización del concesionario? Sube una foto o PDF y lo analizamos línea por línea al instante.",free:false},{id:"deal",icon:"🔍",name:"Analizador de Ofertas",desc:"Desglose completo de precio, intercambio y extras con un veredicto de PROCEDE / NEGOCIA / RETÍRATE.",free:true},{id:"fee",icon:"💰",name:"Comparación de Tarifas",desc:"¿Es justa esa tarifa de documentación para tu estado? Lo averiguamos con datos en vivo.",free:false},{id:"review",icon:"🔎",name:"Pureza de Reseñas",desc:"Conoce a quién le estás comprando. Reseñas reales, cultura laboral e historial de quejas -- para que tu dinero vaya a concesionarios que se lo merecen.",free:false},{id:"fi",icon:"🔓",name:"Decodificador F&I",desc:"Cada producto de la oficina de financiamiento decodificado -- costo del concesionario, valor real, guion de salida.",free:false},{id:"addons",icon:"🥊",name:"Luchador de Extras",desc:"Conocemos los guiones que usan los concesionarios. Aquí están los tuyos para contraatacar.",free:false}]:[{id:"scan",icon:"📄",name:"Quote Scanner",desc:"Got your dealer quote? Upload a photo or PDF and we'll scan it line by line — skip the form entirely.",free:false},{id:"deal",icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{id:"fee",icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{id:"review",icon:"🔎",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{id:"fi",icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{id:"addons",icon:"🥊",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}]).map((t,i)=>(
-              <div key={i} className="tc" style={{cursor:"pointer"}} onClick={()=>{const hasScanAccess=access.includes("fee")||access.includes("ftb");if(t.id==="scan"){if(hasScanAccess){setView("tools");setTab("deal");window.scrollTo(0,0);}else{buy(PLANS[2]);}}else if(!canUse(t.id)){buy(PLANS[2]);}else{setView("tools");setTab(t.id);window.scrollTo(0,0);}}}>
-                <div className="tc-icon">{t.icon}</div>
+              <button key={i} className="tc" style={{cursor:"pointer"}} onClick={()=>{const hasScanAccess=access.includes("fee")||access.includes("ftb");if(t.id==="scan"){if(hasScanAccess){setView("tools");setTab("deal");window.scrollTo(0,0);}else{buy(PLANS[2]);}}else if(!canUse(t.id)){buy(PLANS[2]);}else{setView("tools");setTab(t.id);window.scrollTo(0,0);}}} aria-label={`${t.name} — ${t.free?(lang==="es"?"Gratis":"Free"):"Pro"}`}>
+                <div className="tc-icon" aria-hidden="true">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
                 <div className="tc-desc">{t.desc}</div>
                 {t.free?<span className="tag-free">{lang==="es"?"Gratis":"Free"}</span>:<span className="tag-pro">Pro</span>}
-              </div>
+              </button>
             ))}
           </div>
         </div>
