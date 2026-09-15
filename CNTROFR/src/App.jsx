@@ -2759,6 +2759,34 @@ function TermsOfService() {
   );
 }
 
+function AccessibilityStatement() {
+  return (
+    <div className="tos-wrap">
+      <h1>Accessibility Statement</h1>
+      <div className="tos-date">Last Updated: September 2026</div>
+
+      <p>CNTROFR is committed to making our platform usable by everyone, including people with disabilities. Getting a fair shake at the negotiating table shouldn't depend on how you access the internet -- that's the same principle behind the whole product.</p>
+
+      <h2>Our Approach</h2>
+      <p>We're actively working toward conformance with the <a href="https://www.w3.org/WAI/WCAG21/quickref/" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)"}}>Web Content Accessibility Guidelines (WCAG) 2.1, Level AA</a>, the widely accepted standard for web accessibility. This includes ongoing work on:</p>
+      <ul>
+        <li>Color contrast that meets AA standards throughout the site</li>
+        <li>Full keyboard navigation for all interactive tools, including the Deal Analyzer, F&I Decoder, and Add-On Fighter</li>
+        <li>Screen reader support, including labels for form fields and live announcements when your results are ready</li>
+        <li>Visible focus indicators on every interactive element</li>
+        <li>Respect for reduced-motion preferences set in your browser or device</li>
+        <li>Minimum touch target sizing for mobile users</li>
+      </ul>
+
+      <h2>Where We Are</h2>
+      <p>This is ongoing work, not a finished checklist. We test regularly and fix issues as we find them, but we don't claim full compliance -- we'd rather be honest about where we're still improving than overstate it.</p>
+
+      <h2>Run Into a Problem?</h2>
+      <p>If you hit a barrier using CNTROFR -- a tool that doesn't work with your screen reader, a contrast issue, anything -- tell us. Email <a href="mailto:info@cntrofr.com" style={{color:"var(--y)"}}>info@cntrofr.com</a> with what happened and what you were trying to do, and we'll look into it directly.</p>
+    </div>
+  );
+}
+
 const FAQS = [
   {q:"Does CNTROFR sell my information or refer me to dealers?",a:"Never. CNTROFR takes zero money from dealers, lenders, manufacturers, or advertising networks. We do not generate leads, sell your contact information, or refer you to any dealership. The moment we do that, the platform is worthless -- our entire value is that we work for you, not for them. Our only revenue comes from direct purchases by buyers like you."},
   {q:"Do you hate car salespeople?",a:"Definitely not. Your salesperson is just that -- a person. If you like their vibe and they listen to your needs, stick with them and let them earn your business. In most cases, the overcharges and the greed don't go to the salesperson. That money goes to the folks in the suits, not the ones working long hours and holidays to move metal."},
@@ -3101,6 +3129,7 @@ const PATH_TO_VIEW = {
   "/contact": "contact",
   "/privacy": "privacy",
   "/terms": "tos",
+  "/accessibility": "accessibility",
   "/tools": "tools",
   "/faq": "faq",
   "/blog": "blog",
@@ -3120,6 +3149,7 @@ const VIEW_TO_PATH = {
   privacy: "/privacy",
   faq: "/faq",
   tos: "/terms",
+  accessibility: "/accessibility",
   tools: "/tools",
   blog: "/blog",
   arsenal: "/the-arsenal",
@@ -3164,6 +3194,7 @@ const PAGE_META = {
   contact: { title:"Contact -- CNTROFR", desc:"Get in touch with the CNTROFR team." },
   privacy: { title:"Privacy Policy -- CNTROFR", desc:"CNTROFR's privacy policy. We never sell your data or refer you to dealers." },
   tos: { title:"Terms of Use -- CNTROFR", desc:"Terms of use for CNTROFR's car deal analysis tools." },
+  accessibility: { title:"Accessibility Statement -- CNTROFR", desc:"CNTROFR's commitment to accessibility -- our WCAG 2.1 AA approach, what we're working on, and how to report a barrier." },
   faq: { title:"FAQ & Resources -- CNTROFR", desc:"Everything you need to know about car buying, dealer tactics, and how CNTROFR works as your pocket consultant." },
   admin: { title:"CNTROFR", desc:"" },
 };
@@ -3478,6 +3509,7 @@ export default function App() {
             <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>{lang==="es"?"Guías":"Guides"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>{lang==="es"?"Accesibilidad":"Accessibility"}</a>
           </div>
           <div style={{marginTop:16,fontSize:13,color:"var(--text2)",fontWeight:800,letterSpacing:.3}}>Artwork and logo design by our talented buddy and pal <a href="https://www.instagram.com/righthandman" target="_blank" rel="noopener noreferrer" style={{color:"var(--y)",textDecoration:"none"}}>@righthandman</a></div>
           <div style={{marginTop:8,fontSize:11,color:"var(--muted)",fontWeight:700,letterSpacing:.5}}>🏔️ Developed in Colorado. Built for buyers everywhere.</div>
@@ -3497,6 +3529,7 @@ export default function App() {
             <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
             <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+            <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>{lang==="es"?"Accesibilidad":"Accessibility"}</a>
           </div>
         </div>
       </>}
@@ -3526,6 +3559,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>{lang==="es"?"Accesibilidad":"Accessibility"}</a>
             </div>
           </div>
         </div>
@@ -3546,6 +3580,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>{lang==="es"?"Accesibilidad":"Accessibility"}</a>
             </div>
           </div>
         </>
@@ -3565,6 +3600,27 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>{lang==="es"?"Accesibilidad":"Accessibility"}</a>
+            </div>
+          </div>
+        </>
+      )}
+      {view==="accessibility"&&(
+        <>
+          <div style={{background:"var(--bg3)",borderBottom:"1px solid var(--b1)",padding:"10px 28px"}}>
+            <button className="ghost-btn" onClick={()=>{setView("home");window.scrollTo(0,0)}}>← Back to Home</button>
+          </div>
+          <AccessibilityStatement />
+          <div className="footer">
+            <div className="footer-plate"><img src="/cntrofrplateplus.svg" alt="CNTROFR" style={{height:"auto",width:"260px",display:"block"}} /></div>
+            <p style={{fontSize:11,color:"var(--muted)"}}>{lang==="es"?"CNTROFR es una herramienta independiente de protección al consumidor. No recibimos dinero de concesionarios, prestamistas o fabricantes -- nunca. El análisis de IA es solo para fines informativos y no constituye asesoría financiera, legal o profesional.":"CNTROFR is an independent consumer protection tool. We take zero money from dealers, lenders, or manufacturers -- ever. AI analysis is for informational purposes only and does not constitute financial, legal, or professional advice."}</p>
+            <div className="footer-links">
+              <a href="#" onClick={e=>{e.preventDefault();setView("arsenal");window.scrollTo(0,0)}}>{lang==="es"?"Herramientas":"Tools"}</a>
+              <a href="mailto:info@cntrofr.com">info@cntrofr.com</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>{lang==="es"?"Accesibilidad":"Accessibility"}</a>
             </div>
           </div>
         </>
@@ -3584,6 +3640,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>{lang==="es"?"Accesibilidad":"Accessibility"}</a>
             </div>
           </div>
         </>
@@ -3603,6 +3660,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>{lang==="es"?"Accesibilidad":"Accessibility"}</a>
             </div>
           </div>
         </>
@@ -3622,6 +3680,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>{lang==="es"?"Contacto":"Contact"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>{lang==="es"?"Política de Privacidad":"Privacy Policy"}</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>{lang==="es"?"Términos de Uso":"Terms of Use"}</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>{lang==="es"?"Accesibilidad":"Accessibility"}</a>
             </div>
           </div>
         </>
@@ -3667,6 +3726,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("faq");window.scrollTo(0,0)}}>FAQ</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("tos");window.scrollTo(0,0)}}>Terms of Use</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>Accessibility</a>
             </div>
           </div>
         </>
@@ -3730,6 +3790,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>Accessibility</a>
             </div>
           </div>
         </>
@@ -3792,6 +3853,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>Accessibility</a>
             </div>
           </div>
         </>
@@ -3851,6 +3913,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>Accessibility</a>
             </div>
           </div>
         </>
@@ -3916,6 +3979,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>Accessibility</a>
             </div>
           </div>
         </>
@@ -3966,6 +4030,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>Accessibility</a>
             </div>
           </div>
         </>
@@ -4041,6 +4106,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>Accessibility</a>
             </div>
           </div>
         </>
@@ -4137,6 +4203,7 @@ export default function App() {
               <a href="#" onClick={e=>{e.preventDefault();setView("blog");window.scrollTo(0,0)}}>More Guides</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("contact")}}>Contact</a>
               <a href="#" onClick={e=>{e.preventDefault();setView("privacy");window.scrollTo(0,0)}}>Privacy Policy</a>
+              <a href="#" onClick={e=>{e.preventDefault();setView("accessibility");window.scrollTo(0,0)}}>Accessibility</a>
             </div>
           </div>
         </>
