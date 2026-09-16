@@ -915,6 +915,7 @@ function TacticAnswerBlock({ tool, gated, onBuy, lang }) {
         <select
           value={dealerGroup}
           onChange={e=>setDealerGroup(e.target.value)}
+          aria-label={lang==="es"?"Grupo del concesionario (opcional)":"Dealer group (optional)"}
           style={{width:"100%",background:"var(--bg)",border:"2px solid var(--b1)",borderRadius:8,color:"var(--text)",fontFamily:"Nunito",fontSize:12,padding:"9px 12px",outline:"none",marginBottom:10}}
         >
           <option value="">{lang==="es"?"Grupo del concesionario (opcional)":"Dealer group (optional)"}</option>
@@ -931,6 +932,7 @@ function TacticAnswerBlock({ tool, gated, onBuy, lang }) {
           value={q}
           onChange={e=>setQ(e.target.value)}
           placeholder={copy.placeholder}
+          aria-label={copy.title}
           style={{width:"100%",minHeight:110,resize:"vertical",whiteSpace:"pre-wrap",background:"var(--bg)",border:"2px solid var(--b1)",borderRadius:8,color:"var(--text)",fontFamily:"Nunito",fontSize:13,padding:12,outline:"none",lineHeight:1.6}}
         />
         <button className="go-btn" style={{marginTop:10}} onClick={ask} disabled={loading||!q.trim()}>
@@ -945,7 +947,7 @@ function TacticAnswerBlock({ tool, gated, onBuy, lang }) {
         )}
 
         {lockedOut && (
-          <div style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:10,padding:"14px 16px",marginTop:14}}>
+          <div role="status" aria-live="polite" style={{background:"rgba(255,214,0,.06)",border:"1px solid rgba(255,214,0,.25)",borderRadius:10,padding:"14px 16px",marginTop:14}}>
             <div style={{fontSize:13,fontWeight:800,color:"var(--y)",marginBottom:6}}>{lang==="es"?"Ya usaste tu pregunta gratis":"You've used your free question"}</div>
             <div style={{fontSize:12,color:"var(--text2)",fontWeight:600,lineHeight:1.6,marginBottom:12}}>
               {lang==="es"?"Desbloquea preguntas ilimitadas con la Guía de Contraoferta completa.":"Unlock unlimited questions with the full Counter Guide."}
@@ -954,7 +956,7 @@ function TacticAnswerBlock({ tool, gated, onBuy, lang }) {
           </div>
         )}
 
-        {err && <div style={{color:"var(--red)",fontSize:12,fontWeight:700,marginTop:10}}>{lang==="es"?"Algo salió mal. Intenta de nuevo.":"Something went wrong. Try again."}</div>}
+        {err && <div role="alert" style={{color:"var(--red)",fontSize:12,fontWeight:700,marginTop:10}}>{lang==="es"?"Algo salió mal. Intenta de nuevo.":"Something went wrong. Try again."}</div>}
       </div>
     </div>
   );
