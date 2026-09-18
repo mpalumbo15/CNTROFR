@@ -1090,9 +1090,10 @@ VEHICLE being purchased:
 - Year (4-digit number near vehicle description)
 - Make and Model (e.g. "Porsche 911", "Honda Accord", "Ford F-150")
 - Trim/Type (e.g. "GT3", "EX-L", "Lariat") — often on a separate "Type:" line
-- VIN (17-character alphanumeric)
 - Mileage/Odometer (numbers near "Miles", "Mileage", "Odometer")
 - Color
+
+Do NOT extract or return the VIN, Social Security Number, buyer name, address, phone number, or any other personally identifying information, even if visible in the document.
 
 PRICING (look for these exact or similar labels):
 - MSRP / Sale Price / Sticker Price / List Price
@@ -2357,12 +2358,149 @@ CRITICAL ON RECENCY -- prioritize reports from the last 12 months. If you cite a
 const FI = [
   {id:"ew",name:"Extended Warranty",desc:"3rd-party coverage after factory"},{id:"gap",name:"GAP Insurance",desc:"Covers gap if totaled & underwater"},{id:"tw",name:"Tire & Wheel",desc:"Road hazard protection"},{id:"ppf",name:"Paint Protection Film",desc:"Physical chip/scratch film"},{id:"cc",name:"Ceramic Coating",desc:"Chemical paint protection"},{id:"ip",name:"Interior Protection",desc:"Scotchgard-type treatment"},{id:"cl",name:"Credit Life/Disability",desc:"Loan paid if you die/disabled"},{id:"kr",name:"Key Replacement",desc:"Lost/broken smart key"},{id:"ws",name:"Windshield Protection",desc:"Glass repair/replace"},{id:"rs",name:"Roadside Assistance",desc:"Often duplicated by insurance"},{id:"pm",name:"Prepaid Maintenance",desc:"Oil changes rolled in"},
 ];
+// Maps a product name as printed on a dealer's F&I menu sheet to our fixed FI product ids,
+// so a scanned "Silver/Gold/Platinum" tier menu can auto-select the right cards below.
+function matchFIProduct(name) {
+  const n = (name || "").toLowerCase();
+  if (/\bgap\b/.test(n)) return "gap";
+  if (/warrant|\bvsc\b|service contract|mechanical breakdown|\bmbi\b/.test(n)) return "ew";
+  if (/tire.*wheel|wheel.*tire|road hazard/.test(n)) return "tw";
+  if (/paint protection film|\bppf\b/.test(n)) return "ppf";
+  if (/ceramic/.test(n)) return "cc";
+  if (/interior|fabric|scotchgard|upholstery/.test(n)) return "ip";
+  if (/credit life|disability|payment protection/.test(n)) return "cl";
+  if (/key.*replace|smart key/.test(n)) return "kr";
+  if (/windshield|glass/.test(n)) return "ws";
+  if (/roadside/.test(n)) return "rs";
+  if (/maintenance|oil change/.test(n)) return "pm";
+  return null;
+}
 function FIDecoder({ tier = "single" }) {
   const [sel, setSel] = useState({}); const [prices, setP] = useState({}); const [noPrice, setNoPrice] = useState({}); const [veh, setV] = useState(""); const [loading, setL] = useState(false); const [res, setR] = useState(null);
   const [warrantyBrand, setWB] = useState(""); const [drivingHabits, setDrivingHabits] = useState(""); const [ownershipLength, setOwnershipLength] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  // ── Menu Scanner state ───────────────────────────────────────────────────
+  const [menuLoading, setMenuLoading] = useState(false);
+  const [menuMsg, setMenuMsg] = useState("");
+  const [menuSuccess, setMenuSuccess] = useState(false);
+  const [menuAttempts, setMenuAttempts] = useState(0);
+  const [menuContext, setMenuContext] = useState("");
+  const MAX_MENU_ATTEMPTS = 3;
   const toggle = id => setSel(s=>({...s,[id]:!s[id]}));
   const picked = FI.filter(p=>sel[p.id]);
+
+  // ── Menu Scanner handler ─────────────────────────────────────────────────
+  const handleMenuScan = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setMenuLoading(true);
+    setMenuMsg("");
+    try {
+      const base64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(",")[1]);
+        r.onerror = () => rej(new Error("Read failed"));
+        r.readAsDataURL(file);
+      });
+      const isPdf = file.type === "application/pdf";
+      const mediaType = isPdf ? "application/pdf" : file.type || "image/jpeg";
+      const body = {
+        model: "claude-sonnet-4-6",
+        max_tokens: 1500,
+        messages: [{
+          role: "user",
+          content: [
+            isPdf
+              ? { type: "document", source: { type: "base64", media_type: mediaType, data: base64 } }
+              : { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+            { type: "text", text: `You are reading a finance-office "menu" presentation sheet from a car dealership -- the kind that presents F&I products in tiers (e.g. Bronze/Silver/Gold, Good/Better/Best, Value/Preferred/Premium, or similarly named packages), sometimes alongside individually priced a la carte products. These come from menu-selling software like Darwin, MaximTrak, Racetrack, or a dealership's own printed/PDF worksheet.
+
+PRIVACY -- READ FIRST: This document may have other paperwork in frame or adjacent fields with personal information (name, address, phone number, VIN, Social Security Number, account or deal numbers, signature). You must COMPLETELY IGNORE all of that. Do NOT extract, transcribe, or return any personally identifying information, under any circumstances -- not even partially. Only extract the menu/tier product-and-pricing grid itself.
+
+Extract:
+1. Each pricing TIER shown, its total bundled price, and which products are bundled into it. Use whatever name the sheet actually gives each tier.
+2. Any product that has its OWN individual price shown anywhere on the sheet, separate from a tier total -- whether that's inside a per-tier breakdown or a standalone a la carte line.
+
+Expected product types (map close variants like "VSC" or "Service Contract" to "Extended Warranty", "Tire/Wheel" to "Tire & Wheel", etc., but return the name as printed on the sheet): Extended Warranty, GAP Insurance, Tire & Wheel, Paint Protection Film, Ceramic Coating, Interior Protection, Credit Life/Disability, Key Replacement, Windshield Protection, Roadside Assistance, Prepaid Maintenance.
+
+Return ONLY this JSON object -- no preamble, no markdown backticks, no explanation:
+{
+  "tiers": [
+    { "name": "", "totalPrice": "", "products": [""] }
+  ],
+  "itemized": [
+    { "name": "", "price": "" }
+  ]
+}
+
+Rules:
+- "totalPrice" and "price" are numbers only -- strip all $, commas, and spaces
+- If a product's price is shown individually ANYWHERE on the sheet, put it in "itemized" with that price, even if it's also part of a tier
+- If a product only ever appears bundled inside a tier with no individual price shown anywhere, list it in that tier's "products" array only -- do NOT invent or estimate a price for it
+- If there are no tiers at all (just a flat a la carte list), return an empty "tiers" array and put everything in "itemized"
+- If a section is not present on the sheet, return an empty array for it -- do NOT guess or infer` }
+          ]
+        }]
+      };
+      const resp = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData?.error?.message || `API ${resp.status}`);
+      }
+      const data = await resp.json();
+      const textBlock = data.content?.find(b => b.type === "text");
+      const raw = textBlock?.text || "";
+      const clean = raw.replace(/```json|```/g, "").trim();
+      const extracted = JSON.parse(clean);
+      const tiers = Array.isArray(extracted.tiers) ? extracted.tiers : [];
+      const itemized = Array.isArray(extracted.itemized) ? extracted.itemized : [];
+      if (!tiers.length && !itemized.length) throw new Error("Could not extract menu data");
+
+      const priceMap = {};
+      itemized.forEach(it => { if (it.name) priceMap[it.name.toLowerCase()] = it.price; });
+
+      const allNames = new Set();
+      tiers.forEach(t => (t.products||[]).forEach(p => allNames.add(p)));
+      itemized.forEach(it => it.name && allNames.add(it.name));
+
+      const newSel = {}; const newPrices = {}; const newNoPrice = {};
+      let matchedCount = 0;
+      allNames.forEach(name => {
+        const id = matchFIProduct(name);
+        if (!id) return;
+        matchedCount++;
+        newSel[id] = true;
+        const price = priceMap[name.toLowerCase()];
+        if (price) newPrices[id] = price;
+        else newNoPrice[id] = true;
+      });
+      if (!matchedCount) throw new Error("Could not match any products");
+
+      setSel(prev => ({ ...prev, ...newSel }));
+      setP(prev => ({ ...prev, ...newPrices }));
+      setNoPrice(prev => ({ ...prev, ...newNoPrice }));
+
+      if (tiers.length) {
+        const tierSummary = tiers.map(t => `${t.name} ($${t.totalPrice}): ${(t.products||[]).join(", ")}`).join(". ");
+        setMenuContext(`This buyer was presented the following package tiers -- evaluate whether each tier's bundled price is fair for what's included, in addition to evaluating each product individually: ${tierSummary}.`);
+      }
+      setMenuSuccess(true);
+      setMenuMsg(`✓ Menu scanned! We pre-selected ${matchedCount} product${matchedCount!==1?"s":""} below${tiers.length?` from your ${tiers.map(t=>t.name).join("/")} package${tiers.length!==1?"s":""}`:""}. Review the cards below and adjust anything before decoding.`);
+    } catch {
+      const next = menuAttempts + 1;
+      setMenuAttempts(next);
+      if (next === 1) {
+        setMenuMsg("We couldn't quite read that menu. Try a flat, well-lit photo or an exported PDF.");
+      } else if (next === 2) {
+        setMenuMsg("Still having trouble reading it. A PDF export works best -- or just select your products manually below, it's just as fast.");
+      } else {
+        setMenuMsg("Manual selection below is the most reliable path from here -- pick your products and enter what you were quoted.");
+      }
+    } finally {
+      setMenuLoading(false);
+    }
+  };
   const run = async () => {
     setL(true); setR(null);
     const priced = picked.filter(p=>!noPrice[p.id]);
@@ -2373,6 +2511,7 @@ function FIDecoder({ tier = "single" }) {
 Key facts: Finance managers are measured on how many products they sell per deal -- they will discount or bundle products to get a yes. If a finance manager tries to change your interest rate based on which products you buy, that is illegal unless your lender specifically requires it. Feeling pressured to decide immediately is a tactic, not a real deadline. The Magnuson-Moss Warranty Act protects buyers -- a manufacturer or dealership must prove a repair is not covered before denying a claim. If they cannot prove it, they must honor it. Know this law exists. If the buyer references a credit score they saw on Credit Karma or a similar free app, note that this is almost always a VantageScore, not the FICO Auto Score most auto lenders actually pull -- these can differ by 20-40+ points, sometimes 50+ if there's a paid collection (VantageScore ignores those, FICO does not) or a thin file. This matters directly for evaluating whether a quoted rate or "tier" is legitimate. Digital F&I red flag: the FTC has alleged (in a contested administrative complaint against Asbury Automotive, not yet finally resolved) that some dealerships have consumers sign on electronic tablets that display only the signature line, not the full document -- making it easy to miss add-ons that were never agreed to. If the buyer mentions signing on a tablet or electronic device, tell them: before signing, ask the F&I manager to scroll through the full document on screen, not just the signature boxes -- or request a printed copy. This is a reasonable, normal ask, not a confrontational one.
 2026 INTELLIGENCE UPDATE: F&I is now the single most important profit center as front-end vehicle margins shrink -- finance managers face more pressure to sell products than ever this summer. Daily cost framing is standard training -- every product will be presented as pennies per day. Always convert to total contract cost and call it out by name. Product bundling at a "discounted" rate is a tactic to get multiple yeses at once -- evaluate every product individually, never as a bundle. GAP insurance from your auto insurance company costs $3-5 per month versus $600-900 upfront at the dealer -- always mention this as your alternative. Extended warranties are service contracts, not manufacturer warranties -- third-party administrators control claims and may restrict which repair shops can be used and require pre-approval before any work begins. Pre-existing condition exclusions are the most common claim denial reason -- if a mechanical issue existed before purchase the contract will not cover it. Payment protection products (job loss, disability) are being pushed hard in 2026 due to economic anxiety -- exclusions are extensive and claims approval rates are low. Evaluate actual policy terms before considering. Finance managers will discount everything if pushed -- "I want to see that in writing" and "I need to think about it" always work.
 Vehicle: ${veh||"not specified"}${warrantyBrand?"\nWarranty provider: "+warrantyBrand:""}${drivingHabits?"\nHow they drive: "+drivingHabits:""}${ownershipLength?"\nHow long they plan to own it: "+ownershipLength:""}
+${menuContext?`\n${menuContext}\n`:""}
 ${priced.length?`Products with a quoted price -- analyze whether the price is fair:\n${list}`:""}
 ${unpriced.length?`\nProducts the buyer wants info on BEFORE they get a quote (prep mode -- they have NOT been to the finance office yet):\n${unpricedList}\nFor these, instead of evaluating a quoted price, give: typical price range buyers see at dealerships nationally, typical dealer markup/profit margin on this product, whether it's generally worth buying at all, and what to watch for when it's presented.`:""}
 For EACH product WITH A QUOTED PRICE:
@@ -2388,7 +2527,7 @@ For EACH product WITHOUT A PRICE (prep mode):
 - Typical dealer markup / profit margin on this product
 - Generally worth buying or skip it -- and for whom
 - What to watch for and how to evaluate it when it's presented
-## OVERALL FINANCE OFFICE STRATEGY -- Which to keep, which to cut, and estimated savings either way -- from removing what you don't want, and from negotiating a fairer price on anything worth keeping (priced products only).
+${menuContext?`## PACKAGE BREAKDOWN -- For each tier the buyer was shown, say plainly whether that tier's bundled price is fair for what's included, and which single tier (if any) is the best value.\n`:""}## OVERALL FINANCE OFFICE STRATEGY -- Which to keep, which to cut, and estimated savings either way -- from removing what you don't want, and from negotiating a fairer price on anything worth keeping (priced products only).
 ## HOW THEY SELL IT -- Finance managers will discount everything if you push back. Explain that "I want to think about it" and "I need to see that in writing" always work.
 ## MAINTENANCE NOTE -- If the vehicle or driving habits suggest the buyer may be choosing the wrong product, flag it plainly.
 ## OPENING LINE -- The exact first words to say when sitting down in the finance office.
@@ -2405,7 +2544,7 @@ On the very last line, by itself, output exactly: SAVINGS_ESTIMATE: $XXX -- your
     <div>
       {submitted && <div style={{textAlign:"center",fontSize:12,color:"var(--muted)",fontWeight:800,padding:"8px",marginBottom:8}}>✓ Session submitted. Results locked below.</div>}
       <div style={submitted ? {pointerEvents:"none",opacity:.45,userSelect:"none",filter:"grayscale(.3)"} : {}}>
-      <div className="phd"><h2><JargonTip term="F&I" /> <span>Decoder</span></h2><p>Every product exposed -- dealer cost, real value, exit script.</p></div>
+      <div className="phd"><h2><JargonTip term="F&I" /> <span>Decoder</span></h2><p>Every product exposed -- dealer cost, real value, exit script. Got a menu sheet? Upload a photo below.</p></div>
       <div className="card"><div className="ch"><span className="clbl">Vehicle</span></div><div className="cb">
         <div className="g2">
           <div className="fld"><label>Year / Make / Model</label><input placeholder="2024 Toyota Camry XSE" value={veh} onChange={e=>setV(e.target.value)} /></div>
@@ -2448,6 +2587,38 @@ On the very last line, by itself, output exactly: SAVINGS_ESTIMATE: $XXX -- your
       <div className="card">
         <div className="ch"><span className="clbl">Products Offered</span></div>
         <div className="cb">
+          <div style={{fontSize:10,color:"var(--muted)",fontWeight:700,lineHeight:1.7,marginBottom:10,padding:"6px 10px",background:"rgba(255,255,255,.03)",borderRadius:8}}>
+            📸 <strong style={{color:"var(--text2)"}}>Got a Bronze/Silver/Gold menu sheet?</strong> Upload a photo or PDF and we'll pull out what's bundled in each tier and pre-select it below -- or just pick your products manually underneath.
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:14}}>
+            <label style={{
+              display:"inline-flex",alignItems:"center",gap:6,
+              background: menuAttempts >= MAX_MENU_ATTEMPTS && !menuSuccess ? "rgba(168,164,200,.1)" : "rgba(255,214,0,.12)",
+              border: `1px solid ${menuAttempts >= MAX_MENU_ATTEMPTS && !menuSuccess ? "rgba(168,164,200,.2)" : "rgba(255,214,0,.3)"}`,
+              borderRadius:8,padding:"8px 16px",cursor: menuLoading ? "not-allowed" : "pointer",
+              fontSize:12,fontWeight:900,
+              color: menuAttempts >= MAX_MENU_ATTEMPTS && !menuSuccess ? "var(--muted)" : "var(--y)",
+              opacity: menuLoading ? .6 : 1,
+              transition:"all .2s"
+            }}>
+              <input type="file" accept="image/*,application/pdf" style={{display:"none"}} onChange={handleMenuScan} disabled={menuLoading} />
+              {menuLoading ? "⏳ Scanning..." : menuSuccess ? "📤 Upload Another Menu" : menuAttempts >= MAX_MENU_ATTEMPTS ? "📄 Try Again" : "📤 Upload Menu Sheet"}
+            </label>
+            {menuAttempts > 0 && !menuSuccess && (
+              <span style={{fontSize:10,color:"var(--muted)",fontWeight:700}}>{MAX_MENU_ATTEMPTS - menuAttempts} attempt{MAX_MENU_ATTEMPTS - menuAttempts !== 1 ? "s" : ""} remaining</span>
+            )}
+          </div>
+          {menuMsg && (
+            <div role="status" aria-live="polite" style={{
+              marginBottom:14,fontSize:12,fontWeight:700,lineHeight:1.65,
+              color:"var(--text2)",
+              padding:"8px 12px",borderRadius:8,
+              background: menuSuccess ? "rgba(0,201,107,.07)" : "rgba(255,255,255,.03)",
+              border: menuSuccess ? "1px solid rgba(0,201,107,.2)" : "1px solid rgba(255,255,255,.06)"
+            }}>
+              {menuMsg}
+            </div>
+          )}
           <div className="pg">{FI.map(p=>(
             <div key={p.id} className={`pc ${sel[p.id]?"sel":""}`} onClick={()=>toggle(p.id)} role="checkbox" aria-checked={!!sel[p.id]} aria-label={p.name} tabIndex={0} onKeyDown={e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();toggle(p.id);}}}>
               <div className="pc-chk" aria-hidden="true">{sel[p.id]?"✓":""}</div>
@@ -2960,8 +3131,8 @@ const ARSENAL_DETAIL = {
       what:"Looks past the star rating to who actually owns the dealership -- corporate group, employee culture, complaint history -- so you know who's about to get your money.",
       catches:["Large corporate groups known for trained sales pressure (Asbury, Lithia, AutoNation, Penske, Sonic, and others)","Patterns across complaints, not just one bad review taken out of context","Whether good reviews look earned or incentivized"] },
     { id:"fi", icon:"🔓", name:"F&I Decoder", free:false,
-      what:"Every product pitched in the finance office -- extended warranty, GAP, paint protection, etched VIN -- decoded to what it actually costs the dealer versus what you're being asked to pay.",
-      catches:["Products marked up 300%+ over dealer cost","Products you may already have covered elsewhere (insurance, credit card, manufacturer warranty)","A clean, direct exit line for each product you don't want"] },
+      what:"Every product pitched in the finance office -- extended warranty, GAP, paint protection, etched VIN -- decoded to what it actually costs the dealer versus what you're being asked to pay. Got a Bronze/Silver/Gold menu sheet? Upload a photo and we'll break down what's actually in each tier, what's overpriced, and the fine print between them.",
+      catches:["Products marked up 300%+ over dealer cost","Whether a bundled package tier is actually a fair price for what's in it","Products you may already have covered elsewhere (insurance, credit card, manufacturer warranty)","A clean, direct exit line for each product you don't want"] },
     { id:"addons", icon:"🥊", name:"Add-On Fighter", free:false,
       what:"Dealer-installed add-ons -- paint sealant, nitrogen tires, VIN etching, fabric protection -- identified and given word-for-word scripts to negotiate the price or remove them entirely, your call.",
       catches:["Which add-ons are near-pure profit with almost no real cost","Which ones are genuinely non-negotiable by dealer policy (rare, but it happens)","Exactly what to say -- whether you want it gone or just priced fairly"] },
@@ -2980,8 +3151,8 @@ const ARSENAL_DETAIL = {
       what:"Va más allá de la calificación de estrellas para ver quién realmente es dueño del concesionario -- grupo corporativo, cultura laboral, historial de quejas -- para que sepas a quién le vas a dar tu dinero.",
       catches:["Grandes grupos corporativos conocidos por presión de ventas entrenada (Asbury, Lithia, AutoNation, Penske, Sonic, y otros)","Patrones en las quejas, no solo una mala reseña fuera de contexto","Si las buenas reseñas parecen genuinas o incentivadas"] },
     { id:"fi", icon:"🔓", name:"Decodificador F&I", free:false,
-      what:"Cada producto que te ofrecen en la oficina de financiamiento -- garantía extendida, GAP, protección de pintura, grabado de VIN -- decodificado para mostrar lo que realmente le cuesta al concesionario contra lo que te piden pagar.",
-      catches:["Productos con sobreprecio de 300%+ sobre el costo del concesionario","Productos que ya podrías tener cubiertos en otro lado (seguro, tarjeta de crédito, garantía de fábrica)","Una línea de salida clara y directa para cada producto que no quieras"] },
+      what:"Cada producto que te ofrecen en la oficina de financiamiento -- garantía extendida, GAP, protección de pintura, grabado de VIN -- decodificado para mostrar lo que realmente le cuesta al concesionario contra lo que te piden pagar. ¿Tienes una hoja de menú Bronze/Silver/Gold? Sube una foto y desglosamos lo que realmente incluye cada nivel, qué tiene sobreprecio, y la letra pequeña entre todo.",
+      catches:["Productos con sobreprecio de 300%+ sobre el costo del concesionario","Si un paquete en nivel es realmente un precio justo por lo que incluye","Productos que ya podrías tener cubiertos en otro lado (seguro, tarjeta de crédito, garantía de fábrica)","Una línea de salida clara y directa para cada producto que no quieras"] },
     { id:"addons", icon:"🥊", name:"Luchador de Extras", free:false,
       what:"Extras instalados por el concesionario -- sellador de pintura, llantas con nitrógeno, grabado de VIN, protección de tela -- identificados con guiones palabra por palabra para negociar el precio o eliminarlos por completo, tú decides.",
       catches:["Qué extras son casi pura ganancia con costo real casi nulo","Cuáles son genuinamente no negociables por política del concesionario (raro, pero pasa)","Exactamente qué decir -- ya sea que lo quieras fuera o solo a un precio justo"] },
@@ -3175,7 +3346,7 @@ const TOOL_META = {
   deal: { title:"Free Car Deal Analyzer -- CNTROFR", desc:"Run your numbers -- price, fees, add-ons, financing -- through CNTROFR's free AI Deal Analyzer for an instant GO/NEGOTIATE/WALK verdict." },
   fee: { title:"Dealer Fee Comparison Tool -- CNTROFR", desc:"Compare a dealer's quoted fees against typical and state-legal ranges. Spot inflated doc fees before you sign." },
   review: { title:"Review Purity -- Dealer Review Checker -- CNTROFR", desc:"Screen dealer reviews for authenticity and corporate-group sales patterns before you commit to a store." },
-  fi: { title:"F&I Decoder -- Finance Office Product Checker -- CNTROFR", desc:"Decode VSCs, GAP, and F&I add-ons -- real dealer cost vs. what you're quoted, plus your cancellation rights." },
+  fi: { title:"F&I Decoder -- Finance Office Product Checker -- CNTROFR", desc:"Decode VSCs, GAP, and F&I add-ons -- real dealer cost vs. what you're quoted. Upload a photo of your Bronze/Silver/Gold menu sheet for an instant tier-by-tier breakdown." },
   addons: { title:"Add-On Fighter -- CNTROFR", desc:"Identify pre-installed dealer add-ons and their real market value, with word-for-word scripts to negotiate or remove them." },
   guide: { title:"Counter Guide -- Word-for-Word Negotiation Scripts -- CNTROFR", desc:"Get exact word-for-word counter scripts for every stage of the deal, from first offer to F&I office." },
 };
@@ -3392,7 +3563,7 @@ export default function App() {
             </a>
           </div>
           <div className="tgrid">
-            {(lang==="es"?[{id:"scan",icon:"📄",name:"Escáner de Cotización",desc:"¿Tienes tu cotización del concesionario? Sube una foto o PDF y lo analizamos línea por línea al instante.",free:false},{id:"deal",icon:"🔍",name:"Analizador de Ofertas",desc:"Desglose completo de precio, intercambio y extras con un veredicto de PROCEDE / NEGOCIA / RETÍRATE.",free:true},{id:"fee",icon:"💰",name:"Comparación de Tarifas",desc:"¿Es justa esa tarifa de documentación para tu estado? Lo averiguamos con datos en vivo.",free:false},{id:"review",icon:"🔎",name:"Pureza de Reseñas",desc:"Conoce a quién le estás comprando. Reseñas reales, cultura laboral e historial de quejas -- para que tu dinero vaya a concesionarios que se lo merecen.",free:false},{id:"fi",icon:"🔓",name:"Decodificador F&I",desc:"Cada producto de la oficina de financiamiento decodificado -- costo del concesionario, valor real, guion de salida.",free:false},{id:"addons",icon:"🥊",name:"Luchador de Extras",desc:"Conocemos los guiones que usan los concesionarios. Aquí están los tuyos para contraatacar.",free:false}]:[{id:"scan",icon:"📄",name:"Quote Scanner",desc:"Got your dealer quote? Upload a photo or PDF and we'll scan it line by line — skip the form entirely.",free:false},{id:"deal",icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{id:"fee",icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{id:"review",icon:"🔎",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{id:"fi",icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- dealer cost, real value, exit script.",free:false},{id:"addons",icon:"🥊",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}]).map((t,i)=>(
+            {(lang==="es"?[{id:"scan",icon:"📄",name:"Escáner de Cotización",desc:"¿Tienes tu cotización del concesionario? Sube una foto o PDF y lo analizamos línea por línea al instante.",free:false},{id:"deal",icon:"🔍",name:"Analizador de Ofertas",desc:"Desglose completo de precio, intercambio y extras con un veredicto de PROCEDE / NEGOCIA / RETÍRATE.",free:true},{id:"fee",icon:"💰",name:"Comparación de Tarifas",desc:"¿Es justa esa tarifa de documentación para tu estado? Lo averiguamos con datos en vivo.",free:false},{id:"review",icon:"🔎",name:"Pureza de Reseñas",desc:"Conoce a quién le estás comprando. Reseñas reales, cultura laboral e historial de quejas -- para que tu dinero vaya a concesionarios que se lo merecen.",free:false},{id:"fi",icon:"🔓",name:"Decodificador F&I",desc:"Cada producto de la oficina de financiamiento decodificado -- incluye desglose de hojas de menú Bronze/Silver/Gold por foto.",free:false},{id:"addons",icon:"🥊",name:"Luchador de Extras",desc:"Conocemos los guiones que usan los concesionarios. Aquí están los tuyos para contraatacar.",free:false}]:[{id:"scan",icon:"📄",name:"Quote Scanner",desc:"Got your dealer quote? Upload a photo or PDF and we'll scan it line by line — skip the form entirely.",free:false},{id:"deal",icon:"🔍",name:"Deal Analyzer",desc:"Full breakdown of price, trade-in, and add-ons with a GO / NEGOTIATE / WALK verdict.",free:true},{id:"fee",icon:"💰",name:"Fee Comparison",desc:"Is that doc fee fair for your state? We find out with live data.",free:false},{id:"review",icon:"🔎",name:"Review Purity",desc:"Know who you're buying from. Real reviews, employee culture, and complaint history -- so your money goes to dealers who deserve it.",free:false},{id:"fi",icon:"🔓",name:"F&I Decoder",desc:"Every finance office product decoded -- including photo breakdowns of Bronze/Silver/Gold menu sheets.",free:false},{id:"addons",icon:"🥊",name:"Add-On Fighter",desc:"We know the scripts dealers use. Here are yours to fight back.",free:false}]).map((t,i)=>(
               <button key={i} className="tc" style={{cursor:"pointer"}} onClick={()=>{const hasScanAccess=access.includes("fee")||access.includes("ftb");if(t.id==="scan"){if(hasScanAccess){setView("tools");setTab("deal");window.scrollTo(0,0);}else{buy(PLANS[2]);}}else if(!canUse(t.id)){buy(PLANS[2]);}else{setView("tools");setTab(t.id);window.scrollTo(0,0);}}} aria-label={`${t.name} — ${t.free?(lang==="es"?"Gratis":"Free"):"Pro"}`}>
                 <div className="tc-icon" aria-hidden="true">{t.icon}</div>
                 <div className="tc-name">{t.name}</div>
