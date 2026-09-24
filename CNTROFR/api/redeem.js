@@ -11,7 +11,17 @@ const PLAN_UNLOCKS = {
   single:    ["deal"],
   pro:       ["deal", "fee", "review", "fi", "addons", "guide"],
   guide:     ["guide"],
+  // Beta tester codes -- same full unlock as Pro Bundle, but capped at a handful of
+  // redemptions (below) instead of unlimited, since these are being handed out for free
+  // and aren't tied to a real purchase.
+  protest:   ["deal", "fee", "review", "fi", "addons", "guide"],
 };
+
+// Redemption cap for beta tester codes specifically -- generous enough to cover the same
+// person re-entering their code across multiple visits/devices (access isn't persisted
+// client-side, so every return visit requires re-entering it), but bounded so a leaked
+// code doesn't circulate indefinitely.
+const TESTER_REDEMPTION_CAP = 5;
 
 export default async function handler(req) {
   if (req.method === "OPTIONS") {
@@ -55,6 +65,8 @@ export default async function handler(req) {
     }
 
     const row = rows[0];
+    const planId = row.plan_id;
+    const isTester = planId === "protest";
 
     // Check if already used (single use codes)
     if (row.used) {
@@ -70,7 +82,13 @@ export default async function handler(req) {
       });
     }
 
-    const planId = row.plan_id;
+    // Check tester redemption cap
+    if (isTester && (row.redeem_count || 0) >= TESTER_REDEMPTION_CAP) {
+      return new Response(JSON.stringify({ error: "This code has reached its redemption limit." }), {
+        status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+      });
+    }
+
     const unlocks = PLAN_UNLOCKS[planId] || ["deal"];
     const isSingleUse = planId === "single" || planId === "guide";
 
@@ -87,6 +105,23 @@ export default async function handler(req) {
             "Prefer": "return=minimal",
           },
           body: JSON.stringify({ used: true }),
+        }
+      );
+    }
+
+    // Increment redemption count for tester codes
+    if (isTester) {
+      await fetch(
+        `${supabaseUrl}/rest/v1/access_codes?code=eq.${encodeURIComponent(code.trim().toUpperCase())}`,
+        {
+          method: "PATCH",
+          headers: {
+            "apikey": supabaseKey,
+            "Authorization": `Bearer ${supabaseKey}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal",
+          },
+          body: JSON.stringify({ redeem_count: (row.redeem_count || 0) + 1 }),
         }
       );
     }
